@@ -519,25 +519,25 @@ html{transition:background .3s,color .3s}
   <nav>
     <div class="nav-sec">Main</div>
     <button class="nav-btn active" data-view="dashboard"><span class="nav-icon">◈</span>Dashboard</button>
-    <button class="nav-btn" data-view="contacts" onclick="switchView('contacts')"><span class="nav-icon">◎</span>Contacts<span class="nav-badge" id="nb-c">0</span></button>
-    <button class="nav-btn" data-view="projects" onclick="switchView('projects')"><span class="nav-icon">⬡</span>Projects<span class="nav-badge" id="nb-p">0</span></button>
+    <button class="nav-btn" data-view="contacts"><span class="nav-icon">◎</span>Contacts<span class="nav-badge" id="nb-c">0</span></button>
+    <button class="nav-btn" data-view="projects"><span class="nav-icon">⬡</span>Projects<span class="nav-badge" id="nb-p">0</span></button>
     <div class="nav-sec">Finance</div>
-    <button class="nav-btn" data-view="payments" onclick="switchView('payments')"><span class="nav-icon">◉</span>Payments</button>
-    <button class="nav-btn" data-view="reports" onclick="switchView('reports')"><span class="nav-icon">▤</span>Reports & PDF</button>
+    <button class="nav-btn" data-view="payments"><span class="nav-icon">◉</span>Payments</button>
+    <button class="nav-btn" data-view="reports"><span class="nav-icon">▤</span>Reports & PDF</button>
     <div class="nav-sec">Tools</div>
-    <button class="nav-btn" data-view="estimates" onclick="switchView('estimates')"><span class="nav-icon">📋</span>Estimates</button>
-    <button class="nav-btn" data-view="expenses" onclick="switchView('expenses')"><span class="nav-icon">💸</span>Expenses</button>
-    <button class="nav-btn" data-view="analytics" onclick="switchView('analytics')"><span class="nav-icon">📈</span>Analytics</button>
-    <button class="nav-btn" data-view="tools" onclick="switchView('tools')"><span class="nav-icon">🔧</span>Tools</button>
+    <button class="nav-btn" data-view="estimates"><span class="nav-icon">📋</span>Estimates</button>
+    <button class="nav-btn" data-view="expenses"><span class="nav-icon">💸</span>Expenses</button>
+    <button class="nav-btn" data-view="analytics"><span class="nav-icon">📈</span>Analytics</button>
+    <button class="nav-btn" data-view="tools"><span class="nav-icon">🔧</span>Tools</button>
     <div class="nav-sec">Manage</div>
-    <button class="nav-btn" data-view="settings" onclick="switchView('settings')"><span class="nav-icon">⚙</span>Settings & Sync</button>
+    <button class="nav-btn" data-view="settings"><span class="nav-icon">⚙</span>Settings & Sync</button>
     <div style="height:1px;background:rgba(255,255,255,.1);margin:8px 14px"></div>
     <button class="nav-btn" data-view="clientportal" style="color:var(--gold2);font-weight:700" onclick="openClientPortalMgr()"><span class="nav-icon">👥</span>Client Portal</button>
-    <button class="nav-btn" data-view="udcpr" onclick="switchView('udcpr')"><span class="nav-icon">📏</span>UDCPR 2020</button>
-    <button class="nav-btn" data-view="agreement" onclick="switchView('agreement')"><span class="nav-icon">📝</span>Agreement</button>
-    <button class="nav-btn" data-view="invoice" onclick="switchView('invoice')"><span class="nav-icon">🧾</span>GST Invoice</button>
-    <button class="nav-btn" data-view="timeline" onclick="switchView('timeline')"><span class="nav-icon">📅</span>Timeline</button>
-    <button class="nav-btn" data-view="materials" onclick="switchView('materials')"><span class="nav-icon">🧱</span>Materials</button>
+    <button class="nav-btn" data-view="udcpr"><span class="nav-icon">📏</span>UDCPR 2020</button>
+    <button class="nav-btn" data-view="agreement"><span class="nav-icon">📝</span>Agreement</button>
+    <button class="nav-btn" data-view="invoice"><span class="nav-icon">🧾</span>GST Invoice</button>
+    <button class="nav-btn" data-view="timeline"><span class="nav-icon">📅</span>Timeline</button>
+    <button class="nav-btn" data-view="materials"><span class="nav-icon">🧱</span>Materials</button>
   </nav>
   <div class="sidebar-footer">
     <div class="user-row">
@@ -2393,8 +2393,7 @@ function renderDashboard(){
   const tv=db.projects.reduce((a,p)=>a+p.total,0);
   const tr=db.payments.reduce((a,p)=>a+p.amount,0);
   const tb=db.projects.reduce((a,p)=>a+pbal(p.id),0);
-  var _kg=document.getElementById('kpi-grid');if(!_kg)return;
-  _kg.innerHTML=`
+  document.getElementById('kpi-grid').innerHTML=`
     <div class="kpi-card"><div class="kpi-lbl">Projects</div><div class="kpi-val au">${db.projects.length}</div><div class="kpi-sub">Active</div></div>
     <div class="kpi-card"><div class="kpi-lbl">Total Value</div><div class="kpi-val">${fmt(tv)}</div><div class="kpi-sub">All projects</div></div>
     <div class="kpi-card"><div class="kpi-lbl">Received</div><div class="kpi-val g">${fmt(tr)}</div><div class="kpi-sub">Total payments</div></div>
@@ -3349,16 +3348,13 @@ function renderReport(){
 // ════════════════════════════════════════════════
 function renderSettings(){
   setTimeout(initApiKeySettings, 100);
-  // Safe setters — avoid null errors when elements not visible yet
-  function sv(id,val){var e=document.getElementById(id);if(e)e.value=val;}
-  function st(id,val){var e=document.getElementById(id);if(e)e.textContent=val;}
-  sv('s-office-name',officeInfo.name||'');
-  sv('s-arch-name',officeInfo.arch||'');
-  sv('s-office-addr',officeInfo.addr||'');
-  sv('s-phone',officeInfo.phone||'');
-  sv('s-email',officeInfo.email||'');
-  st('last-saved',localStorage.getItem('gs_saved')||'—');
-  st('data-counts',`${(db.contacts||[]).length} contacts, ${(db.projects||[]).length} projects, ${(db.payments||[]).length} payments`);
+  document.getElementById('s-office-name').value=officeInfo.name||'';
+  document.getElementById('s-arch-name').value=officeInfo.arch||'';
+  document.getElementById('s-office-addr').value=officeInfo.addr||'';
+  document.getElementById('s-phone').value=officeInfo.phone||'';
+  document.getElementById('s-email').value=officeInfo.email||'';
+  document.getElementById('last-saved').textContent=localStorage.getItem('gs_saved')||'—';
+  document.getElementById('data-counts').textContent=`${(db.contacts||[]).length} contacts, ${(db.projects||[]).length} projects, ${(db.payments||[]).length} payments`;
   // Sync mode display
   const descEl=document.getElementById('sync-mode-desc');
   const infoEl=document.getElementById('sync-info-box');
@@ -7886,32 +7882,27 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.btn-p,.btn-gold,.fab').forEach(b=>b.addEventListener('click',addRipple));
 });
 
-document.addEventListener('DOMContentLoaded',async ()=>{
+window.addEventListener('DOMContentLoaded',async ()=>{
   initTheme();
   initViewPrefs();
   loadLocal();
-  ensureDbExtensions();
   // ── URL Hash → Client Portal Mode ──
   checkPortalMode();
-  // Render only active view on load
-  try{renderDashboard();}catch(e){console.warn('dash:',e);}
-  // Update nav badges
-  try{
-    var nc=document.getElementById('nb-c');if(nc)nc.textContent=(db.contacts||[]).length;
-    var np=document.getElementById('nb-p');if(np)np.textContent=(db.projects||[]).length;
-  }catch(e){}
-  // Load Firebase
-  try{loadSavedFirebaseConfig();}catch(e){}
-  setSyncStatus('gray','Ready');
-  // Load remote data async
-  setTimeout(async()=>{
-    try{
-      await loadRemoteData();
-      ensureDbExtensions();
-      refreshAll();
-    }catch(e){console.warn('Remote:',e);}
-    setInterval(pollRemote,6000);
-  },500);
+  ensureDbExtensions();
+  renderDashboard();
+  renderContacts();
+  renderProjects();
+  renderPayments();
+  renderReports();
+  renderEstimates();
+  renderExpenses();
+  renderSettings();
+  await loadRemoteData();
+  ensureDbExtensions();
+  refreshAll();
+  loadSavedFirebaseConfig();
+  setInterval(pollRemote,6000);
+  setSyncStatus('gray','Ready — Connect Firebase for sync');
 });
 </script>
 
