@@ -2393,7 +2393,8 @@ function renderDashboard(){
   const tv=db.projects.reduce((a,p)=>a+p.total,0);
   const tr=db.payments.reduce((a,p)=>a+p.amount,0);
   const tb=db.projects.reduce((a,p)=>a+pbal(p.id),0);
-  document.getElementById('kpi-grid').innerHTML=`
+  var _kg=document.getElementById('kpi-grid');if(!_kg)return;
+  _kg.innerHTML=`
     <div class="kpi-card"><div class="kpi-lbl">Projects</div><div class="kpi-val au">${db.projects.length}</div><div class="kpi-sub">Active</div></div>
     <div class="kpi-card"><div class="kpi-lbl">Total Value</div><div class="kpi-val">${fmt(tv)}</div><div class="kpi-sub">All projects</div></div>
     <div class="kpi-card"><div class="kpi-lbl">Received</div><div class="kpi-val g">${fmt(tr)}</div><div class="kpi-sub">Total payments</div></div>
@@ -3348,13 +3349,16 @@ function renderReport(){
 // ════════════════════════════════════════════════
 function renderSettings(){
   setTimeout(initApiKeySettings, 100);
-  document.getElementById('s-office-name').value=officeInfo.name||'';
-  document.getElementById('s-arch-name').value=officeInfo.arch||'';
-  document.getElementById('s-office-addr').value=officeInfo.addr||'';
-  document.getElementById('s-phone').value=officeInfo.phone||'';
-  document.getElementById('s-email').value=officeInfo.email||'';
-  document.getElementById('last-saved').textContent=localStorage.getItem('gs_saved')||'—';
-  document.getElementById('data-counts').textContent=`${(db.contacts||[]).length} contacts, ${(db.projects||[]).length} projects, ${(db.payments||[]).length} payments`;
+  // Safe setters — avoid null errors when elements not visible yet
+  function sv(id,val){var e=document.getElementById(id);if(e)e.value=val;}
+  function st(id,val){var e=document.getElementById(id);if(e)e.textContent=val;}
+  sv('s-office-name',officeInfo.name||'');
+  sv('s-arch-name',officeInfo.arch||'');
+  sv('s-office-addr',officeInfo.addr||'');
+  sv('s-phone',officeInfo.phone||'');
+  sv('s-email',officeInfo.email||'');
+  st('last-saved',localStorage.getItem('gs_saved')||'—');
+  st('data-counts',`${(db.contacts||[]).length} contacts, ${(db.projects||[]).length} projects, ${(db.payments||[]).length} payments`);
   // Sync mode display
   const descEl=document.getElementById('sync-mode-desc');
   const infoEl=document.getElementById('sync-info-box');
@@ -7883,34 +7887,31 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 document.addEventListener('DOMContentLoaded',async ()=>{
+  initTheme();
+  initViewPrefs();
+  loadLocal();
+  ensureDbExtensions();
+  // ── URL Hash → Client Portal Mode ──
+  checkPortalMode();
+  // Render only active view on load
+  try{renderDashboard();}catch(e){console.warn('dash:',e);}
+  // Update nav badges
   try{
-    initTheme();
-    initViewPrefs();
-    loadLocal();
-    // ── URL Hash → Client Portal Mode ──
-    checkPortalMode();
-    ensureDbExtensions();
-    renderDashboard();
-    renderContacts();
-    renderProjects();
-    renderPayments();
-    renderReports();
-    renderEstimates();
-    renderExpenses();
-    renderSettings();
-    loadSavedFirebaseConfig();
-    setSyncStatus('gray','Ready — Connect Firebase for sync');
+    var nc=document.getElementById('nb-c');if(nc)nc.textContent=(db.contacts||[]).length;
+    var np=document.getElementById('nb-p');if(np)np.textContent=(db.projects||[]).length;
+  }catch(e){}
+  // Load Firebase
+  try{loadSavedFirebaseConfig();}catch(e){}
+  setSyncStatus('gray','Ready');
+  // Load remote data async
+  setTimeout(async()=>{
     try{
       await loadRemoteData();
       ensureDbExtensions();
       refreshAll();
-    }catch(e){console.warn('Remote load:',e);}
+    }catch(e){console.warn('Remote:',e);}
     setInterval(pollRemote,6000);
-  }catch(err){
-    console.error('Init error:',err);
-    // Fallback — still show dashboard
-    try{renderDashboard();}catch(e){}
-  }
+  },500);
 });
 </script>
 
