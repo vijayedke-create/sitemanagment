@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Client Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --grn:#1a3a2a;--grn2:#2d5a3d;--gold:#c9a84c;--gold2:#e8c96e;
+  --bg:#f5f3ef;--surf:#fff;--surf2:#f9f7f4;--bdr:#e8e2d9;
+  --ink:#1a1a18;--mut:#7a7568;--red:#c0392b;--rgreen:#27ae60;
+  --sh:0 2px 16px rgba(26,58,42,.08);--sh2:0 8px 40px rgba(26,58,42,.16);
+  --rad:14px;
+}
+body{font-family:'Plus Jakarta Sans','Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,var(--grn) 0%,#0d2018 100%);padding:20px;
+}
+.login-card{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:40px 36px;width:100%;max-width:380px;text-align:center}
+.login-logo{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px}
+.login-studio{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);margin-bottom:4px}
+.login-sub{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:32px}
+.pin-label{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:16px;font-weight:600}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:24px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:transparent;transition:all .2s}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold);transform:scale(1.2)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto}
+.key{padding:16px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#fff;font-size:20px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.key:hover{background:rgba(255,255,255,.15)}
+.key:active{transform:scale(.94)}
+.key-del{background:rgba(255,255,255,.04);font-size:16px}
+.key-ok{background:var(--grn2);border-color:var(--grn)}
+.pin-error{color:#ff6b6b;font-size:12px;margin-top:12px;display:none}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* ── PORTAL APP ── */
+#portal-screen{display:none;min-height:100vh;flex-direction:column}
+
+/* Top bar */
+.cp-topbar{background:var(--grn);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.cp-topbar-left{display:flex;align-items:center;gap:10px}
+.cp-logo{height:32px;object-fit:contain;border-radius:6px}
+.cp-studio{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold)}
+.cp-welcome{font-size:11px;color:rgba(255,255,255,.5)}
+.cp-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif}
+
+/* Tabs */
+.cp-tabs{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;overflow-x:auto;padding:0 16px}
+.cp-tab{padding:12px 18px;font-size:13px;font-weight:600;color:var(--mut);border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s}
+.cp-tab.active{color:var(--grn);border-bottom-color:var(--grn);font-weight:700}
+
+/* Content */
+.cp-body{padding:20px;max-width:800px;margin:0 auto;width:100%}
+
+/* Cards */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rad);overflow:hidden;margin-bottom:14px;box-shadow:var(--sh)}
+.card-head{padding:14px 18px;background:var(--surf2);border-bottom:1px solid var(--bdr);font-weight:700;font-size:14px}
+.card-body{padding:16px 18px}
+
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.kpi-box{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:14px;text-align:center}
+.kpi-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700}
+
+/* Progress */
+.prog-bar{background:var(--bdr);border-radius:20px;height:8px;overflow:hidden;margin:8px 0}
+.prog-fill{height:100%;border-radius:20px;background:var(--grn);transition:width .8s ease}
+
+/* Stage chips */
+.stage-chip{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--grn);color:#fff}
+
+/* Pay row */
+.pay-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.pay-row:last-child{border-bottom:none}
+.pay-dot{width:8px;height:8px;border-radius:50%;background:var(--rgreen);flex-shrink:0}
+
+/* Empty */
+.empty{text-align:center;padding:40px;color:var(--mut)}
+.empty-icon{font-size:36px;margin-bottom:8px;opacity:.3}
+
+/* Site visit chip */
+.sv-chip{display:inline-block;background:#e8f4ee;color:var(--grn);font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid #c0dbc8;margin:2px}
+
+/* Drawing */
+.drawing-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;background:var(--surf)}
+.drawing-icon{width:40px;height:40px;border-radius:10px;background:var(--grn);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+
+/* Responsive */
+@media(max-width:500px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .login-card{padding:28px 20px}
+}
+
+/* Loading */
+#portal-loading{position:fixed;inset:0;background:var(--grn);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="portal-loading">
+  <div class="spinner"></div>
+  <div style="font-size:14px;color:rgba(255,255,255,.6)">Loading...</div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:none">
+  <div class="login-card">
+    <div class="login-logo" id="login-logo">🏛</div>
+    <div class="login-studio" id="login-studio">Greenhouse Studio</div>
+    <div class="login-sub" id="login-sub">Client Portal</div>
+    <div class="pin-label">आपला 4-digit PIN टाका</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="keypad">
+      <button class="key" onclick="kp('1')">1</button>
+      <button class="key" onclick="kp('2')">2</button>
+      <button class="key" onclick="kp('3')">3</button>
+      <button class="key" onclick="kp('4')">4</button>
+      <button class="key" onclick="kp('5')">5</button>
+      <button class="key" onclick="kp('6')">6</button>
+      <button class="key" onclick="kp('7')">7</button>
+      <button class="key" onclick="kp('8')">8</button>
+      <button class="key" onclick="kp('9')">9</button>
+      <button class="key key-del" onclick="kpDel()">⌫</button>
+      <button class="key" onclick="kp('0')">0</button>
+      <button class="key key-ok" onclick="kpSubmit()">✓</button>
+    </div>
+    <div class="pin-error" id="pin-error">❌ चुकीचा PIN — पुन्हा प्रयत्न करा</div>
+  </div>
+</div>
+
+<!-- PORTAL APP -->
+<div id="portal-screen">
+  <!-- Top bar -->
+  <div class="cp-topbar">
+    <div class="cp-topbar-left">
+      <img id="cp-logo" src="" style="display:none" class="cp-logo" alt="Logo">
+      <div>
+        <div class="cp-studio" id="cp-studio">Greenhouse Studio</div>
+        <div class="cp-welcome" id="cp-welcome">Welcome!</div>
+      </div>
+    </div>
+    <button class="cp-logout" onclick="logout()">Logout</button>
+  </div>
+  <!-- Tabs -->
+  <div class="cp-tabs">
+    <div class="cp-tab active" onclick="cpTab('overview')">📋 Overview</div>
+    <div class="cp-tab" onclick="cpTab('payments')">💰 Payments</div>
+    <div class="cp-tab" onclick="cpTab('sitevisits')">📍 Site Visits</div>
+    <div class="cp-tab" onclick="cpTab('drawings')">📐 Drawings</div>
+  </div>
+  <!-- Content -->
+  <div class="cp-body" id="cp-content"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// CLIENT PORTAL — Standalone
+// ══════════════════════════════════════
+let db={contacts:[],projects:[],payments:[],activities:[],expenses:[],estimates:[],siteVisits:[]};
+let officeInfo={name:'Greenhouse Studio',arch:'',addr:'',phone:'',logo:''};
+let pin='', currentClient=null, currentTab='overview';
+
+// ── Load data from localStorage (same domain as main app) ──
+function loadData(){
+  try{
+    const d=localStorage.getItem('gs_db');
+    if(d) db=JSON.parse(d);
+    const o=localStorage.getItem('gs_office');
+    if(o) officeInfo=JSON.parse(o);
+  }catch(e){console.error('Load error:',e);}
+}
+
+// ── Also try Firebase if configured ──
+async function loadFirebase(){
+  const fbUrl=localStorage.getItem('gs_fb_url');
+  if(!fbUrl) return;
+  try{
+    const r=await fetch(fbUrl+'/.json');
+    if(!r.ok) return;
+    const data=await r.json();
+    if(data){
+      if(data.db) db=data.db;
+      if(data.officeInfo) officeInfo=data.officeInfo;
+    }
+  }catch(e){}
+}
+
+// ── Init ──
+async function init(){
+  loadData();
+  await loadFirebase();
+  // Update UI with office info
+  document.getElementById('login-studio').textContent=officeInfo.name||'Greenhouse Studio';
+  if(officeInfo.logo){
+    const li=document.getElementById('login-logo');
+    li.innerHTML=`<img src="${officeInfo.logo}" style="width:52px;height:52px;object-fit:contain;border-radius:10px">`;
+  }
+  // Hide loading, show login
+  document.getElementById('portal-loading').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  // Check URL for PIN auto-fill
+  const hash=window.location.hash.replace('#','');
+  if(hash&&/^\d{4}$/.test(hash)){
+    hash.split('').forEach(d=>kp(d));
+  }
+}
+
+// ── PIN KEYPAD ──
+function kp(d){
+  if(pin.length>=4) return;
+  pin+=d;
+  updateDots();
+  if(pin.length===4) setTimeout(kpSubmit,200);
+}
+function kpDel(){pin=pin.slice(0,-1);updateDots();}
+function updateDots(){
+  for(let i=0;i<4;i++){
+    document.getElementById('d'+i).classList.toggle('filled',i<pin.length);
+  }
+  document.getElementById('pin-error').style.display='none';
+}
+function kpSubmit(){
+  const match=(db.contacts||[]).find(c=>c.pin&&c.pin===pin);
+  if(!match){
+    document.getElementById('pin-error').style.display='block';
+    const dots=document.getElementById('pin-dots');
+    dots.style.animation='none';
+    setTimeout(()=>dots.style.animation='shake .4s ease',10);
+    pin=''; updateDots(); return;
+  }
+  currentClient=match;
+  showPortal();
+}
+
+// ── SHOW PORTAL ──
+function showPortal(){
+  document.getElementById('login-screen').style.display='none';
+  const ps=document.getElementById('portal-screen');
+  ps.style.display='flex';ps.style.flexDirection='column';
+  document.getElementById('cp-studio').textContent=officeInfo.name||'Greenhouse Studio';
+  document.getElementById('cp-welcome').textContent='Welcome, '+currentClient.name+'!';
+  if(officeInfo.logo){
+    const lg=document.getElementById('cp-logo');
+    lg.src=officeInfo.logo;lg.style.display='block';
+  }
+  renderTab();
+}
+
+function logout(){
+  currentClient=null;pin='';currentTab='overview';
+  document.getElementById('portal-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  updateDots();
+}
+
+// ── TABS ──
+function cpTab(t){
+  currentTab=t;
+  document.querySelectorAll('.cp-tab').forEach(el=>{
+    el.classList.toggle('active',el.textContent.toLowerCase().includes(t)||el.onclick.toString().includes(t));
+  });
+  renderTab();
+}
+function renderTab(){
+  const c=currentClient;
+  const projs=(db.projects||[]).filter(p=>p.clientId===c.id);
+  const el=document.getElementById('cp-content');
+  if(currentTab==='overview')   el.innerHTML=renderOverview(c,projs);
+  else if(currentTab==='payments')  el.innerHTML=renderPayments(c,projs);
+  else if(currentTab==='sitevisits')el.innerHTML=renderSiteVisits(c,projs);
+  else if(currentTab==='drawings')  el.innerHTML=renderDrawings(c,projs);
+}
+
+// ── HELPERS ──
+const fmtM=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const ppaid=pid=>(db.payments||[]).filter(p=>p.projectId===pid).reduce((a,p)=>a+p.amount,0);
+const pbal=pid=>{const p=(db.projects||[]).find(x=>x.id===pid);return p?(p.total-ppaid(pid)):0;};
+
+// ── OVERVIEW ──
+function renderOverview(c,projs){
+  const tot=projs.reduce((a,p)=>a+p.total,0);
+  const paid=projs.reduce((a,p)=>a+ppaid(p.id),0);
+  const bal=tot-paid;
+  const pct=tot>0?Math.min(100,Math.round(paid/tot*100)):0;
+  const STAGES=['Concept','Layout','3D','Working Drawing','Submission','Completed'];
+  return `
+  <div class="kpi-grid">
+    <div class="kpi-box"><div class="kpi-lbl">Projects</div><div class="kpi-val" style="color:var(--grn)">${projs.length}</div></div>
+    <div class="kpi-box"><div class="kpi-lbl">Paid</div><div class="kpi-val" style="color:var(--rgreen);font-size:14px">${fmtM(paid)}</div></div>
+    <div class="kpi-box"><div class="kpi-lbl">Balance</div><div class="kpi-val" style="color:${bal>0?'var(--red)':'var(--rgreen)'};font-size:14px">${bal>0?fmtM(bal):'✅ Clear'}</div></div>
+  </div>
+  ${projs.map(p=>{
+    const stIdx=STAGES.indexOf(p.stage||'Concept');
+    const pPct=p.total>0?Math.min(100,Math.round(ppaid(p.id)/p.total*100)):0;
+    return `<div class="card">
+      <div class="card-head" style="display:flex;justify-content:space-between;align-items:center">
+        <span>${p.name}</span>
+        <span class="stage-chip">${p.stage||'Concept'}</span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--mut);margin-bottom:10px">📍 ${p.address||'—'}${p.deadline?' · 📅 '+p.deadline:''}</div>
+        <!-- Stage progress -->
+        <div style="font-size:10px;color:var(--mut);margin-bottom:4px">Stage Progress</div>
+        <div style="display:flex;gap:2px;margin-bottom:10px">
+          ${STAGES.map((s,i)=>`<div title="${s}" style="flex:1;height:5px;border-radius:2px;background:${i<=stIdx?'var(--grn)':'var(--bdr)'}"></div>`).join('')}
+        </div>
+        <!-- Payment progress -->
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+          <span style="color:var(--mut)">Payment</span>
+          <span style="font-weight:700">${pPct}%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pPct}%;background:${pPct>=100?'var(--rgreen)':'var(--grn)'}"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px">
+          <span style="color:var(--rgreen);font-weight:600">${fmtM(ppaid(p.id))} paid</span>
+          <span style="color:${pbal(p.id)>0?'var(--red)':'var(--rgreen)'};font-weight:600">${pbal(p.id)>0?fmtM(pbal(p.id))+' due':'✅ Fully paid'}</span>
+        </div>
+        ${p.services&&p.services.length?`<div style="margin-top:10px;font-size:10px;color:var(--mut);margin-bottom:4px">Services</div>
+        <div>${p.services.map(s=>`<span class="sv-chip">${s}</span>`).join('')}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty"><div class="empty-icon">🏗️</div><p>No projects yet</p></div>'}`;
+}
+
+// ── PAYMENTS ──
+function renderPayments(c,projs){
+  const allPays=projs.flatMap(p=>(db.payments||[]).filter(x=>x.projectId===p.id).map(x=>({...x,pname:p.name})));
+  allPays.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!allPays.length) return `<div class="empty"><div class="empty-icon">💰</div><p>No payment records</p></div>`;
+  const tot=projs.reduce((a,p)=>a+p.total,0);
+  const paid=allPays.reduce((a,p)=>a+p.amount,0);
+  const bal=tot-paid;
+  return `
+  <div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+    <div class="kpi-box"><div class="kpi-lbl">Total Paid</div><div class="kpi-val" style="color:var(--rgreen);font-size:15px">${fmtM(paid)}</div></div>
+    <div class="kpi-box"><div class="kpi-lbl">Balance</div><div class="kpi-val" style="color:${bal>0?'var(--red)':'var(--rgreen)'};font-size:15px">${bal>0?fmtM(bal):'✅ Clear'}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">Transaction History</div>
+    <div class="card-body">
+      ${allPays.map(pay=>`
+        <div class="pay-row">
+          <div class="pay-dot"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600">${pay.stage} — ${pay.pname}</div>
+            <div style="font-size:11px;color:var(--mut)">${pay.date} · ${pay.mode||'—'}${pay.notes?' · '+pay.notes:''}</div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--rgreen);flex-shrink:0">+${fmtM(pay.amount)}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── SITE VISITS ──
+function renderSiteVisits(c,projs){
+  const allVisits=projs.flatMap(p=>(db.siteVisits||[]).filter(v=>v.projId===p.id).map(v=>({...v,pname:p.name})));
+  allVisits.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!allVisits.length) return `<div class="empty"><div class="empty-icon">📍</div><p>No site visits yet</p></div>`;
+  return allVisits.map(v=>`
+    <div class="card">
+      <div class="card-head" style="display:flex;justify-content:space-between">
+        <span>📍 ${v.date} — ${v.pname}</span>
+        ${v.weather?`<span style="font-size:12px;color:var(--mut)">🌤 ${v.weather}</span>`:''}
+      </div>
+      <div class="card-body">
+        ${v.timeIn?`<div style="font-size:12px;color:var(--mut);margin-bottom:8px">⏰ ${v.timeIn}${v.timeOut?' – '+v.timeOut:''}</div>`:''}
+        ${v.checklist&&v.checklist.length?`
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mut);letter-spacing:.5px;margin-bottom:6px">✅ Inspected Areas</div>
+          <div style="margin-bottom:10px">${v.checklist.map(x=>`<span class="sv-chip">${x}</span>`).join('')}</div>`:''}
+        ${v.instructions?`
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mut);letter-spacing:.5px;margin-bottom:4px">📋 Instructions</div>
+          <div style="background:#fffbee;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;line-height:1.7;margin-bottom:10px">${v.instructions}</div>`:''}
+        ${v.notes?`
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mut);letter-spacing:.5px;margin-bottom:4px">📝 Notes</div>
+          <div style="background:var(--surf2);border-left:3px solid var(--bdr);border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;line-height:1.7;margin-bottom:10px">${v.notes}</div>`:''}
+        ${v.photos&&v.photos.length?`
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mut);letter-spacing:.5px;margin-bottom:6px">📷 Photos</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">${v.photos.filter(p=>p&&p.data).map(p=>`<img src="${p.data}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--bdr)">`).join('')}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ── DRAWINGS ──
+function renderDrawings(c,projs){
+  const files=projs.flatMap(p=>(p.files||[]).filter(f=>f.clientVisible).map(f=>({...f,pname:p.name})));
+  if(!files.length) return `<div class="empty"><div class="empty-icon">📐</div><p>No drawings shared yet</p></div>`;
+  const catIcons={['Floor Plan']:'🏠',Elevation:'🏛️',Section:'✂️',['3D View']:'🎨',Structural:'⚙️',Electrical:'⚡',Plumbing:'🔧',['Site Photo']:'📷',Contract:'📄',Other:'📁'};
+  return `
+  <div class="card">
+    <div class="card-head">Drawings & Documents Released</div>
+    <div class="card-body">
+      ${files.map(f=>`
+        <a href="${f.url}" target="_blank" class="drawing-card" style="text-decoration:none;color:inherit;display:flex">
+          <div class="drawing-icon">${catIcons[f.cat]||'📁'}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;color:var(--grn)">${f.name}</div>
+            <div style="font-size:11px;color:var(--mut)">${f.cat||'File'} · ${f.pname} · ${f.date||''}</div>
+            ${f.notes?`<div style="font-size:11px;color:var(--mut);margin-top:2px">${f.notes}</div>`:''}
+          </div>
+          <div style="font-size:20px;flex-shrink:0;align-self:center;color:var(--grn)">↗</div>
+        </a>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── START ──
+init();
+</script>
+</body>
+</html>
