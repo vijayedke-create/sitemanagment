@@ -7804,35 +7804,34 @@ function toggleTheme(){
 // ════════════════════════════════════════════════
 function checkPortalMode(){
   const hash = window.location.hash;
-  // #portal or #portal=PIN
-  if(hash.startsWith('#portal')){
-    // Hide entire architect app
-    document.getElementById('app-shell').style.display='none';
-    // Show client portal overlay fullscreen
-    const overlay=document.getElementById('client-portal-overlay');
+  if(!hash.startsWith('#portal')) return;
+
+  // ── पूर्ण app-shell लपवा ──
+  const shell = document.getElementById('app-shell');
+  if(shell) shell.style.display='none';
+
+  // ── Portal overlay fullscreen दाखवा ──
+  const overlay = document.getElementById('client-portal-overlay');
+  if(overlay){
     overlay.style.display='block';
     overlay.style.position='fixed';
     overlay.style.inset='0';
     overlay.style.zIndex='99999';
-    // Hide the "← Back to Architect" button — client should not see it
-    const backBtn=overlay.querySelector('button[onclick="closeClientPortal()"]');
-    if(backBtn) backBtn.style.display='none';
-    // Update studio name with office info
-    const sn=document.getElementById('cp-studio-name');
-    if(sn) sn.textContent=officeInfo.name||'Greenhouse Studio';
-    // Show logo
-    const li=document.getElementById('cp-logo-img');
-    if(li&&officeInfo.logo){li.src=officeInfo.logo;li.style.display='block';li.style.filter='none';}
-    // Auto-fill PIN if present in hash: #portal=1234
-    const pinMatch=hash.match(/#portal=(\d{4})/);
-    if(pinMatch){
-      const autoPin=pinMatch[1];
-      autoPin.split('').forEach(d=>cpKey(d));
-    }
-    // Block browser back button from revealing app
-    window.history.replaceState(null,'','#portal');
-    window.onpopstate=()=>window.history.replaceState(null,'','#portal');
   }
+
+  // ── Back button लपवा ──
+  const backBtn = overlay&&overlay.querySelector('button[onclick="closeClientPortal()"]');
+  if(backBtn) backBtn.style.display='none';
+
+  // ── Office info update ──
+  const sn = document.getElementById('cp-studio-name');
+  if(sn) sn.textContent = officeInfo.name||'Greenhouse Studio';
+  const li = document.getElementById('cp-logo-img');
+  if(li&&officeInfo.logo){li.src=officeInfo.logo;li.style.display='block';li.style.filter='none';}
+
+  // ── Back button block ──
+  window.history.replaceState(null,'','#portal');
+  window.onpopstate=()=>window.history.replaceState(null,'','#portal');
 }
 
 function initTheme(){
@@ -8278,14 +8277,33 @@ function updatePinDots() {
 }
 
 // ── SUBMIT PIN ──
-function cpSubmit() {
+async function cpSubmit() {
   const pin = cpPin.trim();
   if (pin.length < 4) return;
-  // Search contacts for matching PIN
-  const match = (db.contacts || []).find(c => c.pin && c.pin === pin);
+
+  // Firebase वरून fresh data load करा (portal mode मध्ये)
+  if(window.location.hash.startsWith('#portal')){
+    try{
+      const fbUrl = localStorage.getItem('gs_fb_url');
+      if(fbUrl){
+        const r = await fetch(fbUrl+'/.json');
+        if(r.ok){
+          const data = await r.json();
+          if(data&&data.db) db = data.db;
+          if(data&&data.officeInfo) officeInfo = data.officeInfo;
+        }
+      } else {
+        // localStorage मधून load
+        const d=localStorage.getItem('gs_db');
+        if(d) db=JSON.parse(d);
+      }
+    }catch(e){ console.warn('PIN check data load:', e); }
+  }
+
+  // PIN match शोधा
+  const match = (db.contacts || []).find(c => c.pin && String(c.pin).trim() === String(pin).trim());
   if (!match) {
     document.getElementById('cp-error').style.display = 'block';
-    // Shake the dots
     const dotsEl = document.getElementById('cp-pin-dots');
     dotsEl.style.animation = 'none';
     setTimeout(() => { dotsEl.style.animation = 'shake .4s ease'; }, 10);
@@ -8293,24 +8311,45 @@ function cpSubmit() {
     updatePinDots();
     return;
   }
-  // Login success
+  // ── Login success ──
   cpCurrentClient = match;
   document.getElementById('cp-error').style.display = 'none';
+
+  // app-shell पूर्णपणे लपवा
+  const _shell = document.getElementById('app-shell');
+  if(_shell) _shell.style.display='none';
+
+  // Portal overlay दाखवा
+  const _overlay = document.getElementById('client-portal-overlay');
+  if(_overlay){
+    _overlay.style.display='block';
+    _overlay.style.position='fixed';
+    _overlay.style.inset='0';
+    _overlay.style.zIndex='99999';
+  }
+
+  // Login → Dashboard switch
   document.getElementById('cp-login-screen').style.display = 'none';
   document.getElementById('cp-dashboard-screen').style.display = 'block';
-  document.getElementById('cp-studio-name').textContent = officeInfo.name || 'Greenhouse Studio';
-  const cpLogoEl=document.getElementById('cp-logo-img');
-  if(cpLogoEl&&officeInfo.logo){cpLogoEl.src=officeInfo.logo;cpLogoEl.style.display='block';cpLogoEl.style.filter='none';}
-  // In portal mode — logout goes back to login, not architect app
-  if(window.location.hash.startsWith('#portal')){
-    const logoutBtn=document.getElementById('cp-logout-btn');
-    if(logoutBtn) logoutBtn.onclick=()=>{
-      cpCurrentClient=null;cpPin='';updatePinDots();
-      document.getElementById('cp-login-screen').style.display='flex';
-      document.getElementById('cp-dashboard-screen').style.display='none';
-    };
-  }
-  document.getElementById('cp-client-name-bar').textContent = 'Welcome, ' + match.name;
+
+  // Studio info
+  const _sn = document.getElementById('cp-studio-name');
+  if(_sn) _sn.textContent = officeInfo.name||'Greenhouse Studio';
+  const _li = document.getElementById('cp-logo-img');
+  if(_li&&officeInfo.logo){_li.src=officeInfo.logo;_li.style.display='block';_li.style.filter='none';}
+
+  // Client name
+  const _nb = document.getElementById('cp-client-name-bar');
+  if(_nb) _nb.textContent = 'Welcome, ' + match.name;
+
+  // Logout — portal mode मध्ये फक्त login screen वर परत
+  const _logoutBtn = document.getElementById('cp-logout-btn');
+  if(_logoutBtn) _logoutBtn.onclick=()=>{
+    cpCurrentClient=null; cpPin=''; updatePinDots();
+    document.getElementById('cp-login-screen').style.display='flex';
+    document.getElementById('cp-dashboard-screen').style.display='none';
+  };
+
   cpTab('overview');
 }
 
