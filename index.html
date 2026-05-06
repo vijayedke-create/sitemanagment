@@ -584,27 +584,36 @@ html{transition:background .3s,color .3s}
 
     <!-- ── DASHBOARD ── -->
     <div id="view-dashboard" class="view-section active">
-      <div class="kpi-grid" id="kpi-grid"></div>
-      <div class="g65">
-        <div class="card">
-          <div class="card-head"><span class="card-title">Monthly Revenue</span><span class="badge bgold" style="font-size:9px">FY 2024-25</span></div>
+      <!-- Hero greeting bar -->
+      <div id="dash-hero"></div>
+      <!-- KPI Cards -->
+      <div id="kpi-grid"></div>
+      <!-- Revenue Target -->
+      <div id="revenue-target-card"></div>
+      <!-- Charts row -->
+      <div class="g65" style="margin-bottom:18px">
+        <div class="card dash-card">
+          <div class="card-head"><span class="card-title">📈 Monthly Revenue</span><span class="badge bgold" style="font-size:9px">FY 2024-25</span></div>
           <div class="card-body"><div class="chart-wrap"><canvas id="rev-chart"></canvas></div></div>
         </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">Client Category</span></div>
+        <div class="card dash-card">
+          <div class="card-head"><span class="card-title">👥 Client Mix</span></div>
           <div class="card-body"><div class="chart-wrap"><canvas id="cat-chart"></canvas></div></div>
         </div>
       </div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-head"><span class="card-title">Recent Projects</span><button class="btn btn-s btn-sm" onclick="switchView('projects')">View All</button></div>
-          <div class="card-body" style="padding:0"><table class="tbl" id="dash-proj-tbl"></table></div>
+      <!-- Projects + Activity -->
+      <div class="g2" style="margin-bottom:18px">
+        <div class="card dash-card">
+          <div class="card-head"><span class="card-title">🏗️ Recent Projects</span><button class="btn btn-s btn-sm" onclick="switchView('projects')">View All →</button></div>
+          <div class="card-body" style="padding:0"><div id="dash-proj-list"></div></div>
         </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">Recent Activity</span></div>
+        <div class="card dash-card">
+          <div class="card-head"><span class="card-title">⚡ Recent Activity</span></div>
           <div class="card-body" id="act-list" style="padding-top:8px"></div>
         </div>
       </div>
+      <!-- Payment Overview -->
+      <div id="dash-pay-overview" style="margin-bottom:18px"></div>
     </div>
 
     <!-- ── CONTACTS ── -->
@@ -2403,46 +2412,157 @@ function selectUpi(chip,app){
 // DASHBOARD
 // ════════════════════════════════════════════════
 function renderDashboard(){
-  try{renderRevenueTarget();}catch(e){}
   const tv=db.projects.reduce((a,p)=>a+p.total,0);
   const tr=db.payments.reduce((a,p)=>a+p.amount,0);
   const tb=db.projects.reduce((a,p)=>a+pbal(p.id),0);
-  var _kg=document.getElementById('kpi-grid');if(!_kg)return;
-  _kg.innerHTML=`
-    <div class="kpi-card"><div class="kpi-lbl">Projects</div><div class="kpi-val au">${db.projects.length}</div><div class="kpi-sub">Active</div></div>
-    <div class="kpi-card"><div class="kpi-lbl">Total Value</div><div class="kpi-val">${fmt(tv)}</div><div class="kpi-sub">All projects</div></div>
-    <div class="kpi-card"><div class="kpi-lbl">Received</div><div class="kpi-val g">${fmt(tr)}</div><div class="kpi-sub">Total payments</div></div>
-    <div class="kpi-card"><div class="kpi-lbl">Balance Due</div><div class="kpi-val r">${fmt(tb)}</div><div class="kpi-sub">Pending amount</div></div>
-    <div class="kpi-card"><div class="kpi-lbl">Contacts</div><div class="kpi-val">${db.contacts.length}</div><div class="kpi-sub">Engineer / Builder</div></div>`;
+  const activeP=db.projects.filter(p=>p.stage!=='Completed').length;
+  const pct=tv>0?Math.min(100,Math.round(tr/tv*100)):0;
+  const now=new Date();
+  const hr=now.getHours();
+  const greet=hr<12?'Good Morning':(hr<17?'Good Afternoon':'Good Evening');
+  const dayStr=now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+
+  // ── Hero Bar ──
+  const hero=document.getElementById('dash-hero');
+  if(hero) hero.innerHTML=`
+  <div style="background:linear-gradient(135deg,var(--grn) 0%,#2d5a3d 60%,#1a4a2a 100%);border-radius:20px;padding:22px 28px;margin-bottom:20px;position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center">
+    <div style="position:absolute;right:-20px;top:-20px;width:180px;height:180px;background:rgba(201,168,76,.08);border-radius:50%"></div>
+    <div style="position:absolute;right:60px;bottom:-40px;width:120px;height:120px;background:rgba(201,168,76,.05);border-radius:50%"></div>
+    <div style="position:relative">
+      <div style="font-size:12px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:.5px;margin-bottom:4px">${dayStr}</div>
+      <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:2px">${greet}, ${(officeInfo.arch||'Architect').split(' ')[0]}! 👋</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.55)">${activeP} active project${activeP!==1?'s':''} · ₹${(tb/100000).toFixed(1)}L pending</div>
+    </div>
+    <div style="position:relative;text-align:right">
+      <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:6px">Collection Rate</div>
+      <div style="font-size:36px;font-weight:800;color:var(--gold);font-family:'JetBrains Mono',monospace;line-height:1">${pct}%</div>
+      <div style="background:rgba(255,255,255,.12);border-radius:20px;height:5px;width:100px;margin:6px 0 0 auto;overflow:hidden">
+        <div style="background:var(--gold);height:100%;width:${pct}%;border-radius:20px;transition:width 1s ease"></div>
+      </div>
+    </div>
+  </div>`;
+
+  // ── KPI Cards ──
+  const kg=document.getElementById('kpi-grid');
+  if(!kg) return;
+  const overdue=db.projects.filter(p=>p.deadline&&new Date(p.deadline)<now&&p.stage!=='Completed').length;
+  kg.innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px">
+    ${[
+      {icon:'🏗️',lbl:'Projects',val:db.projects.length,sub:activeP+' active',color:'var(--grn)',bg:'#e8f4ee'},
+      {icon:'💰',lbl:'Total Value',val:fmt(tv),sub:'All projects',color:'#7a5a00',bg:'#fffbee'},
+      {icon:'✅',lbl:'Received',val:fmt(tr),sub:pct+'% collected',color:'#1a6b3a',bg:'#e8f7ee'},
+      {icon:'⏳',lbl:'Balance Due',val:fmt(tb),sub:db.projects.filter(p=>pbal(p.id)>0).length+' projects',color:'#8b1a1a',bg:'#fdecea'},
+      {icon:'👥',lbl:'Contacts',val:db.contacts.length,sub:overdue>0?'⚠️ '+overdue+' overdue':'All on track',color:'#1a3a6a',bg:'#eaeffa'}
+    ].map(k=>`
+    <div onclick="${k.lbl==='Projects'?"switchView('projects')":k.lbl==='Contacts'?"switchView('contacts')":k.lbl==='Received'||k.lbl==='Balance Due'?"switchView('payments')":''}"
+      style="background:#fff;border:1.5px solid var(--bdr);border-radius:16px;padding:16px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden"
+      onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 28px rgba(26,58,42,.12)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="width:38px;height:38px;border-radius:10px;background:${k.bg};display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px">${k.icon}</div>
+      <div style="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${k.lbl}</div>
+      <div style="font-size:${typeof k.val==='number'?'26':'18'}px;font-weight:800;color:${k.color};font-family:'JetBrains Mono',monospace;line-height:1.1;margin-bottom:4px">${k.val}</div>
+      <div style="font-size:10px;color:var(--mut)">${k.sub}</div>
+    </div>`).join('')}
+  </div>`;
+
   document.getElementById('nb-c').textContent=db.contacts.length;
   document.getElementById('nb-p').textContent=db.projects.length;
 
-  const rCtx=document.getElementById('rev-chart').getContext('2d');
-  if(charts.rev)charts.rev.destroy();
-  charts.rev=new Chart(rCtx,{type:'line',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'Revenue',data:[85000,120000,95000,180000,210000,tr],borderColor:'#c9a84c',borderWidth:2.5,pointBackgroundColor:'#c9a84c',pointRadius:4,tension:.45,fill:true,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,188);g.addColorStop(0,'rgba(201,168,76,.18)');g.addColorStop(1,'rgba(201,168,76,0)');return g;}}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#e8e2d9'},ticks:{color:'#7a7568',font:{size:10}}},y:{grid:{color:'#e8e2d9'},ticks:{color:'#7a7568',font:{size:10},callback:v=>'Rs.'+(v/1000)+'K'}}}}});
-  const cCtx=document.getElementById('cat-chart').getContext('2d');
-  if(charts.cat)charts.cat.destroy();
-  const cats=['Engineer','Builder','Direct','Institution','Contractor','Agency','Society','Other'];
-  const cnts=cats.map(c=>db.contacts.filter(x=>x.cat===c).length);
-  const lbls=cats.filter((_,i)=>cnts[i]>0),vals=cnts.filter(v=>v>0);
-  charts.cat=new Chart(cCtx,{type:'doughnut',data:{labels:lbls,datasets:[{data:vals,backgroundColor:['#2c5f8a','#c9a84c','#27ae60','#d35400','#1a3a2a','#c0392b','#8e44ad','#7a7568'],borderColor:'#fff',borderWidth:3,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{labels:{color:'#7a7568',font:{size:11},boxWidth:10,padding:10}}}}});
+  // ── Revenue Target ──
+  try{renderRevenueTarget();}catch(e){}
 
-  const tbl=document.getElementById('dash-proj-tbl');
-  tbl.innerHTML='<thead><tr><th>Project</th><th>Client</th><th>Value</th><th>Balance</th></tr></thead>';
-  const tb2=document.createElement('tbody');
-  db.projects.slice(-5).reverse().forEach(p=>{
-    const c=gc(p.clientId);const b=pbal(p.id);
-    const tr2=document.createElement('tr');
-    tr2.onclick=()=>openPD(p.id);
-    tr2.innerHTML=`<td><b style="font-size:13px">${p.name}</b><br><small style="color:var(--mut);font-family:'JetBrains Mono',monospace;font-size:10px">${p.id}</small></td><td style="font-size:12px">${c?c.name:'—'}</td><td style="font-family:'JetBrains Mono',monospace;font-size:12px">${fmt(p.total)}</td><td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${b>0?'var(--red)':'var(--rgreen)'};">${fmt(b)}</td>`;
-    tb2.appendChild(tr2);
-  });
-  tbl.appendChild(tb2);
+  // ── Charts ──
+  const rCtx=document.getElementById('rev-chart')?.getContext('2d');
+  if(rCtx){
+    if(charts.rev)charts.rev.destroy();
+    const months=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+    const curMonth=now.getMonth();
+    const revenueData=months.map((_,i)=>{
+      const pays=(db.payments||[]).filter(p=>{
+        const d=new Date(p.date);
+        return d.getMonth()===((i+3)%12);
+      });
+      return pays.reduce((a,p)=>a+p.amount,0)||0;
+    });
+    charts.rev=new Chart(rCtx,{type:'line',data:{labels:months,datasets:[{label:'Revenue ₹',data:revenueData,borderColor:'#c9a84c',borderWidth:2.5,pointBackgroundColor:'#c9a84c',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,tension:.45,fill:true,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,200);g.addColorStop(0,'rgba(201,168,76,.22)');g.addColorStop(1,'rgba(201,168,76,0)');return g;}}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>'₹'+Number(v.raw).toLocaleString('en-IN')}}},scales:{x:{grid:{display:false},ticks:{color:'#7a7568',font:{size:10}}},y:{grid:{color:'rgba(232,226,217,.6)'},border:{dash:[4,4]},ticks:{color:'#7a7568',font:{size:10},callback:v=>v>=100000?'₹'+(v/100000).toFixed(1)+'L':'₹'+(v/1000)+'K'}}}}});
+  }
 
-  const al=document.getElementById('act-list');al.innerHTML='';
-  (db.activities||[]).slice(0,6).forEach(a=>{
-    al.innerHTML+=`<div class="act-item"><div class="act-dot" style="background:${a.color}"></div><div><div class="act-text">${a.text}</div><div class="act-sub">${a.sub}</div></div><div class="act-time">${a.time}</div></div>`;
-  });
+  const cCtx=document.getElementById('cat-chart')?.getContext('2d');
+  if(cCtx){
+    if(charts.cat)charts.cat.destroy();
+    const cats=['Engineer','Builder','Direct','Institution','Contractor','Agency','Society','Other'];
+    const cnts=cats.map(c=>db.contacts.filter(x=>x.cat===c).length);
+    const lbls=cats.filter((_,i)=>cnts[i]>0),vals=cnts.filter(v=>v>0);
+    charts.cat=new Chart(cCtx,{type:'doughnut',data:{labels:lbls,datasets:[{data:vals,backgroundColor:['#1a3a2a','#c9a84c','#27ae60','#2c5f8a','#d35400','#c0392b','#8e44ad','#7a7568'],borderColor:'#fff',borderWidth:3,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#7a7568',font:{size:11},boxWidth:10,padding:8}}}}});
+  }
+
+  // ── Recent Projects — attractive cards ──
+  const pl=document.getElementById('dash-proj-list');
+  if(pl){
+    const recent=db.projects.slice(-5).reverse();
+    if(!recent.length){pl.innerHTML='<div style="text-align:center;padding:30px;color:var(--mut);font-size:13px">No projects yet</div>';return;}
+    const STAGE_COLOR={'Concept':'#8e44ad','Layout':'#2980b9','3D':'#d35400','Working Drawing':'#c9a84c','Submission':'#27ae60','Completed':'#1a3a2a'};
+    pl.innerHTML=recent.map(p=>{
+      const c=gc(p.clientId);const b=pbal(p.id);
+      const pPct=p.total>0?Math.min(100,Math.round(ppaid(p.id)/p.total*100)):0;
+      const sc=STAGE_COLOR[p.stage]||'var(--mut)';
+      return `<div onclick="openPD('${p.id}')" style="padding:14px 18px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surf2)'" onmouseout="this.style.background=''">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--ink)">${p.name}</div>
+            <div style="font-size:11px;color:var(--mut)">${c?c.name:'—'}${p.deadline?' · 📅 '+p.deadline:''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+            <span style="background:${sc}22;color:${sc};font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid ${sc}44">${p.stage||'Concept'}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${b>0?'var(--red)':'var(--rgreen)'};font-weight:700">${b>0?'₹'+Number(b).toLocaleString('en-IN')+' due':'✅ Paid'}</span>
+          </div>
+        </div>
+        <div style="background:var(--bdr);border-radius:20px;height:4px;overflow:hidden">
+          <div style="background:${pPct>=100?'var(--rgreen)':'var(--grn)'};height:100%;width:${pPct}%;border-radius:20px;transition:width .8s ease"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Payment Overview card ──
+  const po=document.getElementById('dash-pay-overview');
+  if(po){
+    const pending=db.projects.filter(p=>pbal(p.id)>0).slice(0,3);
+    if(pending.length){
+      po.innerHTML=`<div class="card" style="margin-bottom:0">
+        <div class="card-head"><span class="card-title">💳 Pending Payments</span><button class="btn btn-s btn-sm" onclick="switchView('payments')">View All →</button></div>
+        <div class="card-body" style="padding:0">
+          ${pending.map(p=>{
+            const c=gc(p.clientId);const b=pbal(p.id);const pPct=p.total>0?Math.min(100,Math.round(ppaid(p.id)/p.total*100)):0;
+            return `<div style="padding:12px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:14px">
+              <div style="width:40px;height:40px;border-radius:10px;background:#fdecea;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⏳</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:13px">${p.name}</div>
+                <div style="font-size:11px;color:var(--mut)">${c?c.name:'—'}</div>
+                <div style="background:var(--bdr);border-radius:20px;height:3px;margin-top:6px;overflow:hidden"><div style="background:var(--grn);height:100%;width:${pPct}%"></div></div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;color:var(--red)">₹${Number(b).toLocaleString('en-IN')}</div>
+                <div style="font-size:10px;color:var(--mut)">${pPct}% paid</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+  }
+
+  // ── Activity ──
+  const al=document.getElementById('act-list');
+  if(al){
+    al.innerHTML='';
+    const acts=(db.activities||[]).slice(0,6);
+    if(!acts.length){al.innerHTML='<div style="text-align:center;padding:20px;color:var(--mut);font-size:12px">No recent activity</div>';return;}
+    acts.forEach(a=>{
+      al.innerHTML+=`<div class="act-item"><div class="act-dot" style="background:${a.color||'var(--grn)'}"></div><div style="flex:1;min-width:0"><div class="act-text">${a.text}</div><div class="act-sub">${a.sub}</div></div><div class="act-time">${a.time}</div></div>`;
+    });
+  }
 }
 
 // ════════════════════════════════════════════════
