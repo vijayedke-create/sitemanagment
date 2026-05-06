@@ -8283,7 +8283,9 @@ async function cpSubmit() {
   // Firebase वरून fresh data load करा (portal mode मध्ये)
   if(new URLSearchParams(window.location.search).has('portal')){
     try{
-      const fbUrl = localStorage.getItem('gs_fb_url');
+      // Firebase URL — URL param मधून किंवा localStorage मधून
+      const _params = new URLSearchParams(window.location.search);
+      const fbUrl = _params.get('fb') ? decodeURIComponent(_params.get('fb')) : localStorage.getItem('gs_fb_url');
       if(fbUrl){
         const r = await fetch(fbUrl+'/.json');
         if(r.ok){
@@ -8736,7 +8738,8 @@ function cpWhatsApp(cid) {
   // Build client portal URL — same folder, client-portal.html
   // Portal URL = same file + #portal hash
   const _base = window.location.href.split('?')[0].split('#')[0];
-  const portalUrl = _base + '?portal=1';
+  const _fbUrl = localStorage.getItem('gs_fb_url')||'';
+  const portalUrl = _base + '?portal=1' + (_fbUrl ? '&fb='+encodeURIComponent(_fbUrl) : '');
   const msg = `Dear ${c.name},
 
 आपला Client Portal तयार आहे! 🎉
