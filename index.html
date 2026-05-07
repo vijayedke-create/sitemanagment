@@ -5141,48 +5141,58 @@ function loadAgreementTemplate(){
 
 function saveAgreement(){
   const type = document.getElementById('agr_type')?.value;
-  const party = document.getElementById('agr_party')?.value.trim();
+  const party = document.getElementById('agr_party')?.value?.trim();
   const mobile = document.getElementById('agr_mobile')?.value;
   const total = parseFloat(document.getElementById('agr_total')?.value) || 0;
-  const scope = document.getElementById('agr_scope')?.value.trim();
+  const scope = document.getElementById('agr_scope')?.value?.trim();
   
-  if(!type || !party || !mobile || !total || !scope){
-    showToast('Type, Party, Mobile, Total Value, and Scope required!','warn');
-    return;
-  }
+  // Detailed validation
+  if(!type){ showToast('⚠️ Please select Agreement Type!','warn'); return; }
+  if(!party){ showToast('⚠️ Please enter Party Name!','warn'); return; }
+  if(!mobile){ showToast('⚠️ Please enter Mobile number!','warn'); return; }
+  if(!total){ showToast('⚠️ Please enter Total Value!','warn'); return; }
+  if(!scope){ showToast('⚠️ Please enter Scope of Work!','warn'); return; }
   
-  agreements.push({
+  // Create agreement object
+  const newAgr = {
     id: Date.now(),
     date: document.getElementById('agr_date')?.value || today(),
     type,
     party,
-    contact: document.getElementById('agr_contact')?.value,
+    contact: document.getElementById('agr_contact')?.value || '',
     mobile,
-    email: document.getElementById('agr_email')?.value,
-    address: document.getElementById('agr_address')?.value,
-    gst: document.getElementById('agr_gst')?.value,
+    email: document.getElementById('agr_email')?.value || '',
+    address: document.getElementById('agr_address')?.value || '',
+    gst: document.getElementById('agr_gst')?.value || '',
     rate_type: document.getElementById('agr_rate_type')?.value,
     rate: parseFloat(document.getElementById('agr_rate')?.value) || 0,
     qty: parseFloat(document.getElementById('agr_qty')?.value) || 0,
     total,
     advance: parseFloat(document.getElementById('agr_adv')?.value) || 0,
     pay_terms: document.getElementById('agr_pay_terms')?.value,
-    start_date: document.getElementById('agr_start')?.value,
-    end_date: document.getElementById('agr_end')?.value,
+    start_date: document.getElementById('agr_start')?.value || '',
+    end_date: document.getElementById('agr_end')?.value || '',
     scope,
     material: document.getElementById('agr_material')?.value,
-    terms: document.getElementById('agr_terms')?.value,
+    terms: document.getElementById('agr_terms')?.value || '',
     status: 'Active'
-  });
+  };
   
+  // Add to array and save
+  agreements.push(newAgr);
   saveAll();
-  renderAgreements();
-  ['agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_scope','agr_terms'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
+  
+  // Clear form
+  ['agr_type','agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_scope','agr_terms','agr_start','agr_end'].forEach(id=>{
+    const el=document.getElementById(id); 
+    if(el) el.value='';
   });
   document.getElementById('agr_adv').value='0';
+  document.getElementById('agr_date').value=today();
+  
+  // Show list and success
   agreementTab('list');
-  showToast('✅ Agreement saved!');
+  showToast('✅ Agreement saved successfully!');
 }
 
 function renderAgreements(){
