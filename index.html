@@ -814,15 +814,38 @@ td.mono { font-variant-numeric: tabular-nums; }
               
             </div>
             
+            <!-- Additional Charges -->
+            <div style="margin-top:16px;background:#fff9e6;padding:12px;border-radius:6px;border:1px solid #ffd700">
+              <div style="font-weight:600;margin-bottom:10px;color:#d97706">🚛 Additional Charges</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Transportation (₹)</label>
+                  <input type="number" id="steel_transport" placeholder="e.g. 2500" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
+                </div>
+                <div>
+                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Driver Khushi / Tip (₹)</label>
+                  <input type="number" id="steel_driver_khushi" placeholder="e.g. 200" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
+                </div>
+              </div>
+            </div>
+            
             <!-- Total Calculation -->
             <div style="margin-top:16px;padding:12px;background:white;border-radius:6px;border:2px solid var(--pri)">
-              <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
                 <div>
                   <div style="font-size:13px;color:var(--muted)">Total Steel Weight</div>
                   <div style="font-size:20px;font-weight:700;color:var(--text)" id="steel_total_kg">0 Kg</div>
                 </div>
                 <div>
-                  <div style="font-size:13px;color:var(--muted)">Total Amount</div>
+                  <div style="font-size:13px;color:var(--muted)">Steel Amount</div>
+                  <div style="font-size:18px;font-weight:700;color:#666" id="steel_material_amount">₹0</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:var(--muted)">Transport + Khushi</div>
+                  <div style="font-size:18px;font-weight:700;color:#d97706" id="steel_extra_amount">₹0</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:var(--muted)">Grand Total</div>
                   <div style="font-size:24px;font-weight:700;color:var(--pri)" id="steel_total_amount">₹0</div>
                 </div>
                 <button type="button" class="btn btn-sm btn-acc" onclick="calculateSteelTotal()">🔢 Calculate Total</button>
@@ -830,6 +853,109 @@ td.mono { font-variant-numeric: tabular-nums; }
             </div>
           </div>
         </div>
+        
+        <!-- Sand Multi-Type Entry Form (shows when Sand selected) -->
+        <div id="sandMultiTypeForm" style="display:none;grid-column:1/-1">
+          <div class="card" style="background:var(--bg-light);padding:16px;border-radius:8px;margin-top:8px">
+            <div style="font-weight:700;margin-bottom:12px;color:var(--pri)">🏖️ Sand Details (एकाच बिलात सर्व types)</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+              
+              <!-- M Sand -->
+              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-weight:600;margin-bottom:8px;color:#333">M Sand (Manufacturing Sand)</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <input type="number" id="sand_msand_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                  <input type="number" id="sand_msand_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                </div>
+              </div>
+              
+              <!-- P Sand -->
+              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-weight:600;margin-bottom:8px;color:#333">P Sand (Plastering Sand)</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <input type="number" id="sand_psand_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                  <input type="number" id="sand_psand_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                </div>
+              </div>
+              
+              <!-- River Sand -->
+              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-weight:600;margin-bottom:8px;color:#333">River Sand (नदी वाळू)</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <input type="number" id="sand_river_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                  <input type="number" id="sand_river_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                </div>
+              </div>
+              
+              <!-- Coarse Sand -->
+              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-weight:600;margin-bottom:8px;color:#333">Coarse Sand (जाड वाळू)</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <input type="number" id="sand_coarse_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                  <input type="number" id="sand_coarse_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                </div>
+              </div>
+              
+              <!-- Fine Sand -->
+              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-weight:600;margin-bottom:8px;color:#333">Fine Sand (बारीक वाळू)</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <input type="number" id="sand_fine_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                  <input type="number" id="sand_fine_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                </div>
+              </div>
+              
+              <!-- Crush Sand -->
+              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
+                <div style="font-weight:600;margin-bottom:8px;color:#333">Crush Sand (VSI Sand)</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <input type="number" id="sand_crush_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                  <input type="number" id="sand_crush_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
+                </div>
+              </div>
+              
+            </div>
+            
+            <!-- Additional Charges -->
+            <div style="margin-top:16px;background:#fff9e6;padding:12px;border-radius:6px;border:1px solid #ffd700">
+              <div style="font-weight:600;margin-bottom:10px;color:#d97706">🚛 Additional Charges</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Transportation (₹)</label>
+                  <input type="number" id="sand_transport" placeholder="e.g. 1500" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
+                </div>
+                <div>
+                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Driver Khushi / Tip (₹)</label>
+                  <input type="number" id="sand_driver_khushi" placeholder="e.g. 200" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Total Calculation -->
+            <div style="margin-top:16px;padding:12px;background:white;border-radius:6px;border:2px solid var(--pri)">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                <div>
+                  <div style="font-size:13px;color:var(--muted)">Total Quantity</div>
+                  <div style="font-size:20px;font-weight:700;color:var(--text)" id="sand_total_brass">0 Brass</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:var(--muted)">Sand Amount</div>
+                  <div style="font-size:18px;font-weight:700;color:#666" id="sand_material_amount">₹0</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:var(--muted)">Transport + Khushi</div>
+                  <div style="font-size:18px;font-weight:700;color:#d97706" id="sand_extra_amount">₹0</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:var(--muted)">Grand Total</div>
+                  <div style="font-size:24px;font-weight:700;color:var(--pri)" id="sand_total_amount">₹0</div>
+                </div>
+                <button type="button" class="btn btn-sm btn-acc" onclick="calculateSandTotal()">🔢 Calculate Total</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div class="fg"><label>Custom Name</label><input type="text" id="m_custom" placeholder="e.g. AAC Block"></div>
         <div class="fg"><label>Supplier *</label><input type="text" id="m_supplier" placeholder="e.g. Rajesh Traders" list="supplierList"><datalist id="supplierList"></datalist></div>
         <div class="fg"><label>Quantity</label><input type="number" id="m_qty" placeholder="50" oninput="calcMat()"></div>
@@ -2727,48 +2853,132 @@ function renderSupplierDatalist(){
   document.getElementById('supplierList').innerHTML=suppliers.map(s=>`<option value="${s}">`).join('');
 }
 // ══════════════════════════════════════════════════════════════
-//  MATERIAL - STEEL MULTI-BAR ENTRY
+//  MATERIAL - STEEL MULTI-BAR ENTRY & SAND MULTI-TYPE ENTRY
 // ══════════════════════════════════════════════════════════════
 function handleMaterialTypeChange(){
   const type = document.getElementById('m_type')?.value;
   const steelForm = document.getElementById('steelMultiBarForm');
+  const sandForm = document.getElementById('sandMultiTypeForm');
+  
+  // Hide both forms first
+  if(steelForm) steelForm.style.display = 'none';
+  if(sandForm) sandForm.style.display = 'none';
   
   if(type === 'Steel / TMT Bar'){
-    // Show multi-bar entry form
+    // Show multi-bar steel entry form
     if(steelForm) steelForm.style.display = 'block';
+  } else if(type === 'Sand'){
+    // Show multi-type sand entry form
+    if(sandForm) sandForm.style.display = 'block';
   } else {
-    // Hide multi-bar form
-    if(steelForm) steelForm.style.display = 'none';
-    // Clear all steel inputs
-    ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'].forEach(size=>{
-      const kgEl = document.getElementById(`steel_${size}_kg`);
-      const rateEl = document.getElementById(`steel_${size}_rate`);
-      if(kgEl) kgEl.value = '';
-      if(rateEl) rateEl.value = '';
-    });
+    // Clear forms when other materials selected
+    clearSteelForm();
+    clearSandForm();
   }
+}
+
+function clearSteelForm(){
+  ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'].forEach(size=>{
+    const kgEl = document.getElementById(`steel_${size}_kg`);
+    const rateEl = document.getElementById(`steel_${size}_rate`);
+    if(kgEl) kgEl.value = '';
+    if(rateEl) rateEl.value = '';
+  });
+  const transportEl = document.getElementById('steel_transport');
+  const khushiEl = document.getElementById('steel_driver_khushi');
+  if(transportEl) transportEl.value = '';
+  if(khushiEl) khushiEl.value = '';
+  
+  const totalKg = document.getElementById('steel_total_kg');
+  const materialAmt = document.getElementById('steel_material_amount');
+  const extraAmt = document.getElementById('steel_extra_amount');
+  const totalAmt = document.getElementById('steel_total_amount');
+  if(totalKg) totalKg.textContent = '0 Kg';
+  if(materialAmt) materialAmt.textContent = '₹0';
+  if(extraAmt) extraAmt.textContent = '₹0';
+  if(totalAmt) totalAmt.textContent = '₹0';
+}
+
+function clearSandForm(){
+  ['msand','psand','river','coarse','fine','crush'].forEach(type=>{
+    const brassEl = document.getElementById(`sand_${type}_brass`);
+    const rateEl = document.getElementById(`sand_${type}_rate`);
+    if(brassEl) brassEl.value = '';
+    if(rateEl) rateEl.value = '';
+  });
+  const transportEl = document.getElementById('sand_transport');
+  const khushiEl = document.getElementById('sand_driver_khushi');
+  if(transportEl) transportEl.value = '';
+  if(khushiEl) khushiEl.value = '';
+  
+  const totalBrass = document.getElementById('sand_total_brass');
+  const materialAmt = document.getElementById('sand_material_amount');
+  const extraAmt = document.getElementById('sand_extra_amount');
+  const totalAmt = document.getElementById('sand_total_amount');
+  if(totalBrass) totalBrass.textContent = '0 Brass';
+  if(materialAmt) materialAmt.textContent = '₹0';
+  if(extraAmt) extraAmt.textContent = '₹0';
+  if(totalAmt) totalAmt.textContent = '₹0';
 }
 
 function calculateSteelTotal(){
   const sizes = ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'];
   let totalKg = 0;
-  let totalAmount = 0;
+  let materialAmount = 0;
   
   sizes.forEach(size=>{
     const kg = parseFloat(document.getElementById(`steel_${size}_kg`)?.value) || 0;
     const rate = parseFloat(document.getElementById(`steel_${size}_rate`)?.value) || 0;
     totalKg += kg;
-    totalAmount += kg * rate;
+    materialAmount += kg * rate;
   });
+  
+  // Get additional charges
+  const transport = parseFloat(document.getElementById('steel_transport')?.value) || 0;
+  const driverKhushi = parseFloat(document.getElementById('steel_driver_khushi')?.value) || 0;
+  const extraCharges = transport + driverKhushi;
+  const grandTotal = materialAmount + extraCharges;
   
   // Update display
   document.getElementById('steel_total_kg').textContent = totalKg.toFixed(0) + ' Kg';
-  document.getElementById('steel_total_amount').textContent = '₹' + totalAmount.toLocaleString('en-IN');
+  document.getElementById('steel_material_amount').textContent = '₹' + materialAmount.toLocaleString('en-IN');
+  document.getElementById('steel_extra_amount').textContent = '₹' + extraCharges.toLocaleString('en-IN');
+  document.getElementById('steel_total_amount').textContent = '₹' + grandTotal.toLocaleString('en-IN');
   
   // Auto-fill total in main form
-  document.getElementById('m_total').value = totalAmount;
+  document.getElementById('m_total').value = grandTotal;
   
-  return {totalKg, totalAmount};
+  return {totalKg, materialAmount, transport, driverKhushi, grandTotal};
+}
+
+function calculateSandTotal(){
+  const types = ['msand','psand','river','coarse','fine','crush'];
+  let totalBrass = 0;
+  let materialAmount = 0;
+  
+  types.forEach(type=>{
+    const brass = parseFloat(document.getElementById(`sand_${type}_brass`)?.value) || 0;
+    const rate = parseFloat(document.getElementById(`sand_${type}_rate`)?.value) || 0;
+    totalBrass += brass;
+    materialAmount += brass * rate;
+  });
+  
+  // Get additional charges
+  const transport = parseFloat(document.getElementById('sand_transport')?.value) || 0;
+  const driverKhushi = parseFloat(document.getElementById('sand_driver_khushi')?.value) || 0;
+  const extraCharges = transport + driverKhushi;
+  const grandTotal = materialAmount + extraCharges;
+  
+  // Update display
+  document.getElementById('sand_total_brass').textContent = totalBrass.toFixed(1) + ' Brass';
+  document.getElementById('sand_material_amount').textContent = '₹' + materialAmount.toLocaleString('en-IN');
+  document.getElementById('sand_extra_amount').textContent = '₹' + extraCharges.toLocaleString('en-IN');
+  document.getElementById('sand_total_amount').textContent = '₹' + grandTotal.toLocaleString('en-IN');
+  
+  // Auto-fill total in main form
+  document.getElementById('m_total').value = grandTotal;
+  
+  return {totalBrass, materialAmount, transport, driverKhushi, grandTotal};
 }
 
 function saveMaterial(){
@@ -2778,7 +2988,7 @@ function saveMaterial(){
   let total=parseFloat(document.getElementById('m_total').value);
   
   // Check if Steel/TMT and prepare details
-  let steelDetails = '';
+  let materialDetails = '';
   if(type === 'Steel / TMT Bar'){
     const sizes = ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'];
     const bars = [];
@@ -2796,20 +3006,58 @@ function saveMaterial(){
       return;
     }
     
-    steelDetails = bars.join(' | ');
+    // Add transport and khushi if present
+    const transport = parseFloat(document.getElementById('steel_transport')?.value) || 0;
+    const khushi = parseFloat(document.getElementById('steel_driver_khushi')?.value) || 0;
+    if(transport > 0) bars.push(`Transportation: ₹${transport.toLocaleString('en-IN')}`);
+    if(khushi > 0) bars.push(`Driver Khushi: ₹${khushi.toLocaleString('en-IN')}`);
     
-    // Recalculate total to ensure accuracy
+    materialDetails = bars.join(' | ');
     const calc = calculateSteelTotal();
-    total = calc.totalAmount;
+    total = calc.grandTotal;
+  } 
+  else if(type === 'Sand'){
+    const types = ['msand','psand','river','coarse','fine','crush'];
+    const typeLabels = {
+      msand: 'M Sand',
+      psand: 'P Sand',
+      river: 'River Sand',
+      coarse: 'Coarse Sand',
+      fine: 'Fine Sand',
+      crush: 'Crush Sand'
+    };
+    const sandTypes = [];
+    types.forEach(sandType=>{
+      const brass = parseFloat(document.getElementById(`sand_${sandType}_brass`)?.value) || 0;
+      const rate = parseFloat(document.getElementById(`sand_${sandType}_rate`)?.value) || 0;
+      if(brass > 0){
+        sandTypes.push(`${typeLabels[sandType]}: ${brass} brass @ ₹${rate}/brass = ₹${(brass*rate).toLocaleString('en-IN')}`);
+      }
+    });
+    
+    if(sandTypes.length === 0){
+      showToast('⚠️ Please enter at least one sand type with quantity and rate!','warn');
+      return;
+    }
+    
+    // Add transport and khushi if present
+    const transport = parseFloat(document.getElementById('sand_transport')?.value) || 0;
+    const khushi = parseFloat(document.getElementById('sand_driver_khushi')?.value) || 0;
+    if(transport > 0) sandTypes.push(`Transportation: ₹${transport.toLocaleString('en-IN')}`);
+    if(khushi > 0) sandTypes.push(`Driver Khushi: ₹${khushi.toLocaleString('en-IN')}`);
+    
+    materialDetails = sandTypes.join(' | ');
+    const calc = calculateSandTotal();
+    total = calc.grandTotal;
   }
   
   if(!type||!supplier||!total){ showToast('⚠️ Type, Supplier, Amount required!','warn'); return; }
   const advance=parseFloat(document.getElementById('m_advance').value)||0;
   
-  // Create custom name with steel details
+  // Create custom name with material details
   let finalCustom = custom;
-  if(type === 'Steel / TMT Bar' && steelDetails){
-    finalCustom = steelDetails;
+  if(materialDetails){
+    finalCustom = materialDetails;
   }
   
   const item={
@@ -2825,19 +3073,13 @@ function saveMaterial(){
   ['m_supplier','m_qty','m_rate','m_total','m_invoice','m_note','m_custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('m_advance').value='0'; document.getElementById('m_date').value=today();
   
-  // Reset steel form
+  // Reset forms
+  clearSteelForm();
+  clearSandForm();
   const steelForm = document.getElementById('steelMultiBarForm');
-  if(steelForm){
-    ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'].forEach(size=>{
-      const kgEl = document.getElementById(`steel_${size}_kg`);
-      const rateEl = document.getElementById(`steel_${size}_rate`);
-      if(kgEl) kgEl.value = '';
-      if(rateEl) rateEl.value = '';
-    });
-    document.getElementById('steel_total_kg').textContent = '0 Kg';
-    document.getElementById('steel_total_amount').textContent = '₹0';
-    steelForm.style.display = 'none';
-  }
+  const sandForm = document.getElementById('sandMultiTypeForm');
+  if(steelForm) steelForm.style.display = 'none';
+  if(sandForm) sandForm.style.display = 'none';
   document.getElementById('m_type').value=''; document.getElementById('m_prev').innerHTML=''; document.getElementById('m_prev')._d=null;
   updateNavBadges(); showToast(t('matSaved'));
   // auto cashbook
