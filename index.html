@@ -699,7 +699,6 @@ td.mono { font-variant-numeric: tabular-nums; }
     <button class="subtab" onclick="matTab('rates')">💹 Rate Compare</button>
     <button class="subtab" onclick="matTab('convert')">🔄 Unit Convert</button>
     <button class="subtab" onclick="matTab('alerts')">🔔 Alerts</button>
-    <button class="btn btn-sm btn-acc" onclick="exportMaterialPDF()" style="margin-left:auto">📄 PDF Download</button>
   </div>
 
   <!-- Material Entry -->
@@ -709,11 +708,20 @@ td.mono { font-variant-numeric: tabular-nums; }
       <div class="form-grid">
         <div class="fg"><label>Date *</label><input type="date" id="m_date"></div>
         <div class="fg"><label>Material *</label>
-          <select id="m_type" onchange="handleMaterialTypeChange()">
+          <select id="m_type">
             <option value="">-- Select --</option>
             <option>Cement</option><option>Sand</option>
             <option>Aggregate / Metal</option><option>Brick</option>
-            <option>Steel / TMT Bar</option>
+            <optgroup label="TMT Steel Bars">
+              <option>TMT Bar 8mm</option>
+              <option>TMT Bar 10mm</option>
+              <option>TMT Bar 12mm</option>
+              <option>TMT Bar 16mm</option>
+              <option>TMT Bar 20mm</option>
+              <option>TMT Bar 25mm</option>
+              <option>TMT Bar 32mm</option>
+              <option>Binding Wire</option>
+            </optgroup>
             <option>Steel Angle/Channel</option>
             <option>Water Tanker</option><option>Timber</option>
             <option>Block</option><option>Tiles</option>
@@ -734,229 +742,6 @@ td.mono { font-variant-numeric: tabular-nums; }
             <option>Fly Ash</option><option>Other</option>
           </select>
         </div>
-        
-        <!-- Steel/TMT Multi-Bar Entry Form (shows when Steel selected) -->
-        <div id="steelMultiBarForm" style="display:none;grid-column:1/-1">
-          <div class="card" style="background:var(--bg-light);padding:16px;border-radius:8px;margin-top:8px">
-            <div style="font-weight:700;margin-bottom:12px;color:var(--pri)">📊 Steel/TMT Bar Details (एकाच बिलात सर्व bars)</div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-              
-              <!-- 8mm -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">8mm TMT Bar</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_8mm_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_8mm_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- 10mm -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">10mm TMT Bar</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_10mm_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_10mm_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- 12mm -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">12mm TMT Bar</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_12mm_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_12mm_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- 16mm -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">16mm TMT Bar</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_16mm_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_16mm_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- 20mm -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">20mm TMT Bar</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_20mm_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_20mm_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- 25mm -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">25mm TMT Bar</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_25mm_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_25mm_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- 32mm -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">32mm TMT Bar</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_32mm_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_32mm_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- Binding Wire -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">Binding Wire</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="steel_binding_kg" placeholder="Kg" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="steel_binding_rate" placeholder="Rate/Kg (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-            </div>
-            
-            <!-- Additional Charges -->
-            <div style="margin-top:16px;background:#fff9e6;padding:12px;border-radius:6px;border:1px solid #ffd700">
-              <div style="font-weight:600;margin-bottom:10px;color:#d97706">🚛 Additional Charges</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div>
-                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Transportation (₹)</label>
-                  <input type="number" id="steel_transport" placeholder="e.g. 2500" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
-                </div>
-                <div>
-                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Driver Khushi / Tip (₹)</label>
-                  <input type="number" id="steel_driver_khushi" placeholder="e.g. 200" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
-                </div>
-              </div>
-            </div>
-            
-            <!-- Total Calculation -->
-            <div style="margin-top:16px;padding:12px;background:white;border-radius:6px;border:2px solid var(--pri)">
-              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Total Steel Weight</div>
-                  <div style="font-size:20px;font-weight:700;color:var(--text)" id="steel_total_kg">0 Kg</div>
-                </div>
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Steel Amount</div>
-                  <div style="font-size:18px;font-weight:700;color:#666" id="steel_material_amount">₹0</div>
-                </div>
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Transport + Khushi</div>
-                  <div style="font-size:18px;font-weight:700;color:#d97706" id="steel_extra_amount">₹0</div>
-                </div>
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Grand Total</div>
-                  <div style="font-size:24px;font-weight:700;color:var(--pri)" id="steel_total_amount">₹0</div>
-                </div>
-                <button type="button" class="btn btn-sm btn-acc" onclick="calculateSteelTotal()">🔢 Calculate Total</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Sand Multi-Type Entry Form (shows when Sand selected) -->
-        <div id="sandMultiTypeForm" style="display:none;grid-column:1/-1">
-          <div class="card" style="background:var(--bg-light);padding:16px;border-radius:8px;margin-top:8px">
-            <div style="font-weight:700;margin-bottom:12px;color:var(--pri)">🏖️ Sand Details (एकाच बिलात सर्व types)</div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-              
-              <!-- M Sand -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">M Sand (Manufacturing Sand)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="sand_msand_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="sand_msand_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- P Sand -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">P Sand (Plastering Sand)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="sand_psand_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="sand_psand_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- River Sand -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">River Sand (नदी वाळू)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="sand_river_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="sand_river_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- Coarse Sand -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">Coarse Sand (जाड वाळू)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="sand_coarse_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="sand_coarse_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- Fine Sand -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">Fine Sand (बारीक वाळू)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="sand_fine_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="sand_fine_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-              <!-- Crush Sand -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid var(--border)">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">Crush Sand (VSI Sand)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <input type="number" id="sand_crush_brass" placeholder="Brass (ब्रास)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                  <input type="number" id="sand_crush_rate" placeholder="Rate/Brass (₹)" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px">
-                </div>
-              </div>
-              
-            </div>
-            
-            <!-- Additional Charges -->
-            <div style="margin-top:16px;background:#fff9e6;padding:12px;border-radius:6px;border:1px solid #ffd700">
-              <div style="font-weight:600;margin-bottom:10px;color:#d97706">🚛 Additional Charges</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div>
-                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Transportation (₹)</label>
-                  <input type="number" id="sand_transport" placeholder="e.g. 1500" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
-                </div>
-                <div>
-                  <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">Driver Khushi / Tip (₹)</label>
-                  <input type="number" id="sand_driver_khushi" placeholder="e.g. 200" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px">
-                </div>
-              </div>
-            </div>
-            
-            <!-- Total Calculation -->
-            <div style="margin-top:16px;padding:12px;background:white;border-radius:6px;border:2px solid var(--pri)">
-              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Total Quantity</div>
-                  <div style="font-size:20px;font-weight:700;color:var(--text)" id="sand_total_brass">0 Brass</div>
-                </div>
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Sand Amount</div>
-                  <div style="font-size:18px;font-weight:700;color:#666" id="sand_material_amount">₹0</div>
-                </div>
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Transport + Khushi</div>
-                  <div style="font-size:18px;font-weight:700;color:#d97706" id="sand_extra_amount">₹0</div>
-                </div>
-                <div>
-                  <div style="font-size:13px;color:var(--muted)">Grand Total</div>
-                  <div style="font-size:24px;font-weight:700;color:var(--pri)" id="sand_total_amount">₹0</div>
-                </div>
-                <button type="button" class="btn btn-sm btn-acc" onclick="calculateSandTotal()">🔢 Calculate Total</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
         <div class="fg"><label>Custom Name</label><input type="text" id="m_custom" placeholder="e.g. AAC Block"></div>
         <div class="fg"><label>Supplier *</label><input type="text" id="m_supplier" placeholder="e.g. Rajesh Traders" list="supplierList"><datalist id="supplierList"></datalist></div>
         <div class="fg"><label>Quantity</label><input type="number" id="m_qty" placeholder="50" oninput="calcMat()"></div>
@@ -1135,7 +920,6 @@ td.mono { font-variant-numeric: tabular-nums; }
     <button class="subtab" onclick="labTab('attendance')">🗓️ Attendance</button>
     <button class="subtab" onclick="labTab('runbill')">📄 Running Bill</button>
     <button class="subtab" onclick="labTab('progress')">📊 Progress</button>
-    <button class="btn btn-sm btn-acc" onclick="exportLabourPDF()" style="margin-left:auto">📄 PDF Download</button>
   </div>
 
   <!-- Labour Entry -->
@@ -1379,186 +1163,74 @@ td.mono { font-variant-numeric: tabular-nums; }
         <div class="fg"><label>Date *</label><input type="date" id="agr_date"></div>
         <div class="fg"><label>Type *</label>
           <select id="agr_type" onchange="loadAgreementTemplate()">
-            <option value="">-- निवडा / Select --</option>
-            <optgroup label="बांधकाम / Construction">
-              <option value="rcc">RCC कंत्राटदार / RCC Contractor</option>
-              <option value="brickwork">वीटकाम / Brickwork</option>
-              <option value="plastering">प्लास्टर / Plastering</option>
-              <option value="flooring">फरशी/टाइल्स / Flooring/Tiles</option>
-              <option value="plumbing">प्लंबिंग / Plumbing</option>
-              <option value="electrical">इलेक्ट्रिकल / Electrical</option>
-              <option value="painting">पेंटिंग / Painting</option>
-              <option value="waterproofing">वॉटरप्रूफिंग / Waterproofing</option>
-              <option value="centering">सेंटरिंग / Centering</option>
-              <option value="steel">स्टील/बार बेंडिंग / Steel/Bar Bending</option>
+            <option value="">-- Select --</option>
+            <optgroup label="Construction">
+              <option value="rcc">RCC Contractor</option>
+              <option value="brickwork">Brickwork</option>
+              <option value="plastering">Plastering</option>
+              <option value="flooring">Flooring/Tiles</option>
+              <option value="plumbing">Plumbing</option>
+              <option value="electrical">Electrical</option>
+              <option value="painting">Painting</option>
+              <option value="waterproofing">Waterproofing</option>
+              <option value="centering">Centering</option>
+              <option value="steel">Steel/Bar Bending</option>
             </optgroup>
-            <optgroup label="इंटीरियर / Interior">
-              <option value="interior">संपूर्ण इंटीरियर / Full Interior</option>
-              <option value="kitchen">मॉड्युलर किचन / Modular Kitchen</option>
-              <option value="wardrobe">वॉर्डरोब / Wardrobe</option>
-              <option value="ceiling">फॉल्स सीलिंग / False Ceiling</option>
-              <option value="furniture">फर्निचर / Furniture</option>
+            <optgroup label="Interior">
+              <option value="interior">Full Interior</option>
+              <option value="kitchen">Modular Kitchen</option>
+              <option value="wardrobe">Wardrobe</option>
+              <option value="ceiling">False Ceiling</option>
+              <option value="furniture">Furniture</option>
             </optgroup>
-            <optgroup label="इतर / Other">
-              <option value="architect">आर्किटेक्ट / Architect</option>
-              <option value="engineer">अभियंता / Engineer</option>
-              <option value="landscaping">लँडस्केपिंग / Landscaping</option>
-              <option value="excavation">खोदकाम / Excavation</option>
+            <optgroup label="Other">
+              <option value="architect">Architect</option>
+              <option value="engineer">Engineer</option>
+              <option value="landscaping">Landscaping</option>
+              <option value="excavation">Excavation</option>
             </optgroup>
           </select>
         </div>
-        <div class="fg"><label>पक्षाचे नाव / Party Name *</label><input type="text" id="agr_party" placeholder="कंत्राटदार/ग्राहक नाव / Contractor/Client name"></div>
-        <div class="fg"><label>संपर्क व्यक्ती / Contact Person</label><input type="text" id="agr_contact"></div>
-        <div class="fg"><label>मोबाईल / Mobile *</label><input type="tel" id="agr_mobile"></div>
-        <div class="fg"><label>ईमेल / Email</label><input type="email" id="agr_email"></div>
-        <div class="fg"><label>पत्ता / Address</label><input type="text" id="agr_address"></div>
-        <div class="fg"><label>GST क्रमांक / GST No.</label><input type="text" id="agr_gst"></div>
+        <div class="fg"><label>Party Name *</label><input type="text" id="agr_party" placeholder="Contractor/Client name"></div>
+        <div class="fg"><label>Contact Person</label><input type="text" id="agr_contact"></div>
+        <div class="fg"><label>Mobile *</label><input type="tel" id="agr_mobile"></div>
+        <div class="fg"><label>Email</label><input type="email" id="agr_email"></div>
+        <div class="fg"><label>Address</label><input type="text" id="agr_address"></div>
+        <div class="fg"><label>GST No.</label><input type="text" id="agr_gst"></div>
       </div>
-      <div class="card-header mt-16"><div class="card-title">💰 आर्थिक तपशील / Financial</div></div>
+      <div class="card-header mt-16"><div class="card-title">💰 Financial</div></div>
       <div class="form-grid">
-        <div class="fg"><label>दर प्रकार / Rate Type</label>
+        <div class="fg"><label>Rate Type</label>
           <select id="agr_rate_type">
-            <option value="sqft">प्रति चौ.फूट / Per Sq.Ft</option>
-            <option value="rft">प्रति आर.फूट / Per RFT</option>
-            <option value="cum">प्रति क्यूबिक मीटर / Per CUM</option>
-            <option value="lumpsum">एकूण / Lumpsum</option>
-            <option value="day">प्रति दिवस / Per Day</option>
+            <option value="sqft">Per Sq.Ft</option>
+            <option value="rft">Per RFT</option>
+            <option value="cum">Per CUM</option>
+            <option value="lumpsum">Lumpsum</option>
+            <option value="day">Per Day</option>
           </select>
         </div>
-        <div class="fg"><label>दर (₹) / Rate (₹)</label><input type="number" id="agr_rate" oninput="calcAgrTotal()"></div>
-        <div class="fg"><label>प्रमाण / Qty</label><input type="number" id="agr_qty" oninput="calcAgrTotal()"></div>
-        <div class="fg"><label>एकूण रक्कम (₹) / Total Value (₹) *</label><input type="number" id="agr_total"></div>
-        <div class="fg"><label>ॲडव्हान्स (₹) / Advance (₹)</label><input type="number" id="agr_adv" value="0"></div>
-        <div class="fg"><label>पेमेंट अटी / Payment Terms</label>
+        <div class="fg"><label>Rate (₹)</label><input type="number" id="agr_rate" oninput="calcAgrTotal()"></div>
+        <div class="fg"><label>Qty</label><input type="number" id="agr_qty" oninput="calcAgrTotal()"></div>
+        <div class="fg"><label>Total Value (₹) *</label><input type="number" id="agr_total"></div>
+        <div class="fg"><label>Advance (₹)</label><input type="number" id="agr_adv" value="0"></div>
+        <div class="fg"><label>Payment Terms</label>
           <select id="agr_pay_terms">
-            <option>टप्प्यानुसार / Stage-wise</option>
-            <option>साप्ताहिक / Weekly</option>
-            <option>मासिक / Monthly</option>
-            <option>पूर्णत्वावर / On completion</option>
+            <option>Stage-wise</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+            <option>On completion</option>
           </select>
         </div>
-        <div class="fg"><label>सुरुवात तारीख / Start Date</label><input type="date" id="agr_start"></div>
-        <div class="fg"><label>समाप्ती तारीख / End Date</label><input type="date" id="agr_end"></div>
-        <div class="fg full"><label>कामाची व्याप्ती / Scope *</label><textarea id="agr_scope" rows="3" placeholder="कामाचा तपशील / Detailed work scope..."></textarea></div>
-        <div class="fg full"><label>साहित्य पुरवठा / Material Supply</label>
+        <div class="fg"><label>Start Date</label><input type="date" id="agr_start"></div>
+        <div class="fg"><label>End Date</label><input type="date" id="agr_end"></div>
+        <div class="fg full"><label>Scope *</label><textarea id="agr_scope" rows="3" placeholder="Detailed work scope..."></textarea></div>
+        <div class="fg full"><label>Material Supply</label>
           <select id="agr_material">
-            <option>मालक सर्व पुरवतो / Owner supplies all</option>
-            <option>कंत्राटदार सर्व पुरवतो / Contractor supplies all</option>
-            <option>मिश्र / Mixed</option>
+            <option>Owner supplies all</option>
+            <option>Contractor supplies all</option>
+            <option>Mixed</option>
           </select>
         </div>
-        
-        <!-- Stage-wise Details (for RCC/Brickwork) -->
-        <div class="fg full" id="stage_wise_section" style="display:none">
-          <div style="background:#f0f9ff;padding:16px;border-radius:8px;border:1px solid #0369a1">
-            <div style="font-weight:700;margin-bottom:12px;color:#0369a1">📊 टप्प्याटप्प्याने तपशील / Stage-wise Details</div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
-              
-              <!-- Ground Floor -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid #ddd">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">🏗️ Ground Floor (भूतल)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <select id="stage_ground_type" onchange="toggleStageFields('ground')" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:12px">
-                    <option value="rate">Per Sq.Ft (प्रति चौ.फूट)</option>
-                    <option value="lumpsum">Lumpsum (एकूण)</option>
-                  </select>
-                  <div id="stage_ground_rate_fields">
-                    <input type="number" id="stage_ground_area" placeholder="Area in Sq.Ft (क्षेत्रफळ)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px;margin-bottom:6px" oninput="calculateStageTotal()">
-                    <input type="number" id="stage_ground_rate" placeholder="Rate/Sq.Ft (दर)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div id="stage_ground_lumpsum_field" style="display:none">
-                    <input type="number" id="stage_ground_lumpsum" placeholder="Lumpsum Amount (एकूण रक्कम)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div style="font-size:12px;color:#666;padding:4px;background:#f9f9f9;border-radius:4px">
-                    Amount: <span id="stage_ground_amount" style="font-weight:600;color:#0369a1">₹0</span>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- First Floor -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid #ddd">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">🏢 First Floor (पहिला मजला)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <select id="stage_first_type" onchange="toggleStageFields('first')" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:12px">
-                    <option value="rate">Per Sq.Ft (प्रति चौ.फूट)</option>
-                    <option value="lumpsum">Lumpsum (एकूण)</option>
-                  </select>
-                  <div id="stage_first_rate_fields">
-                    <input type="number" id="stage_first_area" placeholder="Area in Sq.Ft (क्षेत्रफळ)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px;margin-bottom:6px" oninput="autoFillFirstFloorRate();calculateStageTotal()">
-                    <input type="number" id="stage_first_rate" placeholder="Rate/Sq.Ft (दर)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div id="stage_first_lumpsum_field" style="display:none">
-                    <input type="number" id="stage_first_lumpsum" placeholder="Lumpsum Amount (एकूण रक्कम)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div style="font-size:12px;color:#666;padding:4px;background:#f9f9f9;border-radius:4px">
-                    Amount: <span id="stage_first_amount" style="font-weight:600;color:#0369a1">₹0</span>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Second Floor -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid #ddd">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">🏬 Second Floor (दुसरा मजला)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <select id="stage_second_type" onchange="toggleStageFields('second')" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:12px">
-                    <option value="rate">Per Sq.Ft (प्रति चौ.फूट)</option>
-                    <option value="lumpsum">Lumpsum (एकूण)</option>
-                  </select>
-                  <div id="stage_second_rate_fields">
-                    <input type="number" id="stage_second_area" placeholder="Area in Sq.Ft (क्षेत्रफळ)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px;margin-bottom:6px" oninput="autoFillSecondFloorRate();calculateStageTotal()">
-                    <input type="number" id="stage_second_rate" placeholder="Rate/Sq.Ft (दर)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div id="stage_second_lumpsum_field" style="display:none">
-                    <input type="number" id="stage_second_lumpsum" placeholder="Lumpsum Amount (एकूण रक्कम)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div style="font-size:12px;color:#666;padding:4px;background:#f9f9f9;border-radius:4px">
-                    Amount: <span id="stage_second_amount" style="font-weight:600;color:#0369a1">₹0</span>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Third Floor -->
-              <div style="background:white;padding:12px;border-radius:6px;border:1px solid #ddd">
-                <div style="font-weight:600;margin-bottom:8px;color:#333">🏙️ Third Floor (तिसरा मजला)</div>
-                <div style="display:flex;flex-direction:column;gap:6px">
-                  <select id="stage_third_type" onchange="toggleStageFields('third')" style="padding:6px;border:1px solid #ddd;border-radius:4px;font-size:12px">
-                    <option value="rate">Per Sq.Ft (प्रति चौ.फूट)</option>
-                    <option value="lumpsum">Lumpsum (एकूण)</option>
-                  </select>
-                  <div id="stage_third_rate_fields">
-                    <input type="number" id="stage_third_area" placeholder="Area in Sq.Ft (क्षेत्रफळ)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px;margin-bottom:6px" oninput="autoFillThirdFloorRate();calculateStageTotal()">
-                    <input type="number" id="stage_third_rate" placeholder="Rate/Sq.Ft (दर)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div id="stage_third_lumpsum_field" style="display:none">
-                    <input type="number" id="stage_third_lumpsum" placeholder="Lumpsum Amount (एकूण रक्कम)" style="width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;font-size:13px" oninput="calculateStageTotal()">
-                  </div>
-                  <div style="font-size:12px;color:#666;padding:4px;background:#f9f9f9;border-radius:4px">
-                    Amount: <span id="stage_third_amount" style="font-weight:600;color:#0369a1">₹0</span>
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-            
-            <!-- Total Calculation -->
-            <div style="margin-top:16px;padding:12px;background:white;border-radius:6px;border:2px solid #0369a1;display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <div style="font-size:13px;color:#666">Total Area (एकूण क्षेत्रफळ)</div>
-                <div style="font-size:18px;font-weight:700;color:#333" id="stage_total_area">0 Sq.Ft</div>
-              </div>
-              <div>
-                <div style="font-size:13px;color:#666">Grand Total (एकूण रक्कम)</div>
-                <div style="font-size:24px;font-weight:700;color:#0369a1" id="stage_grand_total">₹0</div>
-              </div>
-              <button type="button" class="btn btn-sm btn-acc" onclick="calculateStageTotal()">🔢 Calculate Total</button>
-            </div>
-            
-            <div style="margin-top:8px;padding:8px;background:#fef3c7;border-radius:4px;font-size:12px;color:#92400e">
-              💡 <strong>टीप / Tip:</strong> Ground floor चा rate भरल्यावर, वरच्या मजल्यांचा rate automatic +₹10 होईल
-            </div>
-          </div>
-        </div>
-        
         <div class="fg full"><label>Special Terms</label><textarea id="agr_terms" rows="2" placeholder="Penalty, quality specs..."></textarea></div>
       </div>
       <div class="form-actions">
@@ -1939,124 +1611,14 @@ td.mono { font-variant-numeric: tabular-nums; }
 ══════════════════════════════════════════════════ -->
 <div id="pg-calculator" class="page">
   <div class="subtabs">
-    <button class="subtab active" onclick="calcTabFn('steel')">🔧 Steel Calculator</button>
-    <button class="subtab" onclick="calcTabFn('slab')">🏗️ Slab Calculator</button>
+    <button class="subtab active" onclick="calcTabFn('slab')">🏗️ Slab Calculator</button>
     <button class="subtab" onclick="calcTabFn('brick')">🧱 Brick Calculator</button>
     <button class="subtab" onclick="calcTabFn('plaster')">🪣 Plaster</button>
     <button class="subtab" onclick="calcTabFn('paint')">🎨 Paint</button>
     <button class="subtab" onclick="calcTabFn('concrete')">⚗️ Concrete Mix</button>
   </div>
 
-  <!-- Steel Calculator -->
-  <div id="calc-steel">
-    <div class="card card-pad" style="max-width:800px">
-      <div class="card-header"><div class="card-title"><span class="ct-icon">🔧</span> Steel Calculator (Footing, Column, Beam, Slab)</div></div>
-      
-      <!-- Element Type Selector -->
-      <div style="margin-bottom:16px">
-        <label style="font-weight:600;display:block;margin-bottom:8px">Select Element Type:</label>
-        <select id="steel_element_type" onchange="showSteelElementForm()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:14px">
-          <option value="">-- Select Element --</option>
-          <option value="footing">🏗️ Footing</option>
-          <option value="column">🏛️ Column</option>
-          <option value="plinth_beam">📐 Plinth Beam</option>
-          <option value="beam">🌉 Beam</option>
-          <option value="slab">🏢 Slab</option>
-        </select>
-      </div>
-      
-      <!-- Footing Form -->
-      <div id="steel_footing_form" style="display:none">
-        <div style="background:#f0f9ff;padding:12px;border-radius:6px;margin-bottom:16px">
-          <div style="font-weight:600;color:#0369a1;margin-bottom:8px">🏗️ Footing Details</div>
-          <div class="form-grid">
-            <div class="fg"><label>Length (m)</label><input type="number" id="ft_length" placeholder="2" oninput="calcSteelFooting()"></div>
-            <div class="fg"><label>Width (m)</label><input type="number" id="ft_width" placeholder="2" oninput="calcSteelFooting()"></div>
-            <div class="fg"><label>Depth (m)</label><input type="number" id="ft_depth" placeholder="0.6" oninput="calcSteelFooting()"></div>
-            <div class="fg"><label>Main Bar Dia (mm)</label><input type="number" id="ft_main_dia" placeholder="16" oninput="calcSteelFooting()"></div>
-            <div class="fg"><label>Main Bar Spacing (mm)</label><input type="number" id="ft_spacing" placeholder="150" oninput="calcSteelFooting()"></div>
-            <div class="fg"><label>Number of Footings</label><input type="number" id="ft_count" placeholder="1" value="1" oninput="calcSteelFooting()"></div>
-          </div>
-        </div>
-        <div id="footingResult" class="calc-result" style="display:none"></div>
-      </div>
-      
-      <!-- Column Form -->
-      <div id="steel_column_form" style="display:none">
-        <div style="background:#fef3c7;padding:12px;border-radius:6px;margin-bottom:16px">
-          <div style="font-weight:600;color:#92400e;margin-bottom:8px">🏛️ Column Details</div>
-          <div class="form-grid">
-            <div class="fg"><label>Column Size (mm)</label><input type="text" id="col_size" placeholder="e.g. 230x300" oninput="calcSteelColumn()"></div>
-            <div class="fg"><label>Column Height (m)</label><input type="number" id="col_height" placeholder="3" oninput="calcSteelColumn()"></div>
-            <div class="fg"><label>Number of Main Bars</label><input type="number" id="col_main_bars" placeholder="4" oninput="calcSteelColumn()"></div>
-            <div class="fg"><label>Main Bar Dia (mm)</label><input type="number" id="col_main_dia" placeholder="16" oninput="calcSteelColumn()"></div>
-            <div class="fg"><label>Stirrup Bar Dia (mm)</label><input type="number" id="col_stirrup_dia" placeholder="8" oninput="calcSteelColumn()"></div>
-            <div class="fg"><label>Stirrup Spacing (mm)</label><input type="number" id="col_stirrup_spacing" placeholder="150" oninput="calcSteelColumn()"></div>
-            <div class="fg"><label>Number of Columns</label><input type="number" id="col_count" placeholder="1" value="1" oninput="calcSteelColumn()"></div>
-          </div>
-        </div>
-        <div id="columnResult" class="calc-result" style="display:none"></div>
-      </div>
-      
-      <!-- Plinth Beam Form -->
-      <div id="steel_plinth_form" style="display:none">
-        <div style="background:#f3e8ff;padding:12px;border-radius:6px;margin-bottom:16px">
-          <div style="font-weight:600;color:#6b21a8;margin-bottom:8px">📐 Plinth Beam Details</div>
-          <div class="form-grid">
-            <div class="fg"><label>Beam Size (mm)</label><input type="text" id="pb_size" placeholder="e.g. 230x300" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Beam Length (m)</label><input type="number" id="pb_length" placeholder="5" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Top Bars (No.)</label><input type="number" id="pb_top_bars" placeholder="2" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Top Bar Dia (mm)</label><input type="number" id="pb_top_dia" placeholder="12" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Bottom Bars (No.)</label><input type="number" id="pb_bottom_bars" placeholder="2" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Bottom Bar Dia (mm)</label><input type="number" id="pb_bottom_dia" placeholder="12" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Stirrup Dia (mm)</label><input type="number" id="pb_stirrup_dia" placeholder="8" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Stirrup Spacing (mm)</label><input type="number" id="pb_stirrup_spacing" placeholder="150" oninput="calcSteelPlinth()"></div>
-            <div class="fg"><label>Number of Beams</label><input type="number" id="pb_count" placeholder="1" value="1" oninput="calcSteelPlinth()"></div>
-          </div>
-        </div>
-        <div id="plinthResult" class="calc-result" style="display:none"></div>
-      </div>
-      
-      <!-- Beam Form -->
-      <div id="steel_beam_form" style="display:none">
-        <div style="background:#fce7f3;padding:12px;border-radius:6px;margin-bottom:16px">
-          <div style="font-weight:600;color:#9f1239;margin-bottom:8px">🌉 Beam Details</div>
-          <div class="form-grid">
-            <div class="fg"><label>Beam Size (mm)</label><input type="text" id="bm_size" placeholder="e.g. 230x450" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Beam Length (m)</label><input type="number" id="bm_length" placeholder="5" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Top Bars (No.)</label><input type="number" id="bm_top_bars" placeholder="3" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Top Bar Dia (mm)</label><input type="number" id="bm_top_dia" placeholder="16" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Bottom Bars (No.)</label><input type="number" id="bm_bottom_bars" placeholder="2" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Bottom Bar Dia (mm)</label><input type="number" id="bm_bottom_dia" placeholder="12" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Stirrup Dia (mm)</label><input type="number" id="bm_stirrup_dia" placeholder="8" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Stirrup Spacing (mm)</label><input type="number" id="bm_stirrup_spacing" placeholder="150" oninput="calcSteelBeam()"></div>
-            <div class="fg"><label>Number of Beams</label><input type="number" id="bm_count" placeholder="1" value="1" oninput="calcSteelBeam()"></div>
-          </div>
-        </div>
-        <div id="beamResult" class="calc-result" style="display:none"></div>
-      </div>
-      
-      <!-- Slab Form -->
-      <div id="steel_slab_form" style="display:none">
-        <div style="background:#dcfce7;padding:12px;border-radius:6px;margin-bottom:16px">
-          <div style="font-weight:600;color:#14532d;margin-bottom:8px">🏢 Slab Details</div>
-          <div class="form-grid">
-            <div class="fg"><label>Length (m)</label><input type="number" id="slb_length" placeholder="10" oninput="calcSteelSlab()"></div>
-            <div class="fg"><label>Width (m)</label><input type="number" id="slb_width" placeholder="8" oninput="calcSteelSlab()"></div>
-            <div class="fg"><label>Thickness (mm)</label><input type="number" id="slb_thickness" placeholder="125" oninput="calcSteelSlab()"></div>
-            <div class="fg"><label>Main Bar Dia (mm)</label><input type="number" id="slb_main_dia" placeholder="10" oninput="calcSteelSlab()"></div>
-            <div class="fg"><label>Main Bar Spacing (mm)</label><input type="number" id="slb_main_spacing" placeholder="150" oninput="calcSteelSlab()"></div>
-            <div class="fg"><label>Distribution Bar Dia (mm)</label><input type="number" id="slb_dist_dia" placeholder="8" oninput="calcSteelSlab()"></div>
-            <div class="fg"><label>Distribution Spacing (mm)</label><input type="number" id="slb_dist_spacing" placeholder="200" oninput="calcSteelSlab()"></div>
-          </div>
-        </div>
-        <div id="slabSteelResult" class="calc-result" style="display:none"></div>
-      </div>
-      
-    </div>
-  </div>
-
-  <div id="calc-slab" style="display:none">
+  <div id="calc-slab">
     <div class="card card-pad" style="max-width:600px">
       <div class="card-header"><div class="card-title"><span class="ct-icon">🏗️</span> RCC Slab Material Calculator</div></div>
       <div class="form-grid">
@@ -2883,421 +2445,6 @@ function showToast(msg,type='ok'){
 const pageNames = { dashboard:'Dashboard', material:'Material', labour:'Labour', finance:'Finance', agreements:'Agreements', plot:'🏡 Plot Purchase', electricity:'⚡ Light Meter', borewell:'💧 Borewell / Well', site:'Site', calculator:'Calculator', report:'Report', settings:'⚙️ Settings' };
 let chartExpense=null, chartMonthly=null, budgetChartInst=null, progressChartInst=null;
 
-// ══════════════════════════════════════════════════════════════
-//  AGREEMENTS RENDER
-// ══════════════════════════════════════════════════════════════
-function renderAgreements(){
-  const body = document.getElementById('agreementsBody');
-  if(!body) return;
-  if(!agreements.length){
-    body.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📑</div><p>No agreements</p></div></td></tr>';
-    return;
-  }
-  
-  const typeNames = {
-    rcc:'RCC', brickwork:'Brickwork', plastering:'Plastering', flooring:'Flooring',
-    plumbing:'Plumbing', electrical:'Electrical', painting:'Painting',
-    waterproofing:'Waterproofing', centering:'Centering', steel:'Steel Work',
-    interior:'Interior', kitchen:'Kitchen', wardrobe:'Wardrobe', ceiling:'Ceiling',
-    furniture:'Furniture', architect:'Architect', engineer:'Engineer',
-    landscaping:'Landscaping', excavation:'Excavation'
-  };
-  
-  body.innerHTML = agreements.map(a=>`<tr>
-    <td>${a.date}</td>
-    <td><span class="badge b-blue">${typeNames[a.type]||a.type}</span></td>
-    <td><strong>${a.party}</strong>${a.mobile?`<br><small>${a.mobile}</small>`:''}</td>
-    <td class="mono font-bold">${fmt(a.total)}</td>
-    <td><span class="badge ${a.status==='Active'?'b-green':'b-muted'}">${a.status}</span></td>
-    <td><div class="td-actions">
-      <button class="btn btn-acc btn-xs" onclick="viewAgreementPDF('${a.id}')">📄 PDF</button>
-      <button class="btn btn-err btn-xs" onclick="delAgreement('${a.id}')">🗑️</button>
-    </div></td>
-  </tr>`).join('');
-}
-
-function delAgreement(id){
-  if(!confirm('Delete this agreement?')) return;
-  agreements = agreements.filter(a=>String(a.id)!==String(id));
-  saveAll();
-  renderAgreements();
-  showToast('Deleted','warn');
-}
-
-function viewAgreementPDF(id){
-  const agr = agreements.find(a=>String(a.id)===String(id));
-  if(!agr) return;
-  
-  // Generate PDF content
-  const typeNames = {
-    rcc:'RCC Contractor', brickwork:'Brickwork Contractor', plastering:'Plastering Contractor',
-    flooring:'Flooring/Tiles Contractor', plumbing:'Plumbing Contractor', electrical:'Electrical Contractor',
-    painting:'Painting Contractor', interior:'Full Interior Package', kitchen:'Modular Kitchen',
-    wardrobe:'Wardrobe/Carpentry', architect:'Architect', engineer:'Structural Engineer'
-  };
-  
-  const pdfContent = `
-    <div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;line-height:1.6">
-      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
-        <h1 style="margin:0;color:#333">CONSTRUCTION AGREEMENT</h1>
-        <p style="margin:10px 0 0;color:#666">${typeNames[agr.type] || agr.type}</p>
-      </div>
-      
-      <p style="margin-bottom:20px">This Agreement made on <strong>${agr.date}</strong></p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px">BETWEEN</h3>
-      <p><strong>OWNER:</strong> ${user.name || 'Owner Name'}<br>
-      Address: ${user.address || 'Owner Address'}<br>
-      Mobile: ${user.mobile || 'Owner Mobile'}</p>
-      
-      <p style="text-align:center;margin:20px 0">AND</p>
-      
-      <p><strong>CONTRACTOR:</strong> ${agr.party}<br>
-      ${agr.contact ? `Contact Person: ${agr.contact}<br>` : ''}
-      Mobile: ${agr.mobile}<br>
-      ${agr.email ? `Email: ${agr.email}<br>` : ''}
-      ${agr.address ? `Address: ${agr.address}<br>` : ''}
-      ${agr.gst ? `GST No: ${agr.gst}` : ''}</p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">SCOPE OF WORK</h3>
-      <p>${agr.scope}</p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">FINANCIAL TERMS</h3>
-      <table style="width:100%;border-collapse:collapse;margin-top:10px">
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate Type:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.rate_type.toUpperCase()}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.rate} per ${agr.rate_type}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Quantity:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.qty} ${agr.rate_type}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Total Contract Value:</strong></td><td style="padding:8px;border:1px solid #ddd;font-weight:bold">₹${agr.total.toLocaleString('en-IN')}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Advance:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.advance.toLocaleString('en-IN')}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Payment Terms:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.pay_terms}</td></tr>
-      </table>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">WORK SCHEDULE</h3>
-      <p><strong>Start Date:</strong> ${agr.start_date || 'TBD'}<br>
-      <strong>Completion Date:</strong> ${agr.end_date || 'TBD'}</p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">MATERIAL SUPPLY</h3>
-      <p>${agr.material}</p>
-      
-      ${agr.terms ? `<h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">TERMS & CONDITIONS</h3><p>${agr.terms}</p>` : ''}
-      
-      <div style="margin-top:60px;display:flex;justify-content:space-between">
-        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
-          <strong>Owner Signature</strong><br>
-          <small>${user.name || 'Owner Name'}</small>
-        </div>
-        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
-          <strong>Contractor Signature</strong><br>
-          <small>${agr.party}</small>
-        </div>
-      </div>
-      
-      <p style="text-align:center;color:#666;font-size:12px;margin-top:40px">
-        Generated on ${new Date().toLocaleDateString('en-IN')} | Construction Management System
-      </p>
-    </div>
-  `;
-  
-  // Open in new window
-  const win = window.open('', '_blank');
-  win.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Agreement - ${agr.party}</title>
-      <meta charset="UTF-8">
-      <style>
-        @media print {
-          body { margin: 0; }
-          button { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
-        <button onclick="window.print()" style="padding:10px 20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">🖨️ Print / Save as PDF</button>
-      </div>
-      ${pdfContent}
-    </body>
-    </html>
-  `);
-  win.document.close();
-}
-
-function agreementTab(tab){
-  ['create','list'].forEach(t=>{
-    const el=document.getElementById('agr-'+t);
-    if(el) el.style.display = t===tab ? 'block' : 'none';
-  });
-  document.querySelectorAll('#pg-agreements .subtabs .subtab').forEach((b,i)=>{
-    b.classList.toggle('active', ['create','list'][i]===tab);
-  });
-  if(tab==='list') renderAgreements();
-}
-
-function calcAgrTotal(){
-  const rate = parseFloat(document.getElementById('agr_rate')?.value) || 0;
-  const qty = parseFloat(document.getElementById('agr_qty')?.value) || 0;
-  const totalEl = document.getElementById('agr_total');
-  if(totalEl && rate && qty) totalEl.value = rate * qty;
-}
-
-const agreementTemplates = {
-  rcc: {
-    scope: 'RCC work including foundation, columns, beams, and slabs. All formwork/centering to be provided by contractor. Steel reinforcement and concrete to be supplied by owner. Work as per structural drawings.',
-    terms: 'Quality: As per IS 456. Curing: Min 7 days. Payment: Stage-wise after engineer approval. Penalty: ₹500/day for delay beyond agreed date.'
-  },
-  brickwork: {
-    scope: 'Brickwork for all walls as per architectural drawings. Includes plastering base. Bricks and cement/sand mortar by owner. Labour and tools by contractor.',
-    terms: 'Quality: First class bricks, 1:6 cement mortar. Plumb and level to be maintained. Payment on completion of each floor.'
-  },
-  plastering: {
-    scope: 'Cement plastering for internal and external walls. Thickness as per specifications. Material (cement, sand) by owner.',
-    terms: 'Quality: Smooth finish, no cracks. Curing for 7 days. Payment after final inspection and approval.'
-  },
-  flooring: {
-    scope: 'Vitrified tiles flooring for entire house. Includes leveling, tile laying, grouting. Tiles by owner, adhesive/grout by contractor.',
-    terms: 'Quality: Level surface, proper grouting. No tile breakage. Warranty: 1 year on workmanship.'
-  },
-  plumbing: {
-    scope: 'Complete plumbing work - water supply lines, drainage, CP fittings installation. Pipes and fittings by owner.',
-    terms: 'Quality: Pressure testing mandatory. No leakage. As per plumbing code. Payment: 30% advance, 40% on rough-in, 30% on completion.'
-  },
-  electrical: {
-    scope: 'Electrical wiring, conduits, switch/socket installation, DB panel, earthing. Wire and accessories by owner.',
-    terms: 'License: Valid electrical contractor license required. Quality: As per IE rules. Testing certificate to be provided.'
-  },
-  painting: {
-    scope: 'Interior and exterior painting - putty, primer, 2 coats emulsion/enamel. Paint by owner.',
-    terms: 'Quality: Smooth finish, uniform color. Touch-up after handover included.'
-  },
-  interior: {
-    scope: 'Complete interior package - modular kitchen, wardrobes, false ceiling, TV units, crockery units. Material and design as per BOQ.',
-    terms: 'Design approval before execution. Payment: 40% advance, 30% on 50% work, 30% on completion. Warranty: 1 year.'
-  },
-  kitchen: {
-    scope: 'Modular kitchen with cabinets, countertop, chimney hood provision, sink installation. Hardware (hinges, channels) premium quality.',
-    terms: 'Material: As per approved design. Installation: Professional fitting. Warranty: 5 years on cabinet, 1 year on hardware.'
-  }
-};
-
-function loadAgreementTemplate(){
-  const type = document.getElementById('agr_type')?.value;
-  const stageSection = document.getElementById('stage_wise_section');
-  
-  // Show stage section only for RCC and Brickwork
-  if(stageSection){
-    if(type === 'rcc' || type === 'brickwork'){
-      stageSection.style.display = 'block';
-    } else {
-      stageSection.style.display = 'none';
-      clearStageFields();
-    }
-  }
-  
-  if(!type || !agreementTemplates[type]) return;
-  const tmpl = agreementTemplates[type];
-  document.getElementById('agr_scope').value = tmpl.scope;
-  document.getElementById('agr_terms').value = tmpl.terms;
-}
-
-function toggleStageFields(stage){
-  const type = document.getElementById(`stage_${stage}_type`)?.value;
-  const rateFields = document.getElementById(`stage_${stage}_rate_fields`);
-  const lumpsumField = document.getElementById(`stage_${stage}_lumpsum_field`);
-  
-  if(type === 'lumpsum'){
-    if(rateFields) rateFields.style.display = 'none';
-    if(lumpsumField) lumpsumField.style.display = 'block';
-  } else {
-    if(rateFields) rateFields.style.display = 'block';
-    if(lumpsumField) lumpsumField.style.display = 'none';
-  }
-  calculateStageTotal();
-}
-
-function clearStageFields(){
-  ['ground','first','second','third'].forEach(stage=>{
-    const areaEl = document.getElementById(`stage_${stage}_area`);
-    const rateEl = document.getElementById(`stage_${stage}_rate`);
-    const lumpsumEl = document.getElementById(`stage_${stage}_lumpsum`);
-    const amountEl = document.getElementById(`stage_${stage}_amount`);
-    const typeEl = document.getElementById(`stage_${stage}_type`);
-    if(areaEl) areaEl.value = '';
-    if(rateEl) rateEl.value = '';
-    if(lumpsumEl) lumpsumEl.value = '';
-    if(amountEl) amountEl.textContent = '₹0';
-    if(typeEl) typeEl.value = 'rate';
-    
-    // Reset display
-    const rateFields = document.getElementById(`stage_${stage}_rate_fields`);
-    const lumpsumField = document.getElementById(`stage_${stage}_lumpsum_field`);
-    if(rateFields) rateFields.style.display = 'block';
-    if(lumpsumField) lumpsumField.style.display = 'none';
-  });
-  const totalArea = document.getElementById('stage_total_area');
-  const grandTotal = document.getElementById('stage_grand_total');
-  if(totalArea) totalArea.textContent = '0 Sq.Ft';
-  if(grandTotal) grandTotal.textContent = '₹0';
-}
-
-function autoFillFirstFloorRate(){
-  const groundRate = parseFloat(document.getElementById('stage_ground_rate')?.value) || 0;
-  const firstArea = parseFloat(document.getElementById('stage_first_area')?.value) || 0;
-  const firstRateEl = document.getElementById('stage_first_rate');
-  
-  if(groundRate > 0 && firstArea > 0 && (!firstRateEl.value || firstRateEl.value == 0)){
-    firstRateEl.value = groundRate + 10;
-  }
-}
-
-function autoFillSecondFloorRate(){
-  const groundRate = parseFloat(document.getElementById('stage_ground_rate')?.value) || 0;
-  const secondArea = parseFloat(document.getElementById('stage_second_area')?.value) || 0;
-  const secondRateEl = document.getElementById('stage_second_rate');
-  
-  if(groundRate > 0 && secondArea > 0 && (!secondRateEl.value || secondRateEl.value == 0)){
-    secondRateEl.value = groundRate + 20;
-  }
-}
-
-function autoFillThirdFloorRate(){
-  const groundRate = parseFloat(document.getElementById('stage_ground_rate')?.value) || 0;
-  const thirdArea = parseFloat(document.getElementById('stage_third_area')?.value) || 0;
-  const thirdRateEl = document.getElementById('stage_third_rate');
-  
-  if(groundRate > 0 && thirdArea > 0 && (!thirdRateEl.value || thirdRateEl.value == 0)){
-    thirdRateEl.value = groundRate + 30;
-  }
-}
-
-function calculateStageTotal(){
-  const stages = ['ground','first','second','third'];
-  let totalArea = 0;
-  let grandTotal = 0;
-  
-  stages.forEach(stage=>{
-    const type = document.getElementById(`stage_${stage}_type`)?.value || 'rate';
-    let amount = 0;
-    
-    if(type === 'lumpsum'){
-      amount = parseFloat(document.getElementById(`stage_${stage}_lumpsum`)?.value) || 0;
-    } else {
-      const area = parseFloat(document.getElementById(`stage_${stage}_area`)?.value) || 0;
-      const rate = parseFloat(document.getElementById(`stage_${stage}_rate`)?.value) || 0;
-      amount = area * rate;
-      totalArea += area;
-    }
-    
-    const amountEl = document.getElementById(`stage_${stage}_amount`);
-    if(amountEl) amountEl.textContent = '₹' + amount.toLocaleString('en-IN');
-    
-    grandTotal += amount;
-  });
-  
-  const totalAreaEl = document.getElementById('stage_total_area');
-  const grandTotalEl = document.getElementById('stage_grand_total');
-  if(totalAreaEl) totalAreaEl.textContent = totalArea.toFixed(0) + ' Sq.Ft';
-  if(grandTotalEl) grandTotalEl.textContent = '₹' + grandTotal.toLocaleString('en-IN');
-  
-  const mainTotalEl = document.getElementById('agr_total');
-  if(mainTotalEl) mainTotalEl.value = grandTotal;
-  
-  return {totalArea, grandTotal};
-}
-
-function saveAgreement(){
-  const type = document.getElementById('agr_type')?.value;
-  const party = document.getElementById('agr_party')?.value.trim();
-  const mobile = document.getElementById('agr_mobile')?.value;
-  const total = parseFloat(document.getElementById('agr_total')?.value) || 0;
-  const scope = document.getElementById('agr_scope')?.value.trim();
-  
-  if(!type || !party || !mobile || !total || !scope){
-    showToast('Type, Party, Mobile, Total Value, and Scope required!','warn');
-    return;
-  }
-  
-  let stageDetails = null;
-  if(type === 'rcc' || type === 'brickwork'){
-    const stages = ['ground','first','second','third'];
-    const stageData = [];
-    stages.forEach(stage=>{
-      const stageType = document.getElementById(`stage_${stage}_type`)?.value || 'rate';
-      const stageLabels = {
-        ground: 'Ground Floor',
-        first: 'First Floor',
-        second: 'Second Floor',
-        third: 'Third Floor'
-      };
-      
-      if(stageType === 'lumpsum'){
-        const lumpsum = parseFloat(document.getElementById(`stage_${stage}_lumpsum`)?.value) || 0;
-        if(lumpsum > 0){
-          stageData.push({
-            stage: stageLabels[stage],
-            type: 'lumpsum',
-            lumpsum,
-            amount: lumpsum
-          });
-        }
-      } else {
-        const area = parseFloat(document.getElementById(`stage_${stage}_area`)?.value) || 0;
-        const rate = parseFloat(document.getElementById(`stage_${stage}_rate`)?.value) || 0;
-        if(area > 0){
-          stageData.push({
-            stage: stageLabels[stage],
-            type: 'rate',
-            area,
-            rate,
-            amount: area * rate
-          });
-        }
-      }
-    });
-    if(stageData.length > 0){
-      stageDetails = stageData;
-    }
-  }
-  
-  agreements.push({
-    id: Date.now(),
-    date: document.getElementById('agr_date')?.value || today(),
-    type,
-    party,
-    contact: document.getElementById('agr_contact')?.value,
-    mobile,
-    email: document.getElementById('agr_email')?.value,
-    address: document.getElementById('agr_address')?.value,
-    gst: document.getElementById('agr_gst')?.value,
-    rate_type: document.getElementById('agr_rate_type')?.value,
-    rate: parseFloat(document.getElementById('agr_rate')?.value) || 0,
-    qty: parseFloat(document.getElementById('agr_qty')?.value) || 0,
-    total,
-    advance: parseFloat(document.getElementById('agr_adv')?.value) || 0,
-    pay_terms: document.getElementById('agr_pay_terms')?.value,
-    start_date: document.getElementById('agr_start')?.value,
-    end_date: document.getElementById('agr_end')?.value,
-    scope,
-    material: document.getElementById('agr_material')?.value,
-    terms: document.getElementById('agr_terms')?.value,
-    stages: stageDetails,
-    status: 'Active'
-  });
-  
-  saveAll();
-  renderAgreements();
-  ['agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_scope','agr_terms'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('agr_adv').value='0';
-  agreementTab('list');
-  showToast('✅ Agreement saved!','ok');
-}
-
-// ══════════════════════════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════════════════════════
 function nav(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -3404,506 +2551,11 @@ function siteTab(tab){
 }
 
 function calcTabFn(tab){
-  subTabShow('calc',['steel','slab','brick','plaster','paint','concrete'],tab);
+  subTabShow('calc',['slab','brick','plaster','paint','concrete'],tab);
   document.querySelectorAll('#pg-calculator .subtabs .subtab').forEach((b,i)=>{
-    const tabs=['steel','slab','brick','plaster','paint','concrete'];
+    const tabs=['slab','brick','plaster','paint','concrete'];
     b.classList.toggle('active',tabs[i]===tab);
   });
-}
-
-// ══════════════════════════════════════════════════════════════
-//  STEEL CALCULATOR
-// ══════════════════════════════════════════════════════════════
-function showSteelElementForm(){
-  const type = document.getElementById('steel_element_type')?.value;
-  const forms = ['steel_footing_form','steel_column_form','steel_plinth_form','steel_beam_form','steel_slab_form'];
-  forms.forEach(f=>{ const el=document.getElementById(f); if(el) el.style.display='none'; });
-  
-  if(type === 'footing') document.getElementById('steel_footing_form').style.display = 'block';
-  else if(type === 'column') document.getElementById('steel_column_form').style.display = 'block';
-  else if(type === 'plinth_beam') document.getElementById('steel_plinth_form').style.display = 'block';
-  else if(type === 'beam') document.getElementById('steel_beam_form').style.display = 'block';
-  else if(type === 'slab') document.getElementById('steel_slab_form').style.display = 'block';
-}
-
-function calcSteelFooting(){
-  const L = parseFloat(document.getElementById('ft_length')?.value) || 0;
-  const W = parseFloat(document.getElementById('ft_width')?.value) || 0;
-  const D = parseFloat(document.getElementById('ft_depth')?.value) || 0;
-  const dia = parseFloat(document.getElementById('ft_main_dia')?.value) || 0;
-  const spacing = parseFloat(document.getElementById('ft_spacing')?.value) || 0;
-  const count = parseFloat(document.getElementById('ft_count')?.value) || 1;
-  
-  if(!L || !W || !D || !dia || !spacing) return;
-  
-  // Calculate bars needed in each direction
-  const barsLength = Math.ceil((W*1000)/spacing) + 1;
-  const barsWidth = Math.ceil((L*1000)/spacing) + 1;
-  
-  // Bar length with development length (add 40d on each side)
-  const devLength = 40 * dia / 1000; // in meters
-  const barLenL = L + 2*devLength;
-  const barLenW = W + 2*devLength;
-  
-  // Total length
-  const totalLength = (barsLength * barLenL + barsWidth * barLenW) * count;
-  
-  // Weight calculation (weight = D²/162 * Length)
-  const weightPerMeter = (dia * dia) / 162;
-  const totalWeight = weightPerMeter * totalLength;
-  
-  const result = document.getElementById('footingResult');
-  result.style.display = 'block';
-  result.innerHTML = `
-    <div style="background:#f0f9ff;padding:16px;border-radius:8px">
-      <div style="font-weight:700;font-size:16px;margin-bottom:12px;color:#0369a1">📊 Footing Steel Calculation</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px">
-        <div><strong>Bars in Length:</strong> ${barsLength} nos</div>
-        <div><strong>Bars in Width:</strong> ${barsWidth} nos</div>
-        <div><strong>Bar Length (L):</strong> ${barLenL.toFixed(2)} m</div>
-        <div><strong>Bar Length (W):</strong> ${barLenW.toFixed(2)} m</div>
-        <div><strong>Total Length:</strong> ${totalLength.toFixed(2)} m</div>
-        <div><strong>Bar Diameter:</strong> ${dia} mm</div>
-      </div>
-      <div style="margin-top:16px;padding:12px;background:#0369a1;color:white;border-radius:6px;text-align:center">
-        <div style="font-size:14px;opacity:0.9">Total Steel Required</div>
-        <div style="font-size:28px;font-weight:700">${totalWeight.toFixed(2)} Kg</div>
-        <div style="font-size:12px;opacity:0.8;margin-top:4px">For ${count} footing(s)</div>
-      </div>
-    </div>
-  `;
-}
-
-function calcSteelColumn(){
-  const size = document.getElementById('col_size')?.value || '';
-  const H = parseFloat(document.getElementById('col_height')?.value) || 0;
-  const mainBars = parseFloat(document.getElementById('col_main_bars')?.value) || 0;
-  const mainDia = parseFloat(document.getElementById('col_main_dia')?.value) || 0;
-  const stirrupDia = parseFloat(document.getElementById('col_stirrup_dia')?.value) || 0;
-  const stirrupSpacing = parseFloat(document.getElementById('col_stirrup_spacing')?.value) || 0;
-  const count = parseFloat(document.getElementById('col_count')?.value) || 1;
-  
-  if(!H || !mainBars || !mainDia || !stirrupDia || !stirrupSpacing) return;
-  
-  // Parse column size (e.g., "230x300")
-  const dims = size.split('x').map(d=>parseFloat(d.trim()));
-  const b = dims[0] || 230;
-  const d = dims[1] || 300;
-  
-  // Main bar weight
-  const mainBarLength = H * mainBars * count;
-  const mainBarWeight = (mainDia * mainDia / 162) * mainBarLength;
-  
-  // Stirrup calculation
-  const stirrupLength = 2*(b+d) / 1000; // perimeter in meters
-  const numberOfStirrups = Math.ceil((H*1000) / stirrupSpacing);
-  const totalStirrupLength = stirrupLength * numberOfStirrups * count;
-  const stirrupWeight = (stirrupDia * stirrupDia / 162) * totalStirrupLength;
-  
-  const totalWeight = mainBarWeight + stirrupWeight;
-  
-  const result = document.getElementById('columnResult');
-  result.style.display = 'block';
-  result.innerHTML = `
-    <div style="background:#fef3c7;padding:16px;border-radius:8px">
-      <div style="font-weight:700;font-size:16px;margin-bottom:12px;color:#92400e">📊 Column Steel Calculation</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px">
-        <div><strong>Column Size:</strong> ${b}×${d} mm</div>
-        <div><strong>Height:</strong> ${H} m</div>
-        <div><strong>Main Bars:</strong> ${mainBars} nos × ${mainDia}mm</div>
-        <div><strong>Main Bar Weight:</strong> ${mainBarWeight.toFixed(2)} Kg</div>
-        <div><strong>Stirrups:</strong> ${numberOfStirrups} nos × ${stirrupDia}mm</div>
-        <div><strong>Stirrup Weight:</strong> ${stirrupWeight.toFixed(2)} Kg</div>
-      </div>
-      <div style="margin-top:16px;padding:12px;background:#92400e;color:white;border-radius:6px;text-align:center">
-        <div style="font-size:14px;opacity:0.9">Total Steel Required</div>
-        <div style="font-size:28px;font-weight:700">${totalWeight.toFixed(2)} Kg</div>
-        <div style="font-size:12px;opacity:0.8;margin-top:4px">For ${count} column(s)</div>
-      </div>
-    </div>
-  `;
-}
-
-function calcSteelPlinth(){
-  const size = document.getElementById('pb_size')?.value || '';
-  const L = parseFloat(document.getElementById('pb_length')?.value) || 0;
-  const topBars = parseFloat(document.getElementById('pb_top_bars')?.value) || 0;
-  const topDia = parseFloat(document.getElementById('pb_top_dia')?.value) || 0;
-  const bottomBars = parseFloat(document.getElementById('pb_bottom_bars')?.value) || 0;
-  const bottomDia = parseFloat(document.getElementById('pb_bottom_dia')?.value) || 0;
-  const stirrupDia = parseFloat(document.getElementById('pb_stirrup_dia')?.value) || 0;
-  const stirrupSpacing = parseFloat(document.getElementById('pb_stirrup_spacing')?.value) || 0;
-  const count = parseFloat(document.getElementById('pb_count')?.value) || 1;
-  
-  if(!L || !topBars || !topDia || !bottomBars || !bottomDia || !stirrupDia || !stirrupSpacing) return;
-  
-  const dims = size.split('x').map(d=>parseFloat(d.trim()));
-  const b = dims[0] || 230;
-  const d = dims[1] || 300;
-  
-  // Main bars weight
-  const topBarWeight = (topDia*topDia/162) * topBars * L * count;
-  const bottomBarWeight = (bottomDia*bottomDia/162) * bottomBars * L * count;
-  
-  // Stirrup calculation
-  const stirrupLength = 2*(b+d) / 1000;
-  const numberOfStirrups = Math.ceil((L*1000) / stirrupSpacing);
-  const totalStirrupLength = stirrupLength * numberOfStirrups * count;
-  const stirrupWeight = (stirrupDia*stirrupDia/162) * totalStirrupLength;
-  
-  const totalWeight = topBarWeight + bottomBarWeight + stirrupWeight;
-  
-  const result = document.getElementById('plinthResult');
-  result.style.display = 'block';
-  result.innerHTML = `
-    <div style="background:#f3e8ff;padding:16px;border-radius:8px">
-      <div style="font-weight:700;font-size:16px;margin-bottom:12px;color:#6b21a8">📊 Plinth Beam Steel Calculation</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px">
-        <div><strong>Beam Size:</strong> ${b}×${d} mm</div>
-        <div><strong>Length:</strong> ${L} m</div>
-        <div><strong>Top Bars:</strong> ${topBars} nos × ${topDia}mm = ${topBarWeight.toFixed(2)} Kg</div>
-        <div><strong>Bottom Bars:</strong> ${bottomBars} nos × ${bottomDia}mm = ${bottomBarWeight.toFixed(2)} Kg</div>
-        <div><strong>Stirrups:</strong> ${numberOfStirrups} nos × ${stirrupDia}mm = ${stirrupWeight.toFixed(2)} Kg</div>
-      </div>
-      <div style="margin-top:16px;padding:12px;background:#6b21a8;color:white;border-radius:6px;text-align:center">
-        <div style="font-size:14px;opacity:0.9">Total Steel Required</div>
-        <div style="font-size:28px;font-weight:700">${totalWeight.toFixed(2)} Kg</div>
-        <div style="font-size:12px;opacity:0.8;margin-top:4px">For ${count} beam(s)</div>
-      </div>
-    </div>
-  `;
-}
-
-function calcSteelBeam(){
-  const size = document.getElementById('bm_size')?.value || '';
-  const L = parseFloat(document.getElementById('bm_length')?.value) || 0;
-  const topBars = parseFloat(document.getElementById('bm_top_bars')?.value) || 0;
-  const topDia = parseFloat(document.getElementById('bm_top_dia')?.value) || 0;
-  const bottomBars = parseFloat(document.getElementById('bm_bottom_bars')?.value) || 0;
-  const bottomDia = parseFloat(document.getElementById('bm_bottom_dia')?.value) || 0;
-  const stirrupDia = parseFloat(document.getElementById('bm_stirrup_dia')?.value) || 0;
-  const stirrupSpacing = parseFloat(document.getElementById('bm_stirrup_spacing')?.value) || 0;
-  const count = parseFloat(document.getElementById('bm_count')?.value) || 1;
-  
-  if(!L || !topBars || !topDia || !bottomBars || !bottomDia || !stirrupDia || !stirrupSpacing) return;
-  
-  const dims = size.split('x').map(d=>parseFloat(d.trim()));
-  const b = dims[0] || 230;
-  const d = dims[1] || 450;
-  
-  const topBarWeight = (topDia*topDia/162) * topBars * L * count;
-  const bottomBarWeight = (bottomDia*bottomDia/162) * bottomBars * L * count;
-  
-  const stirrupLength = 2*(b+d) / 1000;
-  const numberOfStirrups = Math.ceil((L*1000) / stirrupSpacing);
-  const totalStirrupLength = stirrupLength * numberOfStirrups * count;
-  const stirrupWeight = (stirrupDia*stirrupDia/162) * totalStirrupLength;
-  
-  const totalWeight = topBarWeight + bottomBarWeight + stirrupWeight;
-  
-  const result = document.getElementById('beamResult');
-  result.style.display = 'block';
-  result.innerHTML = `
-    <div style="background:#fce7f3;padding:16px;border-radius:8px">
-      <div style="font-weight:700;font-size:16px;margin-bottom:12px;color:#9f1239">📊 Beam Steel Calculation</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px">
-        <div><strong>Beam Size:</strong> ${b}×${d} mm</div>
-        <div><strong>Length:</strong> ${L} m</div>
-        <div><strong>Top Bars:</strong> ${topBars} nos × ${topDia}mm = ${topBarWeight.toFixed(2)} Kg</div>
-        <div><strong>Bottom Bars:</strong> ${bottomBars} nos × ${bottomDia}mm = ${bottomBarWeight.toFixed(2)} Kg</div>
-        <div><strong>Stirrups:</strong> ${numberOfStirrups} nos × ${stirrupDia}mm = ${stirrupWeight.toFixed(2)} Kg</div>
-      </div>
-      <div style="margin-top:16px;padding:12px;background:#9f1239;color:white;border-radius:6px;text-align:center">
-        <div style="font-size:14px;opacity:0.9">Total Steel Required</div>
-        <div style="font-size:28px;font-weight:700">${totalWeight.toFixed(2)} Kg</div>
-        <div style="font-size:12px;opacity:0.8;margin-top:4px">For ${count} beam(s)</div>
-      </div>
-    </div>
-  `;
-}
-
-function calcSteelSlab(){
-  const L = parseFloat(document.getElementById('slb_length')?.value) || 0;
-  const W = parseFloat(document.getElementById('slb_width')?.value) || 0;
-  const T = parseFloat(document.getElementById('slb_thickness')?.value) || 0;
-  const mainDia = parseFloat(document.getElementById('slb_main_dia')?.value) || 0;
-  const mainSpacing = parseFloat(document.getElementById('slb_main_spacing')?.value) || 0;
-  const distDia = parseFloat(document.getElementById('slb_dist_dia')?.value) || 0;
-  const distSpacing = parseFloat(document.getElementById('slb_dist_spacing')?.value) || 0;
-  
-  if(!L || !W || !T || !mainDia || !mainSpacing || !distDia || !distSpacing) return;
-  
-  // Main bars (along length)
-  const mainBarsCount = Math.ceil((W*1000)/mainSpacing) + 1;
-  const mainBarLength = L;
-  const mainBarTotalLength = mainBarsCount * mainBarLength;
-  const mainBarWeight = (mainDia*mainDia/162) * mainBarTotalLength;
-  
-  // Distribution bars (along width)
-  const distBarsCount = Math.ceil((L*1000)/distSpacing) + 1;
-  const distBarLength = W;
-  const distBarTotalLength = distBarsCount * distBarLength;
-  const distBarWeight = (distDia*distDia/162) * distBarTotalLength;
-  
-  const totalWeight = mainBarWeight + distBarWeight;
-  const area = L * W;
-  const weightPerSqm = totalWeight / area;
-  
-  const result = document.getElementById('slabSteelResult');
-  result.style.display = 'block';
-  result.innerHTML = `
-    <div style="background:#dcfce7;padding:16px;border-radius:8px">
-      <div style="font-weight:700;font-size:16px;margin-bottom:12px;color:#14532d">📊 Slab Steel Calculation</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px">
-        <div><strong>Slab Area:</strong> ${area.toFixed(2)} m²</div>
-        <div><strong>Thickness:</strong> ${T} mm</div>
-        <div><strong>Main Bars:</strong> ${mainBarsCount} nos × ${mainDia}mm @ ${mainSpacing}mm c/c</div>
-        <div><strong>Main Bar Weight:</strong> ${mainBarWeight.toFixed(2)} Kg</div>
-        <div><strong>Distribution:</strong> ${distBarsCount} nos × ${distDia}mm @ ${distSpacing}mm c/c</div>
-        <div><strong>Distribution Weight:</strong> ${distBarWeight.toFixed(2)} Kg</div>
-        <div><strong>Steel/m²:</strong> ${weightPerSqm.toFixed(2)} Kg/m²</div>
-      </div>
-      <div style="margin-top:16px;padding:12px;background:#14532d;color:white;border-radius:6px;text-align:center">
-        <div style="font-size:14px;opacity:0.9">Total Steel Required</div>
-        <div style="font-size:28px;font-weight:700">${totalWeight.toFixed(2)} Kg</div>
-        <div style="font-size:12px;opacity:0.8;margin-top:4px">For ${L}m × ${W}m slab</div>
-      </div>
-    </div>
-  `;
-}
-
-// ══════════════════════════════════════════════════════════════
-//  PDF EXPORT FUNCTIONS
-// ══════════════════════════════════════════════════════════════
-
-function exportMaterialPDF(){
-  if(materials.length === 0){
-    showToast('⚠️ No material data to export!','warn');
-    return;
-  }
-  
-  const projectName = activeProject ? projects.find(p=>p.id===activeProject)?.name : 'All Projects';
-  const filteredMats = materials.filter(m=>!activeProject || m.projectId===activeProject);
-  
-  if(filteredMats.length === 0){
-    showToast('⚠️ No material data for this project!','warn');
-    return;
-  }
-  
-  // Create printable content
-  let html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Material List - ${projectName}</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h1 { text-align: center; color: #333; border-bottom: 3px solid #0369a1; padding-bottom: 10px; }
-        h2 { color: #0369a1; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #0369a1; color: white; padding: 10px; text-align: left; font-size: 12px; }
-        td { border: 1px solid #ddd; padding: 8px; font-size: 11px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        .summary { background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
-        .summary-item { display: inline-block; margin-right: 30px; }
-        .summary-label { font-size: 12px; color: #666; }
-        .summary-value { font-size: 18px; font-weight: bold; color: #0369a1; }
-        .footer { text-align: center; margin-top: 30px; font-size: 11px; color: #666; }
-      </style>
-    </head>
-    <body>
-      <h1>📦 Material Purchase List</h1>
-      <h2>Project: ${projectName}</h2>
-      <div class="summary">
-        <div class="summary-item">
-          <div class="summary-label">Total Entries</div>
-          <div class="summary-value">${filteredMats.length}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Total Expense</div>
-          <div class="summary-value">₹${filteredMats.reduce((s,m)=>s+m.total,0).toLocaleString('en-IN')}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Total Paid</div>
-          <div class="summary-value">₹${filteredMats.reduce((s,m)=>s+(m.paid||0),0).toLocaleString('en-IN')}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Balance</div>
-          <div class="summary-value">₹${filteredMats.reduce((s,m)=>s+(m.total-(m.paid||0)),0).toLocaleString('en-IN')}</div>
-        </div>
-      </div>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Supplier</th>
-            <th>Invoice</th>
-            <th>Quantity</th>
-            <th>Total (₹)</th>
-            <th>Paid (₹)</th>
-            <th>Balance (₹)</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
-  
-  filteredMats.forEach(m=>{
-    const bal = m.total - (m.paid||0);
-    html += `
-      <tr>
-        <td>${m.date}</td>
-        <td>${m.type}${m.details ? '<br><small style="color:#666">'+m.details+'</small>' : ''}</td>
-        <td>${m.supplier||'-'}</td>
-        <td>${m.invoice||'-'}</td>
-        <td>${m.qty||'-'} ${m.unit||''}</td>
-        <td>₹${m.total.toLocaleString('en-IN')}</td>
-        <td>₹${(m.paid||0).toLocaleString('en-IN')}</td>
-        <td>₹${bal.toLocaleString('en-IN')}</td>
-        <td>${bal>0 ? 'Pending' : 'Paid'}</td>
-      </tr>
-    `;
-  });
-  
-  html += `
-        </tbody>
-      </table>
-      <div class="footer">
-        Generated on ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN')}
-      </div>
-    </body>
-    </html>
-  `;
-  
-  // Open print dialog
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(()=>printWindow.print(), 500);
-}
-
-function exportLabourPDF(){
-  if(labours.length === 0){
-    showToast('⚠️ No labour data to export!','warn');
-    return;
-  }
-  
-  const projectName = activeProject ? projects.find(p=>p.id===activeProject)?.name : 'All Projects';
-  const filteredLab = labours.filter(l=>!activeProject || l.projectId===activeProject);
-  
-  if(filteredLab.length === 0){
-    showToast('⚠️ No labour data for this project!','warn');
-    return;
-  }
-  
-  // Create printable content
-  let html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Labour List - ${projectName}</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h1 { text-align: center; color: #333; border-bottom: 3px solid #059669; padding-bottom: 10px; }
-        h2 { color: #059669; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #059669; color: white; padding: 10px; text-align: left; font-size: 12px; }
-        td { border: 1px solid #ddd; padding: 8px; font-size: 11px; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        .summary { background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0; }
-        .summary-item { display: inline-block; margin-right: 30px; }
-        .summary-label { font-size: 12px; color: #666; }
-        .summary-value { font-size: 18px; font-weight: bold; color: #059669; }
-        .footer { text-align: center; margin-top: 30px; font-size: 11px; color: #666; }
-        .progress-bar { background: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden; }
-        .progress-fill { background: #059669; height: 100%; }
-      </style>
-    </head>
-    <body>
-      <h1>👷 Labour Work List</h1>
-      <h2>Project: ${projectName}</h2>
-      <div class="summary">
-        <div class="summary-item">
-          <div class="summary-label">Total Entries</div>
-          <div class="summary-value">${filteredLab.length}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Total Expense</div>
-          <div class="summary-value">₹${filteredLab.reduce((s,l)=>s+l.total,0).toLocaleString('en-IN')}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Total Paid</div>
-          <div class="summary-value">₹${filteredLab.reduce((s,l)=>s+(l.paid||0),0).toLocaleString('en-IN')}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Balance</div>
-          <div class="summary-value">₹${filteredLab.reduce((s,l)=>s+(l.total-(l.paid||0)),0).toLocaleString('en-IN')}</div>
-        </div>
-      </div>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Work Type</th>
-            <th>Worker</th>
-            <th>Mobile</th>
-            <th>Quantity</th>
-            <th>Rate</th>
-            <th>Total (₹)</th>
-            <th>Paid (₹)</th>
-            <th>Balance (₹)</th>
-            <th>Progress</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
-  
-  filteredLab.forEach(l=>{
-    const bal = l.total - (l.paid||0);
-    const progress = l.progress || 0;
-    html += `
-      <tr>
-        <td>${l.date}</td>
-        <td>${l.work}</td>
-        <td>${l.name||'-'}</td>
-        <td>${l.mobile||'-'}</td>
-        <td>${l.qty||'-'} ${l.unit||''}</td>
-        <td>₹${(l.rate||0).toLocaleString('en-IN')}</td>
-        <td>₹${l.total.toLocaleString('en-IN')}</td>
-        <td>₹${(l.paid||0).toLocaleString('en-IN')}</td>
-        <td>₹${bal.toLocaleString('en-IN')}</td>
-        <td>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width:${progress}%"></div>
-          </div>
-          ${progress}%
-        </td>
-      </tr>
-    `;
-  });
-  
-  html += `
-        </tbody>
-      </table>
-      <div class="footer">
-        Generated on ${new Date().toLocaleDateString('en-IN')} at ${new Date().toLocaleTimeString('en-IN')}
-      </div>
-    </body>
-    </html>
-  `;
-  
-  // Open print dialog
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(()=>printWindow.print(), 500);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -3986,217 +2638,16 @@ function renderSupplierDatalist(){
   const suppliers=[...new Set(materials.map(m=>m.supplier).filter(Boolean))];
   document.getElementById('supplierList').innerHTML=suppliers.map(s=>`<option value="${s}">`).join('');
 }
-// ══════════════════════════════════════════════════════════════
-//  MATERIAL - STEEL MULTI-BAR ENTRY & SAND MULTI-TYPE ENTRY
-// ══════════════════════════════════════════════════════════════
-function handleMaterialTypeChange(){
-  const type = document.getElementById('m_type')?.value;
-  const steelForm = document.getElementById('steelMultiBarForm');
-  const sandForm = document.getElementById('sandMultiTypeForm');
-  
-  // Hide both forms first
-  if(steelForm) steelForm.style.display = 'none';
-  if(sandForm) sandForm.style.display = 'none';
-  
-  if(type === 'Steel / TMT Bar'){
-    // Show multi-bar steel entry form
-    if(steelForm) steelForm.style.display = 'block';
-  } else if(type === 'Sand'){
-    // Show multi-type sand entry form
-    if(sandForm) sandForm.style.display = 'block';
-  } else {
-    // Clear forms when other materials selected
-    clearSteelForm();
-    clearSandForm();
-  }
-}
-
-function clearSteelForm(){
-  ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'].forEach(size=>{
-    const kgEl = document.getElementById(`steel_${size}_kg`);
-    const rateEl = document.getElementById(`steel_${size}_rate`);
-    if(kgEl) kgEl.value = '';
-    if(rateEl) rateEl.value = '';
-  });
-  const transportEl = document.getElementById('steel_transport');
-  const khushiEl = document.getElementById('steel_driver_khushi');
-  if(transportEl) transportEl.value = '';
-  if(khushiEl) khushiEl.value = '';
-  
-  const totalKg = document.getElementById('steel_total_kg');
-  const materialAmt = document.getElementById('steel_material_amount');
-  const extraAmt = document.getElementById('steel_extra_amount');
-  const totalAmt = document.getElementById('steel_total_amount');
-  if(totalKg) totalKg.textContent = '0 Kg';
-  if(materialAmt) materialAmt.textContent = '₹0';
-  if(extraAmt) extraAmt.textContent = '₹0';
-  if(totalAmt) totalAmt.textContent = '₹0';
-}
-
-function clearSandForm(){
-  ['msand','psand','river','coarse','fine','crush'].forEach(type=>{
-    const brassEl = document.getElementById(`sand_${type}_brass`);
-    const rateEl = document.getElementById(`sand_${type}_rate`);
-    if(brassEl) brassEl.value = '';
-    if(rateEl) rateEl.value = '';
-  });
-  const transportEl = document.getElementById('sand_transport');
-  const khushiEl = document.getElementById('sand_driver_khushi');
-  if(transportEl) transportEl.value = '';
-  if(khushiEl) khushiEl.value = '';
-  
-  const totalBrass = document.getElementById('sand_total_brass');
-  const materialAmt = document.getElementById('sand_material_amount');
-  const extraAmt = document.getElementById('sand_extra_amount');
-  const totalAmt = document.getElementById('sand_total_amount');
-  if(totalBrass) totalBrass.textContent = '0 Brass';
-  if(materialAmt) materialAmt.textContent = '₹0';
-  if(extraAmt) extraAmt.textContent = '₹0';
-  if(totalAmt) totalAmt.textContent = '₹0';
-}
-
-function calculateSteelTotal(){
-  const sizes = ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'];
-  let totalKg = 0;
-  let materialAmount = 0;
-  
-  sizes.forEach(size=>{
-    const kg = parseFloat(document.getElementById(`steel_${size}_kg`)?.value) || 0;
-    const rate = parseFloat(document.getElementById(`steel_${size}_rate`)?.value) || 0;
-    totalKg += kg;
-    materialAmount += kg * rate;
-  });
-  
-  // Get additional charges
-  const transport = parseFloat(document.getElementById('steel_transport')?.value) || 0;
-  const driverKhushi = parseFloat(document.getElementById('steel_driver_khushi')?.value) || 0;
-  const extraCharges = transport + driverKhushi;
-  const grandTotal = materialAmount + extraCharges;
-  
-  // Update display
-  document.getElementById('steel_total_kg').textContent = totalKg.toFixed(0) + ' Kg';
-  document.getElementById('steel_material_amount').textContent = '₹' + materialAmount.toLocaleString('en-IN');
-  document.getElementById('steel_extra_amount').textContent = '₹' + extraCharges.toLocaleString('en-IN');
-  document.getElementById('steel_total_amount').textContent = '₹' + grandTotal.toLocaleString('en-IN');
-  
-  // Auto-fill total in main form
-  document.getElementById('m_total').value = grandTotal;
-  
-  return {totalKg, materialAmount, transport, driverKhushi, grandTotal};
-}
-
-function calculateSandTotal(){
-  const types = ['msand','psand','river','coarse','fine','crush'];
-  let totalBrass = 0;
-  let materialAmount = 0;
-  
-  types.forEach(type=>{
-    const brass = parseFloat(document.getElementById(`sand_${type}_brass`)?.value) || 0;
-    const rate = parseFloat(document.getElementById(`sand_${type}_rate`)?.value) || 0;
-    totalBrass += brass;
-    materialAmount += brass * rate;
-  });
-  
-  // Get additional charges
-  const transport = parseFloat(document.getElementById('sand_transport')?.value) || 0;
-  const driverKhushi = parseFloat(document.getElementById('sand_driver_khushi')?.value) || 0;
-  const extraCharges = transport + driverKhushi;
-  const grandTotal = materialAmount + extraCharges;
-  
-  // Update display
-  document.getElementById('sand_total_brass').textContent = totalBrass.toFixed(1) + ' Brass';
-  document.getElementById('sand_material_amount').textContent = '₹' + materialAmount.toLocaleString('en-IN');
-  document.getElementById('sand_extra_amount').textContent = '₹' + extraCharges.toLocaleString('en-IN');
-  document.getElementById('sand_total_amount').textContent = '₹' + grandTotal.toLocaleString('en-IN');
-  
-  // Auto-fill total in main form
-  document.getElementById('m_total').value = grandTotal;
-  
-  return {totalBrass, materialAmount, transport, driverKhushi, grandTotal};
-}
-
 function saveMaterial(){
   const type=document.getElementById('m_type').value;
   const custom=document.getElementById('m_custom').value.trim();
   const supplier=document.getElementById('m_supplier').value.trim();
-  let total=parseFloat(document.getElementById('m_total').value);
-  
-  // Check if Steel/TMT and prepare details
-  let materialDetails = '';
-  if(type === 'Steel / TMT Bar'){
-    const sizes = ['8mm','10mm','12mm','16mm','20mm','25mm','32mm','binding'];
-    const bars = [];
-    sizes.forEach(size=>{
-      const kg = parseFloat(document.getElementById(`steel_${size}_kg`)?.value) || 0;
-      const rate = parseFloat(document.getElementById(`steel_${size}_rate`)?.value) || 0;
-      if(kg > 0){
-        const sizeLabel = size === 'binding' ? 'Binding Wire' : size.toUpperCase()+' TMT';
-        bars.push(`${sizeLabel}: ${kg}kg @ ₹${rate}/kg = ₹${(kg*rate).toLocaleString('en-IN')}`);
-      }
-    });
-    
-    if(bars.length === 0){
-      showToast('⚠️ Please enter at least one bar size with quantity and rate!','warn');
-      return;
-    }
-    
-    // Add transport and khushi if present
-    const transport = parseFloat(document.getElementById('steel_transport')?.value) || 0;
-    const khushi = parseFloat(document.getElementById('steel_driver_khushi')?.value) || 0;
-    if(transport > 0) bars.push(`Transportation: ₹${transport.toLocaleString('en-IN')}`);
-    if(khushi > 0) bars.push(`Driver Khushi: ₹${khushi.toLocaleString('en-IN')}`);
-    
-    materialDetails = bars.join(' | ');
-    const calc = calculateSteelTotal();
-    total = calc.grandTotal;
-  } 
-  else if(type === 'Sand'){
-    const types = ['msand','psand','river','coarse','fine','crush'];
-    const typeLabels = {
-      msand: 'M Sand',
-      psand: 'P Sand',
-      river: 'River Sand',
-      coarse: 'Coarse Sand',
-      fine: 'Fine Sand',
-      crush: 'Crush Sand'
-    };
-    const sandTypes = [];
-    types.forEach(sandType=>{
-      const brass = parseFloat(document.getElementById(`sand_${sandType}_brass`)?.value) || 0;
-      const rate = parseFloat(document.getElementById(`sand_${sandType}_rate`)?.value) || 0;
-      if(brass > 0){
-        sandTypes.push(`${typeLabels[sandType]}: ${brass} brass @ ₹${rate}/brass = ₹${(brass*rate).toLocaleString('en-IN')}`);
-      }
-    });
-    
-    if(sandTypes.length === 0){
-      showToast('⚠️ Please enter at least one sand type with quantity and rate!','warn');
-      return;
-    }
-    
-    // Add transport and khushi if present
-    const transport = parseFloat(document.getElementById('sand_transport')?.value) || 0;
-    const khushi = parseFloat(document.getElementById('sand_driver_khushi')?.value) || 0;
-    if(transport > 0) sandTypes.push(`Transportation: ₹${transport.toLocaleString('en-IN')}`);
-    if(khushi > 0) sandTypes.push(`Driver Khushi: ₹${khushi.toLocaleString('en-IN')}`);
-    
-    materialDetails = sandTypes.join(' | ');
-    const calc = calculateSandTotal();
-    total = calc.grandTotal;
-  }
-  
+  const total=parseFloat(document.getElementById('m_total').value);
   if(!type||!supplier||!total){ showToast('⚠️ Type, Supplier, Amount required!','warn'); return; }
   const advance=parseFloat(document.getElementById('m_advance').value)||0;
-  
-  // Create custom name with material details
-  let finalCustom = custom;
-  if(materialDetails){
-    finalCustom = materialDetails;
-  }
-  
   const item={
     id:Date.now(), date:document.getElementById('m_date').value,
-    type:finalCustom?type+' – '+finalCustom:type, supplier, qty:document.getElementById('m_qty').value,
+    type:custom?type+' – '+custom:type, supplier, qty:document.getElementById('m_qty').value,
     unit:document.getElementById('m_unit').value, rate:document.getElementById('m_rate').value,
     total, paid:advance, invoice:document.getElementById('m_invoice').value,
     paymode:document.getElementById('m_paymode').value, stage:document.getElementById('m_stage').value,
@@ -4206,14 +2657,6 @@ function saveMaterial(){
   materials.push(item); saveAll(); renderSupplierDatalist();
   ['m_supplier','m_qty','m_rate','m_total','m_invoice','m_note','m_custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('m_advance').value='0'; document.getElementById('m_date').value=today();
-  
-  // Reset forms
-  clearSteelForm();
-  clearSandForm();
-  const steelForm = document.getElementById('steelMultiBarForm');
-  const sandForm = document.getElementById('sandMultiTypeForm');
-  if(steelForm) steelForm.style.display = 'none';
-  if(sandForm) sandForm.style.display = 'none';
   document.getElementById('m_type').value=''; document.getElementById('m_prev').innerHTML=''; document.getElementById('m_prev')._d=null;
   updateNavBadges(); showToast(t('matSaved'));
   // auto cashbook
@@ -6444,7 +4887,260 @@ function renderAll(){
 // ══════════════════════════════════════════════════════════════
 //  AGREEMENTS MODULE
 // ══════════════════════════════════════════════════════════════
+let agreements = [];
 
+function agreementTab(tab){
+  ['create','list'].forEach(t=>{
+    const el=document.getElementById('agr-'+t);
+    if(el) el.style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('#pg-agreements .subtabs .subtab').forEach((b,i)=>{
+    b.classList.toggle('active', ['create','list'][i]===tab);
+  });
+  if(tab==='list') renderAgreements();
+}
+
+function calcAgrTotal(){
+  const rate = parseFloat(document.getElementById('agr_rate')?.value) || 0;
+  const qty = parseFloat(document.getElementById('agr_qty')?.value) || 0;
+  const totalEl = document.getElementById('agr_total');
+  if(totalEl && rate && qty) totalEl.value = rate * qty;
+}
+
+const agreementTemplates = {
+  rcc: {
+    scope: 'RCC work including foundation, columns, beams, and slabs. All formwork/centering to be provided by contractor. Steel reinforcement and concrete to be supplied by owner. Work as per structural drawings.',
+    terms: 'Quality: As per IS 456. Curing: Min 7 days. Payment: Stage-wise after engineer approval. Penalty: ₹500/day for delay beyond agreed date.'
+  },
+  brickwork: {
+    scope: 'Brickwork for all walls as per architectural drawings. Includes plastering base. Bricks and cement/sand mortar by owner. Labour and tools by contractor.',
+    terms: 'Quality: First class bricks, 1:6 cement mortar. Plumb and level to be maintained. Payment on completion of each floor.'
+  },
+  plastering: {
+    scope: 'Cement plastering for internal and external walls. Thickness as per specifications. Material (cement, sand) by owner.',
+    terms: 'Quality: Smooth finish, no cracks. Curing for 7 days. Payment after final inspection and approval.'
+  },
+  flooring: {
+    scope: 'Vitrified tiles flooring for entire house. Includes leveling, tile laying, grouting. Tiles by owner, adhesive/grout by contractor.',
+    terms: 'Quality: Level surface, proper grouting. No tile breakage. Warranty: 1 year on workmanship.'
+  },
+  plumbing: {
+    scope: 'Complete plumbing work - water supply lines, drainage, CP fittings installation. Pipes and fittings by owner.',
+    terms: 'Quality: Pressure testing mandatory. No leakage. As per plumbing code. Payment: 30% advance, 40% on rough-in, 30% on completion.'
+  },
+  electrical: {
+    scope: 'Electrical wiring, conduits, switch/socket installation, DB panel, earthing. Wire and accessories by owner.',
+    terms: 'License: Valid electrical contractor license required. Quality: As per IE rules. Testing certificate to be provided.'
+  },
+  painting: {
+    scope: 'Interior and exterior painting - putty, primer, 2 coats emulsion/enamel. Paint by owner.',
+    terms: 'Quality: Smooth finish, uniform color. Touch-up after handover included.'
+  },
+  interior: {
+    scope: 'Complete interior package - modular kitchen, wardrobes, false ceiling, TV units, crockery units. Material and design as per BOQ.',
+    terms: 'Design approval before execution. Payment: 40% advance, 30% on 50% work, 30% on completion. Warranty: 1 year.'
+  },
+  kitchen: {
+    scope: 'Modular kitchen with cabinets, countertop, chimney hood provision, sink installation. Hardware (hinges, channels) premium quality.',
+    terms: 'Material: As per approved design. Installation: Professional fitting. Warranty: 5 years on cabinet, 1 year on hardware.'
+  }
+};
+
+function loadAgreementTemplate(){
+  const type = document.getElementById('agr_type')?.value;
+  if(!type || !agreementTemplates[type]) return;
+  const tmpl = agreementTemplates[type];
+  document.getElementById('agr_scope').value = tmpl.scope;
+  document.getElementById('agr_terms').value = tmpl.terms;
+}
+
+function saveAgreement(){
+  const type = document.getElementById('agr_type')?.value;
+  const party = document.getElementById('agr_party')?.value.trim();
+  const mobile = document.getElementById('agr_mobile')?.value;
+  const total = parseFloat(document.getElementById('agr_total')?.value) || 0;
+  const scope = document.getElementById('agr_scope')?.value.trim();
+  
+  if(!type || !party || !mobile || !total || !scope){
+    showToast('Type, Party, Mobile, Total Value, and Scope required!','warn');
+    return;
+  }
+  
+  agreements.push({
+    id: Date.now(),
+    date: document.getElementById('agr_date')?.value || today(),
+    type,
+    party,
+    contact: document.getElementById('agr_contact')?.value,
+    mobile,
+    email: document.getElementById('agr_email')?.value,
+    address: document.getElementById('agr_address')?.value,
+    gst: document.getElementById('agr_gst')?.value,
+    rate_type: document.getElementById('agr_rate_type')?.value,
+    rate: parseFloat(document.getElementById('agr_rate')?.value) || 0,
+    qty: parseFloat(document.getElementById('agr_qty')?.value) || 0,
+    total,
+    advance: parseFloat(document.getElementById('agr_adv')?.value) || 0,
+    pay_terms: document.getElementById('agr_pay_terms')?.value,
+    start_date: document.getElementById('agr_start')?.value,
+    end_date: document.getElementById('agr_end')?.value,
+    scope,
+    material: document.getElementById('agr_material')?.value,
+    terms: document.getElementById('agr_terms')?.value,
+    status: 'Active'
+  });
+  
+  saveAll();
+  renderAgreements();
+  ['agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_scope','agr_terms'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('agr_adv').value='0';
+  agreementTab('list');
+  showToast('✅ Agreement saved!');
+}
+
+function renderAgreements(){
+  const body = document.getElementById('agreementsBody');
+  if(!body) return;
+  if(!agreements.length){
+    body.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📑</div><p>No agreements</p></div></td></tr>';
+    return;
+  }
+  
+  const typeNames = {
+    rcc:'RCC', brickwork:'Brickwork', plastering:'Plastering', flooring:'Flooring',
+    plumbing:'Plumbing', electrical:'Electrical', painting:'Painting',
+    waterproofing:'Waterproofing', centering:'Centering', steel:'Steel Work',
+    interior:'Interior', kitchen:'Kitchen', wardrobe:'Wardrobe', ceiling:'Ceiling',
+    furniture:'Furniture', architect:'Architect', engineer:'Engineer',
+    landscaping:'Landscaping', excavation:'Excavation'
+  };
+  
+  body.innerHTML = agreements.map(a=>`<tr>
+    <td>${a.date}</td>
+    <td><span class="badge b-blue">${typeNames[a.type]||a.type}</span></td>
+    <td><strong>${a.party}</strong>${a.mobile?`<br><small>${a.mobile}</small>`:''}</td>
+    <td class="mono font-bold">${fmt(a.total)}</td>
+    <td><span class="badge ${a.status==='Active'?'b-green':'b-muted'}">${a.status}</span></td>
+    <td><div class="td-actions">
+      <button class="btn btn-acc btn-xs" onclick="viewAgreementPDF('${a.id}')">📄 PDF</button>
+      <button class="btn btn-err btn-xs" onclick="delAgreement('${a.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function delAgreement(id){
+  if(!confirm('Delete this agreement?')) return;
+  agreements = agreements.filter(a=>String(a.id)!==String(id));
+  saveAll();
+  renderAgreements();
+  showToast('Deleted','warn');
+}
+
+function generateAgreementPDF(){
+  showToast('PDF generation feature coming soon!','info');
+}
+
+function viewAgreementPDF(id){
+  const agr = agreements.find(a=>String(a.id)===String(id));
+  if(!agr) return;
+  
+  // Generate PDF content
+  const typeNames = {
+    rcc:'RCC Contractor', brickwork:'Brickwork Contractor', plastering:'Plastering Contractor',
+    flooring:'Flooring/Tiles Contractor', plumbing:'Plumbing Contractor', electrical:'Electrical Contractor',
+    painting:'Painting Contractor', interior:'Full Interior Package', kitchen:'Modular Kitchen',
+    wardrobe:'Wardrobe/Carpentry', architect:'Architect', engineer:'Structural Engineer'
+  };
+  
+  const pdfContent = `
+    <div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;line-height:1.6">
+      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
+        <h1 style="margin:0;color:#333">CONSTRUCTION AGREEMENT</h1>
+        <p style="margin:10px 0 0;color:#666">${typeNames[agr.type] || agr.type}</p>
+      </div>
+      
+      <p style="margin-bottom:20px">This Agreement made on <strong>${agr.date}</strong></p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px">BETWEEN</h3>
+      <p><strong>OWNER:</strong> ${user.name || 'Owner Name'}<br>
+      Address: ${user.address || 'Owner Address'}<br>
+      Mobile: ${user.mobile || 'Owner Mobile'}</p>
+      
+      <p style="text-align:center;margin:20px 0">AND</p>
+      
+      <p><strong>CONTRACTOR:</strong> ${agr.party}<br>
+      ${agr.contact ? `Contact Person: ${agr.contact}<br>` : ''}
+      Mobile: ${agr.mobile}<br>
+      ${agr.email ? `Email: ${agr.email}<br>` : ''}
+      ${agr.address ? `Address: ${agr.address}<br>` : ''}
+      ${agr.gst ? `GST No: ${agr.gst}` : ''}</p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">SCOPE OF WORK</h3>
+      <p>${agr.scope}</p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">FINANCIAL TERMS</h3>
+      <table style="width:100%;border-collapse:collapse;margin-top:10px">
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate Type:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.rate_type.toUpperCase()}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.rate} per ${agr.rate_type}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Quantity:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.qty} ${agr.rate_type}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Total Contract Value:</strong></td><td style="padding:8px;border:1px solid #ddd;font-weight:bold">₹${agr.total.toLocaleString('en-IN')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Advance:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.advance.toLocaleString('en-IN')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Payment Terms:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.pay_terms}</td></tr>
+      </table>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">WORK SCHEDULE</h3>
+      <p><strong>Start Date:</strong> ${agr.start_date || 'TBD'}<br>
+      <strong>Completion Date:</strong> ${agr.end_date || 'TBD'}</p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">MATERIAL SUPPLY</h3>
+      <p>${agr.material}</p>
+      
+      ${agr.terms ? `<h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">TERMS & CONDITIONS</h3><p>${agr.terms}</p>` : ''}
+      
+      <div style="margin-top:60px;display:flex;justify-content:space-between">
+        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
+          <strong>Owner Signature</strong><br>
+          <small>${user.name || 'Owner Name'}</small>
+        </div>
+        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
+          <strong>Contractor Signature</strong><br>
+          <small>${agr.party}</small>
+        </div>
+      </div>
+      
+      <p style="text-align:center;color:#666;font-size:12px;margin-top:40px">
+        Generated on ${new Date().toLocaleDateString('en-IN')} | Construction Management System
+      </p>
+    </div>
+  `;
+  
+  // Open in new window
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Agreement - ${agr.party}</title>
+      <meta charset="UTF-8">
+      <style>
+        @media print {
+          body { margin: 0; }
+          button { display: none; }
+        }
+      </style>
+    </head>
+    <body>
+      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
+        <button onclick="window.print()" style="padding:10px 20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">🖨️ Print / Save as PDF</button>
+      </div>
+      ${pdfContent}
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
 
   const active=document.querySelector('.page.active')?.id?.replace('pg-','');
   if(active==='dashboard') renderDashboard();
