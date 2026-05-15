@@ -756,8 +756,6 @@ td.mono { font-variant-numeric: tabular-nums; }
         <div class="fg"><label>Unit Rate (₹)</label><input type="number" id="m_rate" placeholder="380" oninput="calcMat()"></div>
         <div class="fg"><label>Total Amount (₹) *</label><input type="number" id="m_total" placeholder="19000"></div>
         <div class="fg"><label>Advance (₹)</label><input type="number" id="m_advance" value="0"></div>
-        <div class="fg"><label>टीप / Tip (₹)</label><input type="number" id="m_tip" placeholder="200" value="0"></div>
-        <div class="fg"><label>ट्रान्सपोर्ट / Transport (₹)</label><input type="number" id="m_transport" placeholder="500" value="0"></div>
         <div class="fg"><label>Invoice No.</label><input type="text" id="m_invoice" placeholder="INV-001"></div>
         <div class="fg"><label>Payment Mode</label>
           <select id="m_paymode"><option>Cash</option><option>UPI/GPay</option><option>Bank Transfer</option><option>Cheque</option></select>
@@ -945,7 +943,6 @@ td.mono { font-variant-numeric: tabular-nums; }
         <div class="fg"><label>Agreed Amount (₹) *</label><input type="number" id="l_total" placeholder="50000"></div>
         <div class="fg"><label>Area / Details</label><input type="text" id="l_area" placeholder="G+1, 1200 sqft"></div>
         <div class="fg"><label>Advance (₹)</label><input type="number" id="l_advance" value="0"></div>
-        <div class="fg"><label>टीप / Tip (₹)</label><input type="number" id="l_tip" placeholder="500" value="0"></div>
         <div class="fg"><label>Daily Wage (₹/day)</label><input type="number" id="l_wage" placeholder="600"></div>
         <div class="fg"><label>Work Start</label><input type="date" id="l_start"></div>
         <div class="fg"><label>Work End</label><input type="date" id="l_end"></div>
@@ -2443,6 +2440,265 @@ function showToast(msg,type='ok'){
 }
 
 // ══════════════════════════════════════════════════════════════
+//  AGREEMENT FUNCTIONS
+// ══════════════════════════════════════════════════════════════
+function calcAgrTotal(){
+  const rate = parseFloat(document.getElementById('agr_rate')?.value) || 0;
+  const qty = parseFloat(document.getElementById('agr_qty')?.value) || 0;
+  const totalEl = document.getElementById('agr_total');
+  if(totalEl && rate && qty) totalEl.value = rate * qty;
+}
+
+const agreementTemplates = {
+  rcc: {
+    scope: 'RCC work including foundation, columns, beams, and slabs. All formwork/centering to be provided by contractor. Steel reinforcement and concrete to be supplied by owner. Work as per structural drawings.',
+    terms: 'Quality: As per IS 456. Curing: Min 7 days. Payment: Stage-wise after engineer approval. Penalty: ₹500/day for delay beyond agreed date.'
+  },
+  brickwork: {
+    scope: 'Brickwork for all walls as per architectural drawings. Includes plastering base. Bricks and cement/sand mortar by owner. Labour and tools by contractor.',
+    terms: 'Quality: First class bricks, 1:6 cement mortar. Plumb and level to be maintained. Payment on completion of each floor.'
+  },
+  plastering: {
+    scope: 'Cement plastering for internal and external walls. Thickness as per specifications. Material (cement, sand) by owner.',
+    terms: 'Quality: Smooth finish, no cracks. Curing for 7 days. Payment after final inspection and approval.'
+  },
+  flooring: {
+    scope: 'Vitrified tiles flooring for entire house. Includes leveling, tile laying, grouting. Tiles by owner, adhesive/grout by contractor.',
+    terms: 'Quality: Level surface, proper grouting. No tile breakage. Warranty: 1 year on workmanship.'
+  },
+  plumbing: {
+    scope: 'Complete plumbing work - water supply lines, drainage, CP fittings installation. Pipes and fittings by owner.',
+    terms: 'Quality: Pressure testing mandatory. No leakage. As per plumbing code. Payment: 30% advance, 40% on rough-in, 30% on completion.'
+  },
+  electrical: {
+    scope: 'Electrical wiring, conduits, switch/socket installation, DB panel, earthing. Wire and accessories by owner.',
+    terms: 'License: Valid electrical contractor license required. Quality: As per IE rules. Testing certificate to be provided.'
+  },
+  painting: {
+    scope: 'Interior and exterior painting - putty, primer, 2 coats emulsion/enamel. Paint by owner.',
+    terms: 'Quality: Smooth finish, uniform color. Touch-up after handover included.'
+  },
+  interior: {
+    scope: 'Complete interior package - modular kitchen, wardrobes, false ceiling, TV units, crockery units. Material and design as per BOQ.',
+    terms: 'Design approval before execution. Payment: 40% advance, 30% on 50% work, 30% on completion. Warranty: 1 year.'
+  },
+  kitchen: {
+    scope: 'Modular kitchen with cabinets, countertop, chimney hood provision, sink installation. Hardware (hinges, channels) premium quality.',
+    terms: 'Material: As per approved design. Installation: Professional fitting. Warranty: 5 years on cabinet, 1 year on hardware.'
+  }
+};
+
+function agreementTab(tab){
+  const createTab = document.getElementById('agr-create');
+  const listTab = document.getElementById('agr-list');
+  if(createTab) createTab.style.display = tab === 'create' ? 'block' : 'none';
+  if(listTab) listTab.style.display = tab === 'list' ? 'block' : 'none';
+  
+  // Update tab buttons
+  document.querySelectorAll('#pg-agreements .subtabs .subtab').forEach((btn, idx) => {
+    if(idx === 0) btn.classList.toggle('active', tab === 'create');
+    if(idx === 1) btn.classList.toggle('active', tab === 'list');
+  });
+  
+  if(tab === 'list') renderAgreements();
+}
+
+function loadAgreementTemplate(){
+  const type = document.getElementById('agr_type')?.value;
+  if(!type || !agreementTemplates[type]) return;
+  const tmpl = agreementTemplates[type];
+  document.getElementById('agr_scope').value = tmpl.scope;
+  document.getElementById('agr_terms').value = tmpl.terms;
+}
+
+function saveAgreement(){
+  const type = document.getElementById('agr_type')?.value;
+  const party = document.getElementById('agr_party')?.value.trim();
+  const mobile = document.getElementById('agr_mobile')?.value;
+  const total = parseFloat(document.getElementById('agr_total')?.value) || 0;
+  const scope = document.getElementById('agr_scope')?.value.trim();
+  
+  if(!type || !party || !mobile || !total || !scope){
+    showToast('Type, Party, Mobile, Total Value, and Scope required!','warn');
+    return;
+  }
+  
+  agreements.push({
+    id: Date.now(),
+    date: document.getElementById('agr_date')?.value || today(),
+    type,
+    party,
+    contact: document.getElementById('agr_contact')?.value,
+    mobile,
+    email: document.getElementById('agr_email')?.value,
+    address: document.getElementById('agr_address')?.value,
+    gst: document.getElementById('agr_gst')?.value,
+    rate_type: document.getElementById('agr_rate_type')?.value,
+    rate: parseFloat(document.getElementById('agr_rate')?.value) || 0,
+    qty: parseFloat(document.getElementById('agr_qty')?.value) || 0,
+    total,
+    advance: parseFloat(document.getElementById('agr_adv')?.value) || 0,
+    pay_terms: document.getElementById('agr_pay_terms')?.value,
+    start_date: document.getElementById('agr_start')?.value,
+    end_date: document.getElementById('agr_end')?.value,
+    scope,
+    material: document.getElementById('agr_material')?.value,
+    terms: document.getElementById('agr_terms')?.value,
+    status: 'Active'
+  });
+  
+  saveAll();
+  renderAgreements();
+  ['agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_scope','agr_terms'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('agr_adv').value='0';
+  agreementTab('list');
+  showToast('✅ Agreement saved!');
+}
+
+function renderAgreements(){
+  const body = document.getElementById('agreementsBody');
+  if(!body) return;
+  if(!agreements.length){
+    body.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📑</div><p>No agreements</p></div></td></tr>';
+    return;
+  }
+  
+  const typeNames = {
+    rcc:'RCC', brickwork:'Brickwork', plastering:'Plastering', flooring:'Flooring',
+    plumbing:'Plumbing', electrical:'Electrical', painting:'Painting',
+    waterproofing:'Waterproofing', centering:'Centering', steel:'Steel Work',
+    interior:'Interior', kitchen:'Kitchen', wardrobe:'Wardrobe', ceiling:'Ceiling',
+    furniture:'Furniture', architect:'Architect', engineer:'Engineer',
+    landscaping:'Landscaping', excavation:'Excavation'
+  };
+  
+  body.innerHTML = agreements.map(a=>`<tr>
+    <td>${a.date}</td>
+    <td><span class="badge b-blue">${typeNames[a.type]||a.type}</span></td>
+    <td><strong>${a.party}</strong>${a.mobile?`<br><small>${a.mobile}</small>`:''}</td>
+    <td class="mono font-bold">${fmt(a.total)}</td>
+    <td><span class="badge ${a.status==='Active'?'b-green':'b-muted'}">${a.status}</span></td>
+    <td><div class="td-actions">
+      <button class="btn btn-primary btn-xs" onclick="editAgreement('${a.id}')">✏️</button>
+      <button class="btn btn-acc btn-xs" onclick="viewAgreementPDF('${a.id}')">📄 PDF</button>
+      <button class="btn btn-err btn-xs" onclick="delAgreement('${a.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function delAgreement(id){
+  if(!confirm('Delete this agreement?')) return;
+  agreements = agreements.filter(a=>String(a.id)!==String(id));
+  saveAll();
+  renderAgreements();
+  showToast('Deleted','warn');
+}
+
+function editAgreement(id){
+  showToast('Edit feature coming soon! Please delete and recreate for now.','info');
+}
+
+function viewAgreementPDF(id){
+  const agr = agreements.find(a=>String(a.id)===String(id));
+  if(!agr) return;
+  
+  const typeNames = {
+    rcc:'RCC Contractor', brickwork:'Brickwork Contractor', plastering:'Plastering Contractor',
+    flooring:'Flooring/Tiles Contractor', plumbing:'Plumbing Contractor', electrical:'Electrical Contractor',
+    painting:'Painting Contractor', interior:'Full Interior Package', kitchen:'Modular Kitchen',
+    wardrobe:'Wardrobe/Carpentry', architect:'Architect', engineer:'Structural Engineer'
+  };
+  
+  const pdfContent = `
+    <div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;line-height:1.6">
+      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
+        <h1 style="margin:0;color:#333">CONSTRUCTION AGREEMENT</h1>
+        <p style="margin:10px 0 0;color:#666">${typeNames[agr.type] || agr.type}</p>
+      </div>
+      
+      <p style="margin-bottom:20px">This Agreement made on <strong>${agr.date}</strong></p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px">BETWEEN</h3>
+      <p><strong>OWNER:</strong> ${user.name || 'Owner Name'}<br>
+      Address: ${user.address || 'Owner Address'}<br>
+      Mobile: ${user.mobile || 'Owner Mobile'}</p>
+      
+      <p style="text-align:center;margin:20px 0">AND</p>
+      
+      <p><strong>CONTRACTOR:</strong> ${agr.party}<br>
+      ${agr.contact ? `Contact Person: ${agr.contact}<br>` : ''}
+      Mobile: ${agr.mobile}<br>
+      ${agr.email ? `Email: ${agr.email}<br>` : ''}
+      ${agr.address ? `Address: ${agr.address}<br>` : ''}
+      ${agr.gst ? `GST No: ${agr.gst}` : ''}</p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">SCOPE OF WORK</h3>
+      <p>${agr.scope}</p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">FINANCIAL TERMS</h3>
+      <table style="width:100%;border-collapse:collapse;margin-top:10px">
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate Type:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.rate_type.toUpperCase()}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.rate} per ${agr.rate_type}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Quantity:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.qty} ${agr.rate_type}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Total Contract Value:</strong></td><td style="padding:8px;border:1px solid #ddd;font-weight:bold">₹${agr.total.toLocaleString('en-IN')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Advance:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.advance.toLocaleString('en-IN')}</td></tr>
+        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Payment Terms:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.pay_terms}</td></tr>
+      </table>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">WORK SCHEDULE</h3>
+      <p><strong>Start Date:</strong> ${agr.start_date || 'TBD'}<br>
+      <strong>Completion Date:</strong> ${agr.end_date || 'TBD'}</p>
+      
+      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">MATERIAL SUPPLY</h3>
+      <p>${agr.material}</p>
+      
+      ${agr.terms ? `<h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">TERMS & CONDITIONS</h3><p>${agr.terms}</p>` : ''}
+      
+      <div style="margin-top:60px;display:flex;justify-content:space-between">
+        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
+          <strong>Owner Signature</strong><br>
+          <small>${user.name || 'Owner Name'}</small>
+        </div>
+        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
+          <strong>Contractor Signature</strong><br>
+          <small>${agr.party}</small>
+        </div>
+      </div>
+      
+      <p style="text-align:center;color:#666;font-size:12px;margin-top:40px">
+        Generated on ${new Date().toLocaleDateString('en-IN')} | Construction Management System
+      </p>
+    </div>
+  `;
+  
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Agreement - ${agr.party}</title>
+      <meta charset="UTF-8">
+      <style>
+        @media print {
+          body { margin: 0; }
+          button { display: none; }
+        }
+      </style>
+    </head>
+    <body>
+      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
+        <button onclick="window.print()" style="padding:10px 20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">🖨️ Print / Save as PDF</button>
+      </div>
+      ${pdfContent}
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
+
+// ══════════════════════════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════════════════════════
 const pageNames = { dashboard:'Dashboard', material:'Material', labour:'Labour', finance:'Finance', agreements:'Agreements', plot:'🏡 Plot Purchase', electricity:'⚡ Light Meter', borewell:'💧 Borewell / Well', site:'Site', calculator:'Calculator', report:'Report', settings:'⚙️ Settings' };
@@ -2648,20 +2904,18 @@ function saveMaterial(){
   const total=parseFloat(document.getElementById('m_total').value);
   if(!type||!supplier||!total){ showToast('⚠️ Type, Supplier, Amount required!','warn'); return; }
   const advance=parseFloat(document.getElementById('m_advance').value)||0;
-  const tip=parseFloat(document.getElementById('m_tip').value)||0;
-  const transport=parseFloat(document.getElementById('m_transport').value)||0;
   const item={
     id:Date.now(), date:document.getElementById('m_date').value,
     type:custom?type+' – '+custom:type, supplier, qty:document.getElementById('m_qty').value,
     unit:document.getElementById('m_unit').value, rate:document.getElementById('m_rate').value,
-    total, paid:advance, tip, transport, invoice:document.getElementById('m_invoice').value,
+    total, paid:advance, invoice:document.getElementById('m_invoice').value,
     paymode:document.getElementById('m_paymode').value, stage:document.getElementById('m_stage').value,
     note:document.getElementById('m_note').value, photo:getPhoto('m_prev'),
     payments:advance>0?[{date:document.getElementById('m_date').value,amount:advance,mode:document.getElementById('m_paymode').value,note:'Advance'}]:[]
   };
   materials.push(item); saveAll(); renderSupplierDatalist();
   ['m_supplier','m_qty','m_rate','m_total','m_invoice','m_note','m_custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('m_advance').value='0'; document.getElementById('m_tip').value='0'; document.getElementById('m_transport').value='0'; document.getElementById('m_date').value=today();
+  document.getElementById('m_advance').value='0'; document.getElementById('m_date').value=today();
   document.getElementById('m_type').value=''; document.getElementById('m_prev').innerHTML=''; document.getElementById('m_prev')._d=null;
   updateNavBadges(); showToast(t('matSaved'));
   // auto cashbook
@@ -2697,158 +2951,12 @@ function renderMaterial(){
       <td><div class="td-actions">
         <button class="btn btn-ok btn-xs" onclick="openPayModal('material','${m.id}')">💰</button>
         <button class="btn btn-pri btn-xs" onclick="openEdit('material','${m.id}')">✏️</button>
-        <button class="btn btn-acc btn-xs" onclick="downloadMaterialPDF('${m.id}')">📄</button>
         <button class="btn btn-err btn-xs" onclick="delMat('${m.id}')">🗑️</button>
       </div></td>
     </tr>`;
   }).join('');
 }
 function delMat(id){ if(!confirm(t('delConfirm'))) return; materials=materials.filter(m=>String(m.id)!==String(id)); saveAll(); renderMaterial(); updateNavBadges(); showToast(t('deleted'),'warn'); }
-
-function downloadMaterialPDF(id){
-  const m = materials.find(mat=>String(mat.id)===String(id));
-  if(!m) return;
-  
-  const pdfContent = `
-    <div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;line-height:1.8">
-      
-      <!-- Header -->
-      <div style="text-align:center;margin-bottom:30px;border-bottom:2px solid #333;padding-bottom:20px">
-        <h1 style="margin:0;font-size:24px;font-weight:bold">साहित्य बिल / Material Receipt</h1>
-        <p style="margin:10px 0 0;color:#666">${user.name || 'Construction Project'}</p>
-      </div>
-      
-      <!-- Date and Invoice -->
-      <div style="margin-bottom:25px;display:flex;justify-content:space-between">
-        <div><strong>दिनांक / Date:</strong> ${m.date}</div>
-        ${m.invoice ? `<div><strong>बिल क्र. / Invoice:</strong> ${m.invoice}</div>` : ''}
-      </div>
-      
-      <!-- Supplier Details -->
-      <div style="margin-bottom:25px;background:#f9f9f9;padding:15px;border-radius:8px">
-        <div style="font-weight:bold;margin-bottom:8px">पुरवठादार / Supplier Details</div>
-        <div><strong>नाव / Name:</strong> ${m.supplier}</div>
-      </div>
-      
-      <!-- Material Details -->
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:12px">साहित्य तपशील / Material Details</div>
-        <table style="width:100%;border-collapse:collapse">
-          <tr style="background:#e9e9e9">
-            <th style="padding:10px;border:1px solid #ddd;text-align:left">साहित्य / Material</th>
-            <th style="padding:10px;border:1px solid #ddd;text-align:right">प्रमाण / Qty</th>
-            <th style="padding:10px;border:1px solid #ddd;text-align:right">दर / Rate</th>
-            <th style="padding:10px;border:1px solid #ddd;text-align:right">रक्कम / Amount</th>
-          </tr>
-          <tr>
-            <td style="padding:10px;border:1px solid #ddd">${m.type}</td>
-            <td style="padding:10px;border:1px solid #ddd;text-align:right">${m.qty || '—'} ${m.unit || ''}</td>
-            <td style="padding:10px;border:1px solid #ddd;text-align:right">${m.rate ? '₹' + parseFloat(m.rate).toLocaleString('en-IN') : '—'}</td>
-            <td style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:bold">₹${m.total.toLocaleString('en-IN')}</td>
-          </tr>
-        </table>
-      </div>
-      
-      <!-- Additional Charges -->
-      ${(m.tip > 0 || m.transport > 0) ? `
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:12px">अतिरिक्त खर्च / Additional Charges</div>
-        <table style="width:100%;border-collapse:collapse">
-          ${m.tip > 0 ? `<tr><td style="padding:8px;border:1px solid #ddd">टीप / Tip</td><td style="padding:8px;border:1px solid #ddd;text-align:right">₹${m.tip.toLocaleString('en-IN')}</td></tr>` : ''}
-          ${m.transport > 0 ? `<tr><td style="padding:8px;border:1px solid #ddd">ट्रान्सपोर्ट / Transport</td><td style="padding:8px;border:1px solid #ddd;text-align:right">₹${m.transport.toLocaleString('en-IN')}</td></tr>` : ''}
-          <tr style="background:#e9f5e9">
-            <td style="padding:8px;border:1px solid #ddd;font-weight:bold">एकूण खर्च / Total Cost</td>
-            <td style="padding:8px;border:1px solid #ddd;text-align:right;font-weight:bold">₹${(m.total + (m.tip || 0) + (m.transport || 0)).toLocaleString('en-IN')}</td>
-          </tr>
-        </table>
-      </div>
-      ` : ''}
-      
-      <!-- Payment Details -->
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:12px">पेमेंट तपशील / Payment Details</div>
-        <table style="width:100%;border-collapse:collapse">
-          <tr><td style="padding:8px;border:1px solid #ddd">साहित्य रक्कम / Material Amount</td><td style="padding:8px;border:1px solid #ddd;text-align:right">₹${m.total.toLocaleString('en-IN')}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #ddd">भरलेली रक्कम / Paid Amount</td><td style="padding:8px;border:1px solid #ddd;text-align:right;color:#22c55e">₹${m.paid.toLocaleString('en-IN')}</td></tr>
-          <tr style="background:#fef2f2"><td style="padding:8px;border:1px solid #ddd;font-weight:bold">थकबाकी / Balance</td><td style="padding:8px;border:1px solid #ddd;text-align:right;font-weight:bold;color:#ef4444">₹${(m.total - m.paid).toLocaleString('en-IN')}</td></tr>
-        </table>
-        <div style="margin-top:8px;font-size:12px;color:#666">पेमेंट मोड / Payment Mode: ${m.paymode}</div>
-      </div>
-      
-      <!-- Work Stage -->
-      ${m.stage ? `
-      <div style="margin-bottom:25px">
-        <div><strong>काम टप्पा / Work Stage:</strong> ${m.stage}</div>
-      </div>
-      ` : ''}
-      
-      <!-- Notes -->
-      ${m.note ? `
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:8px">टिप्पणी / Note:</div>
-        <div style="white-space:pre-wrap;background:#fffbeb;padding:10px;border-radius:6px">${m.note}</div>
-      </div>
-      ` : ''}
-      
-      <!-- Payment History -->
-      ${m.payments && m.payments.length > 0 ? `
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:12px">पेमेंट इतिहास / Payment History</div>
-        <table style="width:100%;border-collapse:collapse;font-size:14px">
-          <tr style="background:#e9e9e9">
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">तारीख / Date</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:right">रक्कम / Amount</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">मोड / Mode</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">टीप / Note</th>
-          </tr>
-          ${m.payments.map(p=>`
-            <tr>
-              <td style="padding:6px;border:1px solid #ddd">${p.date}</td>
-              <td style="padding:6px;border:1px solid #ddd;text-align:right">₹${p.amount.toLocaleString('en-IN')}</td>
-              <td style="padding:6px;border:1px solid #ddd">${p.mode}</td>
-              <td style="padding:6px;border:1px solid #ddd">${p.note || '—'}</td>
-            </tr>
-          `).join('')}
-        </table>
-      </div>
-      ` : ''}
-      
-      <!-- Footer -->
-      <div style="margin-top:60px;text-align:center;font-size:12px;color:#666;border-top:1px solid #ddd;padding-top:20px">
-        <div>तारीख / Date: ${new Date().toLocaleDateString('en-IN')}</div>
-        <div style="margin-top:5px">Construction Management System</div>
-      </div>
-      
-    </div>
-  `;
-  
-  const win = window.open('', '_blank');
-  win.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Material Receipt - ${m.supplier}</title>
-      <meta charset="UTF-8">
-      <style>
-        body { margin: 0; font-family: Arial, sans-serif; }
-        @media print {
-          body { margin: 0; }
-          button { display: none; }
-        }
-        @page { size: A4; margin: 20mm; }
-      </style>
-    </head>
-    <body>
-      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
-        <button onclick="window.print()" style="padding:10px 20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">🖨️ Print / Save as PDF</button>
-      </div>
-      ${pdfContent}
-    </body>
-    </html>
-  `);
-  win.document.close();
-}
-
 
 // ══════════════════════════════════════════════════════════════
 //  STOCK
@@ -3025,10 +3133,9 @@ function saveLabour(){
   const total=parseFloat(document.getElementById('l_total').value);
   if(!type||!name||!total){ showToast('Type, Name, Amount required!','warn'); return; }
   const advance=parseFloat(document.getElementById('l_advance').value)||0;
-  const tip=parseFloat(document.getElementById('l_tip').value)||0;
   labours.push({
     id:Date.now(), date:document.getElementById('l_date').value, type, name,
-    mobile:document.getElementById('l_mobile').value, total, paid:advance, tip,
+    mobile:document.getElementById('l_mobile').value, total, paid:advance,
     area:document.getElementById('l_area').value, wage:parseFloat(document.getElementById('l_wage').value)||0,
     start:document.getElementById('l_start').value, end:document.getElementById('l_end').value,
     stage:document.getElementById('l_stage').value, paymode:document.getElementById('l_paymode').value,
@@ -3037,7 +3144,7 @@ function saveLabour(){
   });
   saveAll();
   ['l_name','l_mobile','l_total','l_area','l_note','l_wage'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('l_advance').value='0'; document.getElementById('l_tip').value='0'; document.getElementById('l_date').value=today();
+  document.getElementById('l_advance').value='0'; document.getElementById('l_date').value=today();
   document.getElementById('l_type').value=''; ['l_start','l_end'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('l_prev').innerHTML=''; document.getElementById('l_prev')._d=null;
   updateNavBadges(); showToast(t('labSaved'));
@@ -3066,166 +3173,12 @@ function renderLabour(){
       <td><div class="td-actions">
         <button class="btn btn-ok btn-xs" onclick="openPayModal('labour','${l.id}')">💰</button>
         <button class="btn btn-pri btn-xs" onclick="openEdit('labour','${l.id}')">✏️</button>
-        <button class="btn btn-acc btn-xs" onclick="downloadLabourPDF('${l.id}')">📄</button>
         <button class="btn btn-err btn-xs" onclick="delLab('${l.id}')">🗑️</button>
       </div></td>
     </tr>`;
   }).join('');
 }
 function delLab(id){ if(!confirm(t('delConfirm'))) return; labours=labours.filter(l=>String(l.id)!==String(id)); saveAll(); renderLabour(); updateNavBadges(); showToast(t('deleted'),'warn'); }
-
-function downloadLabourPDF(id){
-  const l = labours.find(lab=>String(lab.id)===String(id));
-  if(!l) return;
-  
-  const pdfContent = `
-    <div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;line-height:1.8">
-      
-      <!-- Header -->
-      <div style="text-align:center;margin-bottom:30px;border-bottom:2px solid #333;padding-bottom:20px">
-        <h1 style="margin:0;font-size:24px;font-weight:bold">मजुरी बिल / Labour Receipt</h1>
-        <p style="margin:10px 0 0;color:#666">${user.name || 'Construction Project'}</p>
-      </div>
-      
-      <!-- Date -->
-      <div style="margin-bottom:25px">
-        <strong>दिनांक / Date:</strong> ${l.date}
-      </div>
-      
-      <!-- Labour Details -->
-      <div style="margin-bottom:25px;background:#f9f9f9;padding:15px;border-radius:8px">
-        <div style="font-weight:bold;margin-bottom:8px">मजूर तपशील / Labour Details</div>
-        <div><strong>नाव / Name:</strong> ${l.name}</div>
-        ${l.mobile ? `<div><strong>मोबाईल / Mobile:</strong> ${l.mobile}</div>` : ''}
-        <div><strong>काम प्रकार / Work Type:</strong> ${l.type}</div>
-        ${l.area ? `<div><strong>क्षेत्र / Area:</strong> ${l.area}</div>` : ''}
-      </div>
-      
-      <!-- Work Duration -->
-      ${l.start || l.end ? `
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:8px">कामाचा कालावधी / Work Duration</div>
-        <div style="display:flex;gap:30px">
-          ${l.start ? `<div><strong>सुरुवात / Start:</strong> ${l.start}</div>` : ''}
-          ${l.end ? `<div><strong>समाप्ती / End:</strong> ${l.end}</div>` : ''}
-        </div>
-        ${l.wage > 0 ? `<div style="margin-top:8px"><strong>दैनिक मजुरी / Daily Wage:</strong> ₹${l.wage.toLocaleString('en-IN')}</div>` : ''}
-      </div>
-      ` : ''}
-      
-      <!-- Payment Details -->
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:12px">पेमेंट तपशील / Payment Details</div>
-        <table style="width:100%;border-collapse:collapse">
-          <tr><td style="padding:10px;border:1px solid #ddd">करार रक्कम / Agreed Amount</td><td style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:bold">₹${l.total.toLocaleString('en-IN')}</td></tr>
-          ${l.tip > 0 ? `<tr><td style="padding:10px;border:1px solid #ddd">टीप / Tip</td><td style="padding:10px;border:1px solid #ddd;text-align:right">₹${l.tip.toLocaleString('en-IN')}</td></tr>` : ''}
-          <tr><td style="padding:10px;border:1px solid #ddd">भरलेली रक्कम / Paid Amount</td><td style="padding:10px;border:1px solid #ddd;text-align:right;color:#22c55e">₹${l.paid.toLocaleString('en-IN')}</td></tr>
-          <tr style="background:#fef2f2"><td style="padding:10px;border:1px solid #ddd;font-weight:bold">थकबाकी / Balance</td><td style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:bold;color:#ef4444">₹${(l.total - l.paid).toLocaleString('en-IN')}</td></tr>
-        </table>
-        <div style="margin-top:8px;font-size:12px;color:#666">पेमेंट मोड / Payment Mode: ${l.paymode}</div>
-      </div>
-      
-      <!-- Progress -->
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:8px">काम प्रगती / Work Progress</div>
-        <div style="display:flex;align-items:center;gap:15px">
-          <div style="flex:1;background:#e9e9e9;height:30px;border-radius:15px;overflow:hidden">
-            <div style="background:#22c55e;height:100%;width:${l.progress || 0}%;transition:width 0.3s"></div>
-          </div>
-          <div style="font-size:18px;font-weight:bold">${l.progress || 0}%</div>
-        </div>
-      </div>
-      
-      <!-- Work Stage -->
-      ${l.stage ? `
-      <div style="margin-bottom:25px">
-        <div><strong>काम टप्पा / Work Stage:</strong> ${l.stage}</div>
-      </div>
-      ` : ''}
-      
-      <!-- Notes -->
-      ${l.note ? `
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:8px">टिप्पणी / Note:</div>
-        <div style="white-space:pre-wrap;background:#fffbeb;padding:10px;border-radius:6px">${l.note}</div>
-      </div>
-      ` : ''}
-      
-      <!-- Payment History -->
-      ${l.payments && l.payments.length > 0 ? `
-      <div style="margin-bottom:25px">
-        <div style="font-weight:bold;margin-bottom:12px">पेमेंट इतिहास / Payment History</div>
-        <table style="width:100%;border-collapse:collapse;font-size:14px">
-          <tr style="background:#e9e9e9">
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">तारीख / Date</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:right">रक्कम / Amount</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">मोड / Mode</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">टीप / Note</th>
-          </tr>
-          ${l.payments.map(p=>`
-            <tr>
-              <td style="padding:6px;border:1px solid #ddd">${p.date}</td>
-              <td style="padding:6px;border:1px solid #ddd;text-align:right">₹${p.amount.toLocaleString('en-IN')}</td>
-              <td style="padding:6px;border:1px solid #ddd">${p.mode}</td>
-              <td style="padding:6px;border:1px solid #ddd">${p.note || '—'}</td>
-            </tr>
-          `).join('')}
-        </table>
-      </div>
-      ` : ''}
-      
-      <!-- Signature Section -->
-      <div style="margin-top:60px;display:flex;justify-content:space-between">
-        <div style="text-align:center;width:40%">
-          <div style="border-top:2px solid #000;padding-top:10px;margin-top:40px">
-            <strong>मालक स्वाक्षरी / Owner</strong><br>
-            <span style="font-size:14px">${user.name || '_______________'}</span>
-          </div>
-        </div>
-        <div style="text-align:center;width:40%">
-          <div style="border-top:2px solid #000;padding-top:10px;margin-top:40px">
-            <strong>मजूर स्वाक्षरी / Labour</strong><br>
-            <span style="font-size:14px">${l.name}</span>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Footer -->
-      <div style="margin-top:30px;text-align:center;font-size:12px;color:#666;border-top:1px solid #ddd;padding-top:20px">
-        <div>तारीख / Date: ${new Date().toLocaleDateString('en-IN')}</div>
-        <div style="margin-top:5px">Construction Management System</div>
-      </div>
-      
-    </div>
-  `;
-  
-  const win = window.open('', '_blank');
-  win.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Labour Receipt - ${l.name}</title>
-      <meta charset="UTF-8">
-      <style>
-        body { margin: 0; font-family: Arial, sans-serif; }
-        @media print {
-          body { margin: 0; }
-          button { display: none; }
-        }
-        @page { size: A4; margin: 20mm; }
-      </style>
-    </head>
-    <body>
-      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
-        <button onclick="window.print()" style="padding:10px 20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">🖨️ Print / Save as PDF</button>
-      </div>
-      ${pdfContent}
-    </body>
-    </html>
-  `);
-  win.document.close();
-}
-
 
 // ATTENDANCE
 let attState={};
@@ -5191,262 +5144,9 @@ function renderBoreSummary(){
 function renderAll(){
 
 // ══════════════════════════════════════════════════════════════
-//  AGREEMENTS MODULE
+//  AGREEMENTS MODULE - Data
 // ══════════════════════════════════════════════════════════════
 let agreements = [];
-
-function agreementTab(tab){
-  ['create','list'].forEach(t=>{
-    const el=document.getElementById('agr-'+t);
-    if(el) el.style.display = t===tab ? 'block' : 'none';
-  });
-  document.querySelectorAll('#pg-agreements .subtabs .subtab').forEach((b,i)=>{
-    b.classList.toggle('active', ['create','list'][i]===tab);
-  });
-  if(tab==='list') renderAgreements();
-}
-
-function calcAgrTotal(){
-  const rate = parseFloat(document.getElementById('agr_rate')?.value) || 0;
-  const qty = parseFloat(document.getElementById('agr_qty')?.value) || 0;
-  const totalEl = document.getElementById('agr_total');
-  if(totalEl && rate && qty) totalEl.value = rate * qty;
-}
-
-const agreementTemplates = {
-  rcc: {
-    scope: 'RCC work including foundation, columns, beams, and slabs. All formwork/centering to be provided by contractor. Steel reinforcement and concrete to be supplied by owner. Work as per structural drawings.',
-    terms: 'Quality: As per IS 456. Curing: Min 7 days. Payment: Stage-wise after engineer approval. Penalty: ₹500/day for delay beyond agreed date.'
-  },
-  brickwork: {
-    scope: 'Brickwork for all walls as per architectural drawings. Includes plastering base. Bricks and cement/sand mortar by owner. Labour and tools by contractor.',
-    terms: 'Quality: First class bricks, 1:6 cement mortar. Plumb and level to be maintained. Payment on completion of each floor.'
-  },
-  plastering: {
-    scope: 'Cement plastering for internal and external walls. Thickness as per specifications. Material (cement, sand) by owner.',
-    terms: 'Quality: Smooth finish, no cracks. Curing for 7 days. Payment after final inspection and approval.'
-  },
-  flooring: {
-    scope: 'Vitrified tiles flooring for entire house. Includes leveling, tile laying, grouting. Tiles by owner, adhesive/grout by contractor.',
-    terms: 'Quality: Level surface, proper grouting. No tile breakage. Warranty: 1 year on workmanship.'
-  },
-  plumbing: {
-    scope: 'Complete plumbing work - water supply lines, drainage, CP fittings installation. Pipes and fittings by owner.',
-    terms: 'Quality: Pressure testing mandatory. No leakage. As per plumbing code. Payment: 30% advance, 40% on rough-in, 30% on completion.'
-  },
-  electrical: {
-    scope: 'Electrical wiring, conduits, switch/socket installation, DB panel, earthing. Wire and accessories by owner.',
-    terms: 'License: Valid electrical contractor license required. Quality: As per IE rules. Testing certificate to be provided.'
-  },
-  painting: {
-    scope: 'Interior and exterior painting - putty, primer, 2 coats emulsion/enamel. Paint by owner.',
-    terms: 'Quality: Smooth finish, uniform color. Touch-up after handover included.'
-  },
-  interior: {
-    scope: 'Complete interior package - modular kitchen, wardrobes, false ceiling, TV units, crockery units. Material and design as per BOQ.',
-    terms: 'Design approval before execution. Payment: 40% advance, 30% on 50% work, 30% on completion. Warranty: 1 year.'
-  },
-  kitchen: {
-    scope: 'Modular kitchen with cabinets, countertop, chimney hood provision, sink installation. Hardware (hinges, channels) premium quality.',
-    terms: 'Material: As per approved design. Installation: Professional fitting. Warranty: 5 years on cabinet, 1 year on hardware.'
-  }
-};
-
-function loadAgreementTemplate(){
-  const type = document.getElementById('agr_type')?.value;
-  if(!type || !agreementTemplates[type]) return;
-  const tmpl = agreementTemplates[type];
-  document.getElementById('agr_scope').value = tmpl.scope;
-  document.getElementById('agr_terms').value = tmpl.terms;
-}
-
-function saveAgreement(){
-  const type = document.getElementById('agr_type')?.value;
-  const party = document.getElementById('agr_party')?.value.trim();
-  const mobile = document.getElementById('agr_mobile')?.value;
-  const total = parseFloat(document.getElementById('agr_total')?.value) || 0;
-  const scope = document.getElementById('agr_scope')?.value.trim();
-  
-  if(!type || !party || !mobile || !total || !scope){
-    showToast('Type, Party, Mobile, Total Value, and Scope required!','warn');
-    return;
-  }
-  
-  agreements.push({
-    id: Date.now(),
-    date: document.getElementById('agr_date')?.value || today(),
-    type,
-    party,
-    contact: document.getElementById('agr_contact')?.value,
-    mobile,
-    email: document.getElementById('agr_email')?.value,
-    address: document.getElementById('agr_address')?.value,
-    gst: document.getElementById('agr_gst')?.value,
-    rate_type: document.getElementById('agr_rate_type')?.value,
-    rate: parseFloat(document.getElementById('agr_rate')?.value) || 0,
-    qty: parseFloat(document.getElementById('agr_qty')?.value) || 0,
-    total,
-    advance: parseFloat(document.getElementById('agr_adv')?.value) || 0,
-    pay_terms: document.getElementById('agr_pay_terms')?.value,
-    start_date: document.getElementById('agr_start')?.value,
-    end_date: document.getElementById('agr_end')?.value,
-    scope,
-    material: document.getElementById('agr_material')?.value,
-    terms: document.getElementById('agr_terms')?.value,
-    status: 'Active'
-  });
-  
-  saveAll();
-  renderAgreements();
-  ['agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_scope','agr_terms'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('agr_adv').value='0';
-  agreementTab('list');
-  showToast('✅ Agreement saved!');
-}
-
-function renderAgreements(){
-  const body = document.getElementById('agreementsBody');
-  if(!body) return;
-  if(!agreements.length){
-    body.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📑</div><p>No agreements</p></div></td></tr>';
-    return;
-  }
-  
-  const typeNames = {
-    rcc:'RCC', brickwork:'Brickwork', plastering:'Plastering', flooring:'Flooring',
-    plumbing:'Plumbing', electrical:'Electrical', painting:'Painting',
-    waterproofing:'Waterproofing', centering:'Centering', steel:'Steel Work',
-    interior:'Interior', kitchen:'Kitchen', wardrobe:'Wardrobe', ceiling:'Ceiling',
-    furniture:'Furniture', architect:'Architect', engineer:'Engineer',
-    landscaping:'Landscaping', excavation:'Excavation'
-  };
-  
-  body.innerHTML = agreements.map(a=>`<tr>
-    <td>${a.date}</td>
-    <td><span class="badge b-blue">${typeNames[a.type]||a.type}</span></td>
-    <td><strong>${a.party}</strong>${a.mobile?`<br><small>${a.mobile}</small>`:''}</td>
-    <td class="mono font-bold">${fmt(a.total)}</td>
-    <td><span class="badge ${a.status==='Active'?'b-green':'b-muted'}">${a.status}</span></td>
-    <td><div class="td-actions">
-      <button class="btn btn-acc btn-xs" onclick="viewAgreementPDF('${a.id}')">📄 PDF</button>
-      <button class="btn btn-err btn-xs" onclick="delAgreement('${a.id}')">🗑️</button>
-    </div></td>
-  </tr>`).join('');
-}
-
-function delAgreement(id){
-  if(!confirm('Delete this agreement?')) return;
-  agreements = agreements.filter(a=>String(a.id)!==String(id));
-  saveAll();
-  renderAgreements();
-  showToast('Deleted','warn');
-}
-
-function generateAgreementPDF(){
-  showToast('PDF generation feature coming soon!','info');
-}
-
-function viewAgreementPDF(id){
-  const agr = agreements.find(a=>String(a.id)===String(id));
-  if(!agr) return;
-  
-  // Generate PDF content
-  const typeNames = {
-    rcc:'RCC Contractor', brickwork:'Brickwork Contractor', plastering:'Plastering Contractor',
-    flooring:'Flooring/Tiles Contractor', plumbing:'Plumbing Contractor', electrical:'Electrical Contractor',
-    painting:'Painting Contractor', interior:'Full Interior Package', kitchen:'Modular Kitchen',
-    wardrobe:'Wardrobe/Carpentry', architect:'Architect', engineer:'Structural Engineer'
-  };
-  
-  const pdfContent = `
-    <div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;line-height:1.6">
-      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
-        <h1 style="margin:0;color:#333">CONSTRUCTION AGREEMENT</h1>
-        <p style="margin:10px 0 0;color:#666">${typeNames[agr.type] || agr.type}</p>
-      </div>
-      
-      <p style="margin-bottom:20px">This Agreement made on <strong>${agr.date}</strong></p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px">BETWEEN</h3>
-      <p><strong>OWNER:</strong> ${user.name || 'Owner Name'}<br>
-      Address: ${user.address || 'Owner Address'}<br>
-      Mobile: ${user.mobile || 'Owner Mobile'}</p>
-      
-      <p style="text-align:center;margin:20px 0">AND</p>
-      
-      <p><strong>CONTRACTOR:</strong> ${agr.party}<br>
-      ${agr.contact ? `Contact Person: ${agr.contact}<br>` : ''}
-      Mobile: ${agr.mobile}<br>
-      ${agr.email ? `Email: ${agr.email}<br>` : ''}
-      ${agr.address ? `Address: ${agr.address}<br>` : ''}
-      ${agr.gst ? `GST No: ${agr.gst}` : ''}</p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">SCOPE OF WORK</h3>
-      <p>${agr.scope}</p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">FINANCIAL TERMS</h3>
-      <table style="width:100%;border-collapse:collapse;margin-top:10px">
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate Type:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.rate_type.toUpperCase()}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.rate} per ${agr.rate_type}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Quantity:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.qty} ${agr.rate_type}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Total Contract Value:</strong></td><td style="padding:8px;border:1px solid #ddd;font-weight:bold">₹${agr.total.toLocaleString('en-IN')}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Advance:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.advance.toLocaleString('en-IN')}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Payment Terms:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.pay_terms}</td></tr>
-      </table>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">WORK SCHEDULE</h3>
-      <p><strong>Start Date:</strong> ${agr.start_date || 'TBD'}<br>
-      <strong>Completion Date:</strong> ${agr.end_date || 'TBD'}</p>
-      
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">MATERIAL SUPPLY</h3>
-      <p>${agr.material}</p>
-      
-      ${agr.terms ? `<h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">TERMS & CONDITIONS</h3><p>${agr.terms}</p>` : ''}
-      
-      <div style="margin-top:60px;display:flex;justify-content:space-between">
-        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
-          <strong>Owner Signature</strong><br>
-          <small>${user.name || 'Owner Name'}</small>
-        </div>
-        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
-          <strong>Contractor Signature</strong><br>
-          <small>${agr.party}</small>
-        </div>
-      </div>
-      
-      <p style="text-align:center;color:#666;font-size:12px;margin-top:40px">
-        Generated on ${new Date().toLocaleDateString('en-IN')} | Construction Management System
-      </p>
-    </div>
-  `;
-  
-  // Open in new window
-  const win = window.open('', '_blank');
-  win.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Agreement - ${agr.party}</title>
-      <meta charset="UTF-8">
-      <style>
-        @media print {
-          body { margin: 0; }
-          button { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
-        <button onclick="window.print()" style="padding:10px 20px;background:#4CAF50;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">🖨️ Print / Save as PDF</button>
-      </div>
-      ${pdfContent}
-    </body>
-    </html>
-  `);
-  win.document.close();
-}
 
   const active=document.querySelector('.page.active')?.id?.replace('pg-','');
   if(active==='dashboard') renderDashboard();
