@@ -4132,13 +4132,182 @@ function renderReport(){
       <tbody>${materials.map(m=>`<tr><td>${m.date}</td><td>${m.type}</td><td>${m.supplier}</td><td>${m.qty||'—'} ${m.unit||''}</td><td class="mono">${fmt(m.total)}</td><td class="mono text-ok">${fmt(m.paid)}</td><td class="mono" style="color:${m.total-m.paid>0?'var(--err)':'var(--ok)'};font-weight:700">${fmt(m.total-m.paid)}</td><td>${m.stage||'—'}</td></tr>`).join('')||`<tr><td colspan="8"><div class="empty"><div class="empty-icon">📦</div><p>Entry none</p></div></td></tr>`}</tbody></table></div>
     </div>
     <div class="tbl-wrap">
-      <div class="tbl-toolbar"><span class="tbl-toolbar-title">👷 Labour Details</span></div>
-      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Work</th><th>Name</th><th>Mobile</th><th>Agreed</th><th>Paid</th><th>Balance</th><th>Progress</th></tr></thead>
-      <tbody>${labours.map(l=>`<tr><td>${l.date}</td><td>${l.type}</td><td>${l.name}</td><td>${l.mobile||'—'}</td><td class="mono">${fmt(l.total)}</td><td class="mono text-ok">${fmt(l.paid)}</td><td class="mono" style="color:${l.total-l.paid>0?'var(--err)':'var(--ok)'};font-weight:700">${fmt(l.total-l.paid)}</td><td>${l.progress||0}%</td></tr>`).join('')||`<tr><td colspan="8"><div class="empty"><div class="empty-icon">👷</div><p>Entry none</p></div></td></tr>`}</tbody></table></div>
+      <div class="tbl-toolbar">
+        <span class="tbl-toolbar-title">👷 Labour Details</span>
+        <button class="btn btn-acc btn-sm" onclick="downloadLabourPaymentPDF()" style="margin-left:auto">📄 Download PDF</button>
+      </div>
+      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Work</th><th>Name</th><th>Mobile</th><th>Agreed</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Payments</th></tr></thead>
+      <tbody>${labours.map(l=>{
+        const hasPayments = l.payments && l.payments.length > 0;
+        return `<tr>
+          <td>${l.date}</td>
+          <td>${l.type}</td>
+          <td>${l.name}</td>
+          <td>${l.mobile||'—'}</td>
+          <td class="mono">${fmt(l.total)}</td>
+          <td class="mono text-ok">${fmt(l.paid)}</td>
+          <td class="mono" style="color:${l.total-l.paid>0?'var(--err)':'var(--ok)'};font-weight:700">${fmt(l.total-l.paid)}</td>
+          <td>${l.progress||0}%</td>
+          <td>
+            ${hasPayments ? `<button class="btn btn-xs btn-outline" onclick="showPaymentDetails('${l.id}')" style="font-size:11px">📋 ${l.payments.length} entries</button>` : '<span class="text-muted" style="font-size:11px">—</span>'}
+          </td>
+        </tr>
+        ${hasPayments ? `<tr id="payment_details_${l.id}" style="display:none">
+          <td colspan="9" style="background:#f9fafb;padding:12px">
+            <div style="font-weight:600;margin-bottom:8px;color:#1f2937">💳 Payment History - ${l.name}</div>
+            <table style="width:100%;font-size:12px;border-collapse:collapse">
+              <thead style="background:#e5e7eb">
+                <tr>
+                  <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Date</th>
+                  <th style="padding:6px;text-align:right;border:1px solid #d1d5db">Amount</th>
+                  <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Mode</th>
+                  <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${l.payments.map((p,idx)=>`<tr style="background:${idx%2===0?'white':'#f9fafb'}">
+                  <td style="padding:6px;border:1px solid #d1d5db">${p.date}</td>
+                  <td style="padding:6px;text-align:right;border:1px solid #d1d5db;font-weight:600;color:#059669">₹${p.amount.toLocaleString('en-IN')}</td>
+                  <td style="padding:6px;border:1px solid #d1d5db">${p.mode||'Cash'}</td>
+                  <td style="padding:6px;border:1px solid #d1d5db;color:#6b7280">${p.note||'—'}</td>
+                </tr>`).join('')}
+                <tr style="background:#fef3c7;font-weight:700">
+                  <td style="padding:6px;border:1px solid #d1d5db">TOTAL PAID</td>
+                  <td style="padding:6px;text-align:right;border:1px solid #d1d5db;color:#059669">₹${l.paid.toLocaleString('en-IN')}</td>
+                  <td colspan="2" style="padding:6px;border:1px solid #d1d5db;color:#dc2626">Balance: ₹${(l.total-l.paid).toLocaleString('en-IN')}</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>` : ''}`;
+      }).join('')||`<tr><td colspan="9"><div class="empty"><div class="empty-icon">👷</div><p>Entry none</p></div></td></tr>`}</tbody></table></div>
     </div>`;
 }
 
-// ══════════════════════════════════════════════════════════════
+function showPaymentDetails(labourId){
+  const row = document.getElementById(`payment_details_${labourId}`);
+  if(row){
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+  }
+}
+
+function downloadLabourPaymentPDF(){
+  const proj = projects.find(p=>p.id===CP);
+  const lT = labours.reduce((s,l)=>s+l.total,0);
+  const lP = labours.reduce((s,l)=>s+l.paid,0);
+  
+  const pdfContent = `
+    <div style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:40px;line-height:1.6">
+      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
+        <h1 style="margin:0;color:#333">LABOUR PAYMENT REPORT</h1>
+        <p style="margin:10px 0 0;color:#666">${proj?.name || 'Project'}</p>
+        <p style="margin:5px 0 0;color:#999;font-size:12px">Generated on ${new Date().toLocaleDateString('en-IN')}</p>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:30px">
+        <div style="background:#dbeafe;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#1e40af;margin-bottom:4px">Total Agreed</div>
+          <div style="font-size:24px;font-weight:700;color:#1e3a8a">₹${lT.toLocaleString('en-IN')}</div>
+        </div>
+        <div style="background:#d1fae5;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#065f46;margin-bottom:4px">Total Paid</div>
+          <div style="font-size:24px;font-weight:700;color:#047857">₹${lP.toLocaleString('en-IN')}</div>
+        </div>
+        <div style="background:#fee2e2;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#991b1b;margin-bottom:4px">Balance Due</div>
+          <div style="font-size:24px;font-weight:700;color:#dc2626">₹${(lT-lP).toLocaleString('en-IN')}</div>
+        </div>
+      </div>
+      
+      ${labours.map(l=>`
+        <div style="border:1px solid #d1d5db;border-radius:8px;margin-bottom:24px;overflow:hidden;page-break-inside:avoid">
+          <div style="background:#f3f4f6;padding:12px 16px;border-bottom:1px solid #d1d5db">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:16px;font-weight:700;color:#1f2937">${l.name}</div>
+                <div style="font-size:13px;color:#6b7280;margin-top:2px">${l.type} • ${l.mobile || 'No mobile'} • Started: ${l.date}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:12px;color:#6b7280">Progress</div>
+                <div style="font-size:20px;font-weight:700;color:#3b82f6">${l.progress||0}%</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="padding:16px">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+              <div>
+                <div style="font-size:11px;color:#6b7280">Agreed Amount</div>
+                <div style="font-size:16px;font-weight:600">₹${l.total.toLocaleString('en-IN')}</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#6b7280">Total Paid</div>
+                <div style="font-size:16px;font-weight:600;color:#059669">₹${l.paid.toLocaleString('en-IN')}</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#6b7280">Balance</div>
+                <div style="font-size:16px;font-weight:600;color:#dc2626">₹${(l.total-l.paid).toLocaleString('en-IN')}</div>
+              </div>
+            </div>
+            
+            ${l.payments && l.payments.length > 0 ? `
+              <div style="font-weight:600;margin-bottom:8px;color:#374151;font-size:14px">💳 Payment History (${l.payments.length} entries)</div>
+              <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead style="background:#f9fafb">
+                  <tr>
+                    <th style="padding:8px;text-align:left;border:1px solid #e5e7eb">Date</th>
+                    <th style="padding:8px;text-align:right;border:1px solid #e5e7eb">Amount</th>
+                    <th style="padding:8px;text-align:left;border:1px solid #e5e7eb">Mode</th>
+                    <th style="padding:8px;text-align:left;border:1px solid #e5e7eb">Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${l.payments.map((p,idx)=>`<tr style="background:${idx%2===0?'white':'#f9fafb'}">
+                    <td style="padding:8px;border:1px solid #e5e7eb">${p.date}</td>
+                    <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;font-weight:600;color:#059669">₹${p.amount.toLocaleString('en-IN')}</td>
+                    <td style="padding:8px;border:1px solid #e5e7eb">${p.mode||'Cash'}</td>
+                    <td style="padding:8px;border:1px solid #e5e7eb;color:#6b7280">${p.note||'—'}</td>
+                  </tr>`).join('')}
+                </tbody>
+              </table>
+            ` : '<div style="color:#9ca3af;font-size:13px;text-align:center;padding:16px">No payment entries</div>'}
+          </div>
+        </div>
+      `).join('')}
+      
+      <div style="margin-top:40px;padding-top:20px;border-top:2px solid #333;text-align:center;color:#6b7280;font-size:12px">
+        <p style="margin:0">ProSite Manager • Labour Payment Report</p>
+        <p style="margin:4px 0 0">Generated on ${new Date().toLocaleString('en-IN')}</p>
+      </div>
+    </div>
+  `;
+  
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Labour Payment Report - ${proj?.name || 'Project'}</title>
+      <meta charset="UTF-8">
+      <style>
+        @media print {
+          body { margin: 0; }
+          button { display: none; }
+        }
+      </style>
+    </head>
+    <body>
+      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
+        <button onclick="window.print()" style="padding:10px 20px;background:#3b82f6;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;margin-right:8px">🖨️ Print</button>
+        <button onclick="window.close()" style="padding:10px 20px;background:#6b7280;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">✖️ Close</button>
+      </div>
+      ${pdfContent}
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
+
 //  SETTINGS
 // ══════════════════════════════════════════════════════════════
 function renderSettings(){
