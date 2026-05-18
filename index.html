@@ -974,6 +974,7 @@ td.mono { font-variant-numeric: tabular-nums; }
             <option value="">All</option><option>RCC Contractor</option><option>Brickwork / Mason</option>
             <option>Plaster</option><option>Plumber</option><option>Electrician</option><option>Painter</option>
           </select>
+          <button class="btn btn-acc btn-sm" onclick="downloadFilteredLabourPDF()" style="margin-left:8px">📄 Download PDF</button>
         </div>
       </div>
       <div class="tbl-scroll">
@@ -2916,8 +2917,10 @@ function viewAgreementPDF(id){
 }
 
 function downloadWorkTypePDF(workType){
+  console.log('downloadWorkTypePDF called with:', workType);
   const proj = projects.find(p=>p.id===CP);
   const filteredLabours = labours.filter(l=>l.type === workType);
+  console.log('Filtered labours:', filteredLabours.length, 'Total labours:', labours.length);
   
   if(filteredLabours.length === 0){
     showToast('No labourers found for ' + workType,'warn');
@@ -2929,6 +2932,10 @@ function downloadWorkTypePDF(workType){
   
   const pdfContent = `
     <div style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:40px;line-height:1.6">
+      <div style="background:#fef3c7;padding:12px;border-radius:8px;margin-bottom:20px;border:2px solid #f59e0b">
+        <div style="font-size:14px;font-weight:700;color:#92400e">🔍 Filter Applied: <span style="color:#dc2626">${workType}</span></div>
+        <div style="font-size:12px;color:#78350f;margin-top:4px">Showing ${filteredLabours.length} workers out of ${labours.length} total labours</div>
+      </div>
       <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
         <h1 style="margin:0;color:#333">${workType.toUpperCase()} LABOUR REPORT</h1>
         <p style="margin:10px 0 0;color:#666">${proj?.name || 'Project'}</p>
@@ -2956,7 +2963,10 @@ function downloadWorkTypePDF(workType){
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>
                 <div style="font-size:16px;font-weight:700;color:#1f2937">${l.name}</div>
-                <div style="font-size:13px;color:#6b7280;margin-top:2px">${l.mobile || 'No mobile'} • Started: ${l.date}</div>
+                <div style="font-size:13px;color:#6b7280;margin-top:2px">
+                  <span style="background:#3b82f6;color:white;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:8px">${l.type}</span>
+                  ${l.mobile || 'No mobile'} • Started: ${l.date}
+                </div>
               </div>
               <div style="text-align:right">
                 <div style="font-size:12px;color:#6b7280">Progress</div>
@@ -3071,6 +3081,19 @@ function downloadWorkTypePDF(workType){
     </html>
   `);
   win.document.close();
+}
+
+function downloadFilteredLabourPDF(){
+  const filterValue = document.getElementById('labFilter')?.value || '';
+  
+  if(filterValue === ''){
+    // All labours
+    downloadLabourPaymentPDF();
+    return;
+  }
+  
+  // Use downloadWorkTypePDF with filter value
+  downloadWorkTypePDF(filterValue);
 }
 
 // ══════════════════════════════════════════════════════════════
