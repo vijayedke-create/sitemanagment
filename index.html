@@ -711,7 +711,7 @@ td.mono { font-variant-numeric: tabular-nums; }
           <select id="m_type">
             <option value="">-- Select --</option>
             <option>Cement</option><option>Sand</option>
-            <option>Aggregate / Metal</option><option>Brick</option>
+            <option>Aggregate / Metal</option><option>Murum / मुरूम</option><option>Brick</option>
             <optgroup label="TMT Steel Bars">
               <option>TMT Bar 8mm</option>
               <option>TMT Bar 10mm</option>
@@ -743,7 +743,8 @@ td.mono { font-variant-numeric: tabular-nums; }
           </select>
         </div>
         <div class="fg"><label>Custom Name</label><input type="text" id="m_custom" placeholder="e.g. AAC Block"></div>
-        <div class="fg"><label>Supplier *</label><input type="text" id="m_supplier" placeholder="e.g. Rajesh Traders" list="supplierList"><datalist id="supplierList"></datalist></div>
+        <div class="fg"><label>Supplier Name *</label><input type="text" id="m_supplier" placeholder="e.g. Rajesh Traders" list="supplierList"><datalist id="supplierList"></datalist></div>
+        <div class="fg"><label>Supplier Mobile</label><input type="tel" id="m_supplier_mobile" placeholder="9876543210"></div>
         <div class="fg"><label>Quantity</label><input type="number" id="m_qty" placeholder="50" oninput="calcMat()"></div>
         <div class="fg"><label>Unit</label>
           <select id="m_unit">
@@ -756,6 +757,7 @@ td.mono { font-variant-numeric: tabular-nums; }
         <div class="fg"><label>Unit Rate (₹)</label><input type="number" id="m_rate" placeholder="380" oninput="calcMat()"></div>
         <div class="fg"><label>Total Amount (₹) *</label><input type="number" id="m_total" placeholder="19000"></div>
         <div class="fg"><label>Advance (₹)</label><input type="number" id="m_advance" value="0"></div>
+        <div class="fg"><label>Driver Tip / ड्रायव्हर टीप (₹)</label><input type="number" id="m_driver_tip" value="0" placeholder="100"></div>
         <div class="fg"><label>Invoice No.</label><input type="text" id="m_invoice" placeholder="INV-001"></div>
         <div class="fg"><label>Payment Mode</label>
           <select id="m_paymode"><option>Cash</option><option>UPI/GPay</option><option>Bank Transfer</option><option>Cheque</option></select>
@@ -795,6 +797,7 @@ td.mono { font-variant-numeric: tabular-nums; }
             <option value="">All Stages</option><option>Foundation</option><option>Plinth</option>
             <option>Ground Floor</option><option>First Floor</option><option>Terrace/Slab</option><option>Finishing</option>
           </select>
+          <button class="btn btn-pri btn-sm" onclick="downloadFilteredMaterialPDF()" style="margin-left:8px">📄 Download PDF</button>
         </div>
       </div>
       <div class="tbl-scroll">
@@ -931,7 +934,7 @@ td.mono { font-variant-numeric: tabular-nums; }
         <div class="fg"><label>Work Type *</label>
           <select id="l_type">
             <option value="">-- Select --</option>
-            <optgroup label="Structure"><option>RCC Contractor</option><option>Centering</option><option>Excavation</option><option>Foundation Work</option></optgroup>
+            <optgroup label="Structure"><option>RCC Contractor</option><option>Centering</option><option>Excavation</option><option>Foundation Work</option><option>JCB Work</option><option>Back Fill / भराव</option></optgroup>
             <optgroup label="Masonry"><option>Brickwork / Mason</option><option>Plaster</option><option>Putty/Finishing</option></optgroup>
             <optgroup label="Fitting"><option>Plumber</option><option>Electrician</option><option>Tiles Fitting</option><option>False Ceiling</option><option>Grill / Welding</option><option>Doors/Windows</option><option>Painter</option></optgroup>
             <optgroup label="Carpentry"><option>Carpenter</option><option>Furniture</option><option>Marble/Granite</option></optgroup>
@@ -943,6 +946,7 @@ td.mono { font-variant-numeric: tabular-nums; }
         <div class="fg"><label>Agreed Amount (₹) *</label><input type="number" id="l_total" placeholder="50000"></div>
         <div class="fg"><label>Area / Details</label><input type="text" id="l_area" placeholder="G+1, 1200 sqft"></div>
         <div class="fg"><label>Advance (₹)</label><input type="number" id="l_advance" value="0"></div>
+        <div class="fg"><label>Driver Tip / ड्रायव्हर टीप (₹)</label><input type="number" id="l_driver_tip" value="0" placeholder="100"></div>
         <div class="fg"><label>Daily Wage (₹/day)</label><input type="number" id="l_wage" placeholder="600"></div>
         <div class="fg"><label>Work Start</label><input type="date" id="l_start"></div>
         <div class="fg"><label>Work End</label><input type="date" id="l_end"></div>
@@ -3096,6 +3100,244 @@ function downloadFilteredLabourPDF(){
   downloadWorkTypePDF(filterValue);
 }
 
+function downloadFilteredMaterialPDF(){
+  const filterValue = document.getElementById('matFilter')?.value || '';
+  
+  if(filterValue === ''){
+    // All materials - download complete report
+    downloadAllMaterialsPDF();
+    return;
+  }
+  
+  // Download specific material type
+  downloadMaterialTypePDF(filterValue);
+}
+
+function downloadAllMaterialsPDF(){
+  const proj = projects.find(p=>p.id===CP);
+  const mT = materials.reduce((s,m)=>s+m.total,0);
+  const mP = materials.reduce((s,m)=>s+m.paid,0);
+  
+  const pdfContent = `
+    <div style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:40px;line-height:1.6">
+      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
+        <h1 style="margin:0;color:#333">MATERIAL PURCHASE REPORT</h1>
+        <p style="margin:10px 0 0;color:#666">${proj?.name || 'Project'}</p>
+        <p style="margin:5px 0 0;color:#999;font-size:12px">Generated on ${new Date().toLocaleDateString('en-IN')}</p>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:30px">
+        <div style="background:#dbeafe;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#1e40af;margin-bottom:4px">Total Entries</div>
+          <div style="font-size:24px;font-weight:700;color:#1e3a8a">${materials.length}</div>
+        </div>
+        <div style="background:#d1fae5;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#065f46;margin-bottom:4px">Total Paid</div>
+          <div style="font-size:24px;font-weight:700;color:#047857">₹${mP.toLocaleString('en-IN')}</div>
+        </div>
+        <div style="background:#fee2e2;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#991b1b;margin-bottom:4px">Balance Due</div>
+          <div style="font-size:24px;font-weight:700;color:#dc2626">₹${(mT-mP).toLocaleString('en-IN')}</div>
+        </div>
+      </div>
+      
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead style="background:#f3f4f6">
+          <tr>
+            <th style="padding:10px;text-align:left;border:1px solid #d1d5db">Date</th>
+            <th style="padding:10px;text-align:left;border:1px solid #d1d5db">Material</th>
+            <th style="padding:10px;text-align:left;border:1px solid #d1d5db">Supplier</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Quantity</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Total</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Paid</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${materials.map((m,idx)=>`<tr style="background:${idx%2===0?'white':'#f9fafb'}">
+            <td style="padding:8px;border:1px solid #e5e7eb">${m.date}</td>
+            <td style="padding:8px;border:1px solid #e5e7eb;font-weight:600">${m.type}</td>
+            <td style="padding:8px;border:1px solid #e5e7eb">${m.supplier}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb">${m.qty||'—'} ${m.unit||''}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;font-weight:600">₹${m.total.toLocaleString('en-IN')}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;color:#059669">₹${m.paid.toLocaleString('en-IN')}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;font-weight:600;color:${m.total-m.paid>0?'#dc2626':'#059669'}">₹${(m.total-m.paid).toLocaleString('en-IN')}</td>
+          </tr>`).join('')}
+          <tr style="background:#fef3c7;font-weight:700;font-size:14px">
+            <td colspan="4" style="padding:10px;border:1px solid #d1d5db;text-align:right">TOTAL</td>
+            <td style="padding:10px;text-align:right;border:1px solid #d1d5db">₹${mT.toLocaleString('en-IN')}</td>
+            <td style="padding:10px;text-align:right;border:1px solid #d1d5db;color:#059669">₹${mP.toLocaleString('en-IN')}</td>
+            <td style="padding:10px;text-align:right;border:1px solid #d1d5db;color:#dc2626">₹${(mT-mP).toLocaleString('en-IN')}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div style="margin-top:40px;padding-top:20px;border-top:2px solid #333;text-align:center;color:#6b7280;font-size:12px">
+        <p style="margin:0">ProSite Manager • Material Purchase Report</p>
+        <p style="margin:4px 0 0">Generated on ${new Date().toLocaleString('en-IN')}</p>
+      </div>
+    </div>
+  `;
+  
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Material Report - ${proj?.name || 'Project'}</title>
+      <meta charset="UTF-8">
+      <style>
+        @media print {
+          body { margin: 0; }
+          button { display: none; }
+        }
+      </style>
+    </head>
+    <body>
+      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
+        <button onclick="window.print()" style="padding:10px 20px;background:#3b82f6;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;margin-right:8px">🖨️ Print</button>
+        <button onclick="window.close()" style="padding:10px 20px;background:#6b7280;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">✖️ Close</button>
+      </div>
+      ${pdfContent}
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
+
+function downloadMaterialTypePDF(materialType){
+  console.log('downloadMaterialTypePDF called with:', materialType);
+  const proj = projects.find(p=>p.id===CP);
+  
+  // Filter materials - match by starting with the type (handles "Cement 43 Grade" when type is "Cement")
+  const filteredMaterials = materials.filter(m => m.type.startsWith(materialType));
+  console.log('Filtered materials:', filteredMaterials.length, 'Total:', materials.length);
+  
+  if(filteredMaterials.length === 0){
+    showToast('No materials found for ' + materialType,'warn');
+    return;
+  }
+  
+  const mT = filteredMaterials.reduce((s,m)=>s+m.total,0);
+  const mP = filteredMaterials.reduce((s,m)=>s+m.paid,0);
+  
+  const pdfContent = `
+    <div style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:40px;line-height:1.6">
+      <div style="background:#fef3c7;padding:12px;border-radius:8px;margin-bottom:20px;border:2px solid #f59e0b">
+        <div style="font-size:14px;font-weight:700;color:#92400e">🔍 Filter Applied: <span style="color:#dc2626">${materialType}</span></div>
+        <div style="font-size:12px;color:#78350f;margin-top:4px">Showing ${filteredMaterials.length} entries out of ${materials.length} total materials</div>
+      </div>
+      
+      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
+        <h1 style="margin:0;color:#333">${materialType.toUpperCase()} PURCHASE REPORT</h1>
+        <p style="margin:10px 0 0;color:#666">${proj?.name || 'Project'}</p>
+        <p style="margin:5px 0 0;color:#999;font-size:12px">Generated on ${new Date().toLocaleDateString('en-IN')}</p>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:30px">
+        <div style="background:#dbeafe;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#1e40af;margin-bottom:4px">Total Entries</div>
+          <div style="font-size:24px;font-weight:700;color:#1e3a8a">${filteredMaterials.length}</div>
+        </div>
+        <div style="background:#d1fae5;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#065f46;margin-bottom:4px">Total Paid</div>
+          <div style="font-size:24px;font-weight:700;color:#047857">₹${mP.toLocaleString('en-IN')}</div>
+        </div>
+        <div style="background:#fee2e2;padding:16px;border-radius:8px;text-align:center">
+          <div style="font-size:12px;color:#991b1b;margin-bottom:4px">Balance Due</div>
+          <div style="font-size:24px;font-weight:700;color:#dc2626">₹${(mT-mP).toLocaleString('en-IN')}</div>
+        </div>
+      </div>
+      
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead style="background:#f3f4f6">
+          <tr>
+            <th style="padding:10px;text-align:left;border:1px solid #d1d5db">Date</th>
+            <th style="padding:10px;text-align:left;border:1px solid #d1d5db">Material</th>
+            <th style="padding:10px;text-align:left;border:1px solid #d1d5db">Supplier</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Quantity</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Rate</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Total</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Paid</th>
+            <th style="padding:10px;text-align:right;border:1px solid #d1d5db">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredMaterials.map((m,idx)=>`<tr style="background:${idx%2===0?'white':'#f9fafb'}">
+            <td style="padding:8px;border:1px solid #e5e7eb">${m.date}</td>
+            <td style="padding:8px;border:1px solid #e5e7eb">
+              <span style="background:#3b82f6;color:white;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:6px">${m.type}</span>
+            </td>
+            <td style="padding:8px;border:1px solid #e5e7eb">${m.supplier}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;font-weight:600">${m.qty||'—'} ${m.unit||''}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb">₹${m.rate||0}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;font-weight:600">₹${m.total.toLocaleString('en-IN')}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;color:#059669">₹${m.paid.toLocaleString('en-IN')}</td>
+            <td style="padding:8px;text-align:right;border:1px solid #e5e7eb;font-weight:600;color:${m.total-m.paid>0?'#dc2626':'#059669'}">₹${(m.total-m.paid).toLocaleString('en-IN')}</td>
+          </tr>`).join('')}
+          <tr style="background:#fef3c7;font-weight:700;font-size:14px">
+            <td colspan="5" style="padding:10px;border:1px solid #d1d5db;text-align:right">TOTAL</td>
+            <td style="padding:10px;text-align:right;border:1px solid #d1d5db">₹${mT.toLocaleString('en-IN')}</td>
+            <td style="padding:10px;text-align:right;border:1px solid #d1d5db;color:#059669">₹${mP.toLocaleString('en-IN')}</td>
+            <td style="padding:10px;text-align:right;border:1px solid #d1d5db;color:#dc2626">₹${(mT-mP).toLocaleString('en-IN')}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div style="margin-top:30px;padding:20px;background:#f9fafb;border-radius:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;font-size:14px">
+          <div>
+            <div style="color:#6b7280;margin-bottom:4px">Total Entries:</div>
+            <div style="font-weight:700;font-size:18px">${filteredMaterials.length}</div>
+          </div>
+          <div>
+            <div style="color:#6b7280;margin-bottom:4px">Total Amount:</div>
+            <div style="font-weight:700;font-size:18px;color:#1e3a8a">₹${mT.toLocaleString('en-IN')}</div>
+          </div>
+          <div>
+            <div style="color:#6b7280;margin-bottom:4px">Total Paid:</div>
+            <div style="font-weight:700;font-size:18px;color:#047857">₹${mP.toLocaleString('en-IN')}</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb;text-align:right">
+          <span style="color:#991b1b;font-size:14px">Pending Balance: </span>
+          <span style="color:#dc2626;font-size:20px;font-weight:700">₹${(mT-mP).toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+      
+      <div style="margin-top:40px;padding-top:20px;border-top:2px solid #333;text-align:center;color:#6b7280;font-size:12px">
+        <p style="margin:0">ProSite Manager • ${materialType} Purchase Report</p>
+        <p style="margin:4px 0 0">Generated on ${new Date().toLocaleString('en-IN')}</p>
+      </div>
+    </div>
+  `;
+  
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${materialType} Report - ${proj?.name || 'Project'}</title>
+      <meta charset="UTF-8">
+      <style>
+        @media print {
+          body { margin: 0; }
+          button { display: none; }
+        }
+      </style>
+    </head>
+    <body>
+      <div style="text-align:center;padding:20px;background:#f5f5f5;border-bottom:1px solid #ddd">
+        <button onclick="window.print()" style="padding:10px 20px;background:#3b82f6;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;margin-right:8px">🖨️ Print</button>
+        <button onclick="window.close()" style="padding:10px 20px;background:#6b7280;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px">✖️ Close</button>
+      </div>
+      ${pdfContent}
+    </body>
+    </html>
+  `);
+  win.document.close();
+}
+
 // ══════════════════════════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════════════════════════
@@ -3302,18 +3544,23 @@ function saveMaterial(){
   const total=parseFloat(document.getElementById('m_total').value);
   if(!type||!supplier||!total){ showToast('⚠️ Type, Supplier, Amount required!','warn'); return; }
   const advance=parseFloat(document.getElementById('m_advance').value)||0;
+  const driver_tip=parseFloat(document.getElementById('m_driver_tip').value)||0;
   const item={
     id:Date.now(), date:document.getElementById('m_date').value,
-    type:custom?type+' – '+custom:type, supplier, qty:document.getElementById('m_qty').value,
+    type:custom?type+' – '+custom:type, supplier,
+    supplier_mobile:document.getElementById('m_supplier_mobile').value,
+    qty:document.getElementById('m_qty').value,
     unit:document.getElementById('m_unit').value, rate:document.getElementById('m_rate').value,
-    total, paid:advance, invoice:document.getElementById('m_invoice').value,
+    total, paid:advance, driver_tip, invoice:document.getElementById('m_invoice').value,
     paymode:document.getElementById('m_paymode').value, stage:document.getElementById('m_stage').value,
     note:document.getElementById('m_note').value, photo:getPhoto('m_prev'),
     payments:advance>0?[{date:document.getElementById('m_date').value,amount:advance,mode:document.getElementById('m_paymode').value,note:'Advance'}]:[]
   };
   materials.push(item); saveAll(); renderSupplierDatalist();
-  ['m_supplier','m_qty','m_rate','m_total','m_invoice','m_note','m_custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('m_advance').value='0'; document.getElementById('m_date').value=today();
+  ['m_supplier','m_supplier_mobile','m_qty','m_rate','m_total','m_invoice','m_note','m_custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('m_advance').value='0';
+  document.getElementById('m_driver_tip').value='0';
+  document.getElementById('m_date').value=today();
   document.getElementById('m_type').value=''; document.getElementById('m_prev').innerHTML=''; document.getElementById('m_prev')._d=null;
   updateNavBadges(); showToast(t('matSaved'));
   // auto cashbook
@@ -3531,9 +3778,10 @@ function saveLabour(){
   const total=parseFloat(document.getElementById('l_total').value);
   if(!type||!name||!total){ showToast('Type, Name, Amount required!','warn'); return; }
   const advance=parseFloat(document.getElementById('l_advance').value)||0;
+  const driver_tip=parseFloat(document.getElementById('l_driver_tip').value)||0;
   labours.push({
     id:Date.now(), date:document.getElementById('l_date').value, type, name,
-    mobile:document.getElementById('l_mobile').value, total, paid:advance,
+    mobile:document.getElementById('l_mobile').value, total, paid:advance, driver_tip,
     area:document.getElementById('l_area').value, wage:parseFloat(document.getElementById('l_wage').value)||0,
     start:document.getElementById('l_start').value, end:document.getElementById('l_end').value,
     stage:document.getElementById('l_stage').value, paymode:document.getElementById('l_paymode').value,
@@ -3542,7 +3790,9 @@ function saveLabour(){
   });
   saveAll();
   ['l_name','l_mobile','l_total','l_area','l_note','l_wage'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('l_advance').value='0'; document.getElementById('l_date').value=today();
+  document.getElementById('l_advance').value='0';
+  document.getElementById('l_driver_tip').value='0';
+  document.getElementById('l_date').value=today();
   document.getElementById('l_type').value=''; ['l_start','l_end'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('l_prev').innerHTML=''; document.getElementById('l_prev')._d=null;
   updateNavBadges(); showToast(t('labSaved'));
@@ -4291,7 +4541,13 @@ function renderReport(){
       <div class="card card-pad">
         <div class="card-title" style="margin-bottom:12px"><span class="ct-icon">🧱</span> Material Summary</div>
         <div style="display:flex;flex-direction:column;gap:6px">
-          ${Object.entries(typeMap).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span>${k}</span><span class="font-bold">${fmt(v.t)} <span style="color:var(--err);">(Pending ${fmt(v.t-v.p)})</span></span></div>`).join('')||'<div class="text-muted text-sm">Entry none</div>'}
+          ${Object.entries(typeMap).map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <span>${k}</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="font-bold">${fmt(v.t)} <span style="color:var(--err);">(Pending ${fmt(v.t-v.p)})</span></span>
+              <button class="btn btn-xs btn-pri" onclick="downloadMaterialTypePDF('${k}')" style="padding:3px 8px;font-size:10px">📄 PDF</button>
+            </div>
+          </div>`).join('')||'<div class="text-muted text-sm">Entry none</div>'}
           <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;font-weight:700"><span>Total</span><span>${fmt(mT)}</span></div>
         </div>
       </div>
