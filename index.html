@@ -2350,7 +2350,7 @@ td.mono { font-variant-numeric: tabular-nums; }
 <div class="modal-bg" id="payModal">
   <div class="modal">
     <h3>💰 Make Payment</h3>
-    <input type="hidden" id="pay_id"><input type="hidden" id="pay_type">
+    <input type="hidden" id="pay_id"><input type="hidden" id="pay_type"><input type="hidden" id="pay_edit_idx" value="-1">
     <div class="form-grid" style="grid-template-columns:1fr">
       <div class="fg"><label>Amount (₹)</label><input type="number" id="pay_amount" placeholder="Amount enter"></div>
       <div class="fg"><label>Date</label><input type="date" id="pay_date"></div>
@@ -2359,7 +2359,7 @@ td.mono { font-variant-numeric: tabular-nums; }
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('payModal')">Cancel</button>
-      <button class="btn btn-ok" onclick="confirmPay()">✅ Pay Now</button>
+      <button class="btn btn-ok" onclick="confirmPaymentUpdate()">💾 Save Payment</button>
     </div>
   </div>
 </div>
@@ -4138,6 +4138,112 @@ function confirmPay(){
   renderLabour(); renderMaterial(); renderPayments();
 }
 
+function editPaymentEntry(type, id, idx){
+  // Open modal with payment details for editing
+  document.getElementById('pay_id').value=id;
+  document.getElementById('pay_type').value=type;
+  document.getElementById('pay_edit_idx').value=idx;
+  
+  let payment = null;
+  if(type==='material'){
+    const m = materials.find(x=>String(x.id)===String(id));
+    if(m && m.payments && m.payments[idx]) payment = m.payments[idx];
+  } else {
+    const l = labours.find(x=>String(x.id)===String(id));
+    if(l && l.payments && l.payments[idx]) payment = l.payments[idx];
+  }
+  
+  if(!payment) { showToast('Payment not found!','warn'); return; }
+  
+  document.getElementById('pay_date').value = payment.date;
+  document.getElementById('pay_amount').value = payment.amount;
+  document.getElementById('pay_mode').value = payment.mode || 'Cash';
+  document.getElementById('pay_note').value = payment.note || '';
+  
+  // Change button to Update
+  const btn = document.querySelector('#payModal .modal-actions button:nth-child(1)');
+  if(btn) btn.textContent = '💾 Update Payment';
+  
+  document.getElementById('payModal').classList.add('show');
+}
+
+function confirmPaymentUpdate(){
+  const id=document.getElementById('pay_id').value;
+  const type=document.getElementById('pay_type').value;
+  const idx=parseInt(document.getElementById('pay_edit_idx').value || -1);
+  const amount=parseFloat(document.getElementById('pay_amount').value);
+  const date=document.getElementById('pay_date').value;
+  const mode=document.getElementById('pay_mode').value;
+  const note=document.getElementById('pay_note').value;
+  
+  if(!amount||amount<=0){ showToast('Amount required!','warn'); return; }
+  
+  if(idx >= 0){
+    // Update existing payment
+    if(type==='material'){
+      const m = materials.find(x=>String(x.id)===String(id));
+      if(m && m.payments && m.payments[idx]){
+        const oldAmount = m.payments[idx].amount;
+        m.paid = m.paid - oldAmount + amount;
+        m.payments[idx] = {date, amount, mode, note};
+      }
+    } else {
+      const l = labours.find(x=>String(x.id)===String(id));
+      if(l && l.payments && l.payments[idx]){
+        const oldAmount = l.payments[idx].amount;
+        l.paid = l.paid - oldAmount + amount;
+        l.payments[idx] = {date, amount, mode, note};
+      }
+    }
+    showToast('✅ Payment Updated!');
+  } else {
+    // Add new payment
+    confirmPay();
+    return;
+  }
+  
+  saveAll();
+  closeModal('payModal');
+  updateNavBadges();
+  renderLabour();
+  renderMaterial();
+  renderPayments();
+  renderReport();
+  
+  // Reset button text
+  const btn = document.querySelector('#payModal .modal-actions button:nth-child(1)');
+  if(btn) btn.textContent = '💾 Save Payment';
+  document.getElementById('pay_edit_idx').value = -1;
+}
+
+function deletePaymentEntry(type, id, idx){
+  if(!confirm('Delete this payment entry?')) return;
+  
+  if(type==='material'){
+    const m = materials.find(x=>String(x.id)===String(id));
+    if(m && m.payments && m.payments[idx]){
+      const amount = m.payments[idx].amount;
+      m.paid -= amount;
+      m.payments.splice(idx, 1);
+    }
+  } else {
+    const l = labours.find(x=>String(x.id)===String(id));
+    if(l && l.payments && l.payments[idx]){
+      const amount = l.payments[idx].amount;
+      l.paid -= amount;
+      l.payments.splice(idx, 1);
+    }
+  }
+  
+  saveAll();
+  updateNavBadges();
+  renderLabour();
+  renderMaterial();
+  renderPayments();
+  renderReport();
+  showToast('✅ Payment Deleted!', 'warn');
+}
+
 // ══════════════════════════════════════════════════════════════
 //  SITE DIARY
 // ══════════════════════════════════════════════════════════════
@@ -4815,24 +4921,48 @@ function openEdit(type, id){
     html=`<div class="form-grid">
       <div class="fg"><label>Date</label><input type="date" id="ed_date" value="${item.date||''}"></div>
       <div class="fg"><label>Material Name</label><input type="text" id="ed_type" value="${item.type||''}"></div>
-      <div class="fg"><label>Supplier</label><input type="text" id="ed_supplier" value="${item.supplier||''}"></div>
+      <div class="fg"><label>Supplier Name</label><input type="text" id="ed_supplier" value="${item.supplier||''}"></div>
+      <div class="fg"><label>Supplier Mobile</label><input type="tel" id="ed_supplier_mobile" value="${item.supplier_mobile||''}"></div>
       <div class="fg"><label>Quantity</label><input type="text" id="ed_qty" value="${item.qty||''}"></div>
+      <div class="fg"><label>Unit</label><input type="text" id="ed_unit" value="${item.unit||''}"></div>
       <div class="fg"><label>Unit Rate (₹)</label><input type="number" id="ed_rate" value="${item.rate||''}"></div>
       <div class="fg"><label>Total Amount (₹)</label><input type="number" id="ed_total" value="${item.total||''}"></div>
+      <div class="fg"><label>Driver Tip (₹)</label><input type="number" id="ed_driver_tip" value="${item.driver_tip||0}"></div>
       <div class="fg"><label>Invoice No.</label><input type="text" id="ed_invoice" value="${item.invoice||''}"></div>
+      <div class="fg"><label>Payment Mode</label>
+        <select id="ed_paymode">
+          <option ${item.paymode==='Cash'?'selected':''}>Cash</option>
+          <option ${item.paymode==='UPI/GPay'?'selected':''}>UPI/GPay</option>
+          <option ${item.paymode==='Bank Transfer'?'selected':''}>Bank Transfer</option>
+          <option ${item.paymode==='Cheque'?'selected':''}>Cheque</option>
+        </select>
+      </div>
       <div class="fg"><label>Work Stage</label><input type="text" id="ed_stage" value="${item.stage||''}"></div>
       <div class="fg full"><label>Note</label><textarea id="ed_note" rows="2">${item.note||''}</textarea></div>
     </div>`;
   } else if(type==='labour'){
     item = labours.find(x=>String(x.id)===String(id)); if(!item) return;
-    title.textContent='✏️ Labour Edit do';
+    title.textContent='✏️ Edit Labour';
     html=`<div class="form-grid">
       <div class="fg"><label>Date</label><input type="date" id="ed_date" value="${item.date||''}"></div>
       <div class="fg"><label>Work Type</label><input type="text" id="ed_type" value="${item.type||''}"></div>
       <div class="fg"><label>Name</label><input type="text" id="ed_name" value="${item.name||''}"></div>
       <div class="fg"><label>Mobile</label><input type="tel" id="ed_mobile" value="${item.mobile||''}"></div>
       <div class="fg"><label>Agreed Amount (₹)</label><input type="number" id="ed_total" value="${item.total||''}"></div>
+      <div class="fg"><label>Area / Details</label><input type="text" id="ed_area" value="${item.area||''}"></div>
+      <div class="fg"><label>Driver Tip (₹)</label><input type="number" id="ed_driver_tip" value="${item.driver_tip||0}"></div>
+      <div class="fg"><label>Daily Wage (₹)</label><input type="number" id="ed_wage" value="${item.wage||0}"></div>
+      <div class="fg"><label>Work Start</label><input type="date" id="ed_start" value="${item.start||''}"></div>
+      <div class="fg"><label>Work End</label><input type="date" id="ed_end" value="${item.end||''}"></div>
       <div class="fg"><label>Progress %</label><input type="number" id="ed_progress" value="${item.progress||0}" min="0" max="100"></div>
+      <div class="fg"><label>Payment Mode</label>
+        <select id="ed_paymode">
+          <option ${item.paymode==='Cash'?'selected':''}>Cash</option>
+          <option ${item.paymode==='UPI/GPay'?'selected':''}>UPI/GPay</option>
+          <option ${item.paymode==='Bank Transfer'?'selected':''}>Bank Transfer</option>
+          <option ${item.paymode==='Cheque'?'selected':''}>Cheque</option>
+        </select>
+      </div>
       <div class="fg"><label>Work Stage</label><input type="text" id="ed_stage" value="${item.stage||''}"></div>
       <div class="fg full"><label>Note</label><textarea id="ed_note" rows="2">${item.note||''}</textarea></div>
     </div>`;
@@ -4925,14 +5055,22 @@ function confirmEdit(){
   if(type==='material'){
     const m = materials.find(x=>String(x.id)===sid); if(!m) return;
     m.date=gv('ed_date'); m.type=gv('ed_type'); m.supplier=gv('ed_supplier');
-    m.qty=gv('ed_qty'); m.rate=gv('ed_rate'); m.total=parseFloat(gv('ed_total'))||m.total;
-    m.invoice=gv('ed_invoice'); m.stage=gv('ed_stage'); m.note=gv('ed_note');
+    m.supplier_mobile=gv('ed_supplier_mobile');
+    m.qty=gv('ed_qty'); m.unit=gv('ed_unit'); m.rate=gv('ed_rate');
+    m.total=parseFloat(gv('ed_total'))||m.total;
+    m.driver_tip=parseFloat(gv('ed_driver_tip'))||0;
+    m.invoice=gv('ed_invoice'); m.paymode=gv('ed_paymode');
+    m.stage=gv('ed_stage'); m.note=gv('ed_note');
     saveAll(); renderMaterial(); showToast('✅ Material Updated!');
   } else if(type==='labour'){
     const l = labours.find(x=>String(x.id)===sid); if(!l) return;
     l.date=gv('ed_date'); l.type=gv('ed_type'); l.name=gv('ed_name');
     l.mobile=gv('ed_mobile'); l.total=parseFloat(gv('ed_total'))||l.total;
-    l.progress=parseFloat(gv('ed_progress'))||0; l.stage=gv('ed_stage'); l.note=gv('ed_note');
+    l.area=gv('ed_area'); l.driver_tip=parseFloat(gv('ed_driver_tip'))||0;
+    l.wage=parseFloat(gv('ed_wage'))||0;
+    l.start=gv('ed_start'); l.end=gv('ed_end');
+    l.progress=parseFloat(gv('ed_progress'))||0;
+    l.paymode=gv('ed_paymode'); l.stage=gv('ed_stage'); l.note=gv('ed_note');
     saveAll(); renderLabour(); showToast('✅ Labour Updated!');
   } else if(type==='drilling'){
     const d = boreDrilling.find(x=>String(x.id)===sid); if(!d) return;
