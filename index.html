@@ -1228,7 +1228,12 @@ td.mono { font-variant-numeric: tabular-nums; }
         </div>
         <div class="fg"><label>Start Date</label><input type="date" id="agr_start"></div>
         <div class="fg"><label>End Date</label><input type="date" id="agr_end"></div>
-        <div class="fg full"><label>Scope *</label><textarea id="agr_scope" rows="3" placeholder="Detailed work scope..."></textarea></div>
+        <div class="fg full"><label>Work Details / Scope of Work *</label>
+          <textarea id="agr_work_details" rows="4" placeholder="लिख: प्रत्येक item नवळ्यात (Enter दाबून)&#10;Example:&#10;RCC work for G+1 structure&#10;Foundation including plinth beam&#10;Ground floor with RCC slab&#10;First floor with RCC slab&#10;All columns and beams as per design&#10;Including water tank on terrace"></textarea>
+          <small style="color:#999;font-size:11px;margin-top:4px;display:block">
+            💡 Tip: एक नवा work item नवळ्यात लिहा. हे bullet points मध्ये PDF मध्ये दिसेल.
+          </small>
+        </div>
         <div class="fg full"><label>Material Supply</label>
           <select id="agr_material">
             <option>Owner supplies all</option>
@@ -1236,9 +1241,18 @@ td.mono { font-variant-numeric: tabular-nums; }
             <option>Mixed</option>
           </select>
         </div>
-        
-        <!-- Stage-wise Details (for RCC/Brickwork) -->
-        <div id="stage_wise_section" style="display:none;grid-column:1/-1">
+        <div class="fg full"><label>Terms & Conditions</label>
+          <textarea id="agr_terms" rows="4" placeholder="लिख: प्रत्येक point नवळ्यात (Enter दाबून)&#10;Example:&#10;50% payment on site start&#10;30% on 50% work completion&#10;20% on final completion&#10;Timeline: 60 days from date&#10;₹500/day penalty for delay&#10;All materials as per ISI standard&#10;Disputes by third party arbitration"></textarea>
+          <small style="color:#999;font-size:11px;margin-top:4px;display:block">
+            💡 Tip: एक नवा point नवळ्यात लिहा (नवी line). हे bullet points मध्ये PDF मध्ये दिसेल.
+          </small>
+        </div>
+        <div class="fg full"><label>Special Terms / Additional Conditions</label>
+          <textarea id="agr_special" rows="3" placeholder="लिख: प्रत्येक condition नवळ्यात&#10;Example:&#10;Quality check after each floor&#10;Weekly progress meetings mandatory&#10;Site safety contractor responsibility&#10;₹10,000 penalty for safety violation"></textarea>
+          <small style="color:#999;font-size:11px;margin-top:4px;display:block">
+            💡 Tip: एक नवा condition नवळ्यात लिहा. ते formatted bullet points होतील PDF मध्ये.
+          </small>
+        </div>
           <div style="background:#f0f9ff;padding:20px;border-radius:8px;border:1px solid #3b82f6;margin-top:16px">
             <div style="font-weight:700;margin-bottom:16px;color:#1e40af">🏗️ टप्प्यानुसार तपशील / Stage-wise Details</div>
             <div style="font-size:13px;color:#1e40af;margin-bottom:12px">प्रत्येक टप्प्यात वेगवेगळ्या प्रकारचे काम add करा - Brickwork, Compound Wall, Elevation, IPS, Breakup, Parapet इ.</div>
@@ -1278,9 +1292,9 @@ td.mono { font-variant-numeric: tabular-nums; }
               </div>
             </div>
             
-            <button type="button" onclick="calculateStageTotal()" style="margin-top:12px;padding:10px 20px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px">🔢 Calculate Total</button>
-          </div>
-        </div>
+        
+        <!-- Stage-wise Details (for RCC/Brickwork) -->
+        <div id="stage_wise_section" style="display:none;grid-column:1/-1">
         
         <div class="fg full"><label>Special Terms</label><textarea id="agr_terms" rows="2" placeholder="Penalty, quality specs..."></textarea></div>
       </div>
@@ -2502,42 +2516,131 @@ function calcAgrTotal(){
 
 const agreementTemplates = {
   rcc: {
-    scope: 'RCC work including foundation, columns, beams, and slabs. All formwork/centering to be provided by contractor. Steel reinforcement and concrete to be supplied by owner. Work as per structural drawings.',
-    terms: 'Quality: As per IS 456. Curing: Min 7 days. Payment: Stage-wise after engineer approval. Penalty: ₹500/day for delay beyond agreed date.'
+    scope: `• RCC काम पूर्ण संरचनेसाठी (Foundation, Columns, Beams, Slabs)
+• सर्व Formwork/Centering ठेकेदारने देणे
+• Steel Reinforcement आणि Concrete मालकाने देणे
+• Structural drawing नुसार काम करणे
+• Ground + First + Second Floor साठी`,
+    terms: `• गुणवत्ता: IS 456 नुसार
+• Curing: किमान 7 दिवस आवश्यक
+• पेमेंट: प्रत्येक टप्प्यानंतर इंजिनिअरने मंजूरी दिल्यानंतर
+• नमुना निरीक्षण: साप्ताहिक
+• विलंब पेनल्टी: ₹500 प्रति दिन
+• कंपलीट डिस्चार्ज फॉर्म: साइन करायचं`
   },
   brickwork: {
-    scope: 'Brickwork for all walls as per architectural drawings. Includes plastering base. Bricks and cement/sand mortar by owner. Labour and tools by contractor.',
-    terms: 'Quality: First class bricks, 1:6 cement mortar. Plumb and level to be maintained. Payment on completion of each floor.'
+    scope: `• वीटकाम (Brickwork) - सर्व भिंती
+• Architectural drawing नुसार काम
+• प्लास्टर बेस समाविष्ट
+• विट आणि सिमेंट/वाळू: मालकाने देणे
+• साधने आणि मजूरी: ठेकेदारने देणे`,
+    terms: `• गुणवत्ता: उच्च दर्जाचे विट
+• Cement Mortar: 1:6 अनुपात
+• Plumb व Level: बरोबर ठेवणे
+• पेमेंट: प्रत्येक मजल्यानंतर
+• Inspection: अभियंता द्वारे
+• रीवर्क: नोटिस दिल्यानंतर 3 दिवसांत`
   },
   plastering: {
-    scope: 'Cement plastering for internal and external walls. Thickness as per specifications. Material (cement, sand) by owner.',
-    terms: 'Quality: Smooth finish, no cracks. Curing for 7 days. Payment after final inspection and approval.'
+    scope: `• सिमेंट प्लास्टरिंग (Internal & External)
+• भिंती टोपी ते फरशीपर्यंत
+• मोटाई: Specification नुसार
+• सिमेंट आणि वाळू: मालकाने देणे
+• साधने: ठेकेदारने देणे`,
+    terms: `• गुणवत्ता: गुळगुळीत, दरार नाही
+• Curing: 7 दिवस (पाणी फवारा)
+• Finish: समान आणि सुंदर
+• पेमेंट: अंतिम निरीक्षणानंतर
+• Warranty: 1 वर्ष
+• नमुना मजल्यावर परीक्षण`
   },
   flooring: {
-    scope: 'Vitrified tiles flooring for entire house. Includes leveling, tile laying, grouting. Tiles by owner, adhesive/grout by contractor.',
-    terms: 'Quality: Level surface, proper grouting. No tile breakage. Warranty: 1 year on workmanship.'
+    scope: `• Vitrified Tiles - सर्व खोल्या
+• जमीन समतल करणे (Leveling)
+• टाइल्स लावणे आणि ग्राउटिंग
+• टाइल्स: मालकाने देणे
+• Adhesive आणि Grout: ठेकेदारने देणे`,
+    terms: `• गुणवत्ता: समान पृष्ठभाग
+• Proper Grouting: कोणतेही पोकळी नाही
+• टाइल्स: कोणतेही टूट नाही
+• पेमेंट: अंतिम स्वीकृतीनंतर
+• Warranty: 1 वर्ष (Workmanship)
+• Cleaning: अंतिम हस्तांतरणापूर्वी`
   },
   plumbing: {
-    scope: 'Complete plumbing work - water supply lines, drainage, CP fittings installation. Pipes and fittings by owner.',
-    terms: 'Quality: Pressure testing mandatory. No leakage. As per plumbing code. Payment: 30% advance, 40% on rough-in, 30% on completion.'
+    scope: `• पूर्ण Plumbing Work
+• पाण्याची ओळख: सर्व नळ आणि Taps
+• नाले: Kitchen, Bathroom, Outdoor
+• CP Fittings: उच्च दर्जाचे
+• नल आणि साधने: मालकाने देणे`,
+    terms: `• गुणवत्ता: Plumbing Code नुसार
+• Pressure Testing: अनिवार्य
+• कोणतेही गळती नाही: शून्य tolerance
+• पेमेंट: 30% अग्रिम, 40% अर्धवट, 30% अंतिम
+• Inspection: अभियंता द्वारा दोन्ही
+• Warranty: 1 वर्ष (लीकेज)
+• नमुना: एका खोलीचे टेस्टिंग`
   },
   electrical: {
-    scope: 'Electrical wiring, conduits, switch/socket installation, DB panel, earthing. Wire and accessories by owner.',
-    terms: 'License: Valid electrical contractor license required. Quality: As per IE rules. Testing certificate to be provided.'
+    scope: `• Electrical Wiring (सर्व खोल्या)
+• Conduits आणि cables
+• Switches, Sockets, Fan points
+• DB Panel आणि Earth
+• Wire आणि Accessories: मालकाने देणे`,
+    terms: `• License: Valid Electrical Contractor
+• गुणवत्ता: IE Rules नुसार
+• Earth Resistance: < 5 Ohms
+• पेमेंट: 30% अग्रिम, 40% अर्धवट, 30% अंतिम
+• Testing Certificate: Mandatory
+• Warranty: 1 वर्ष
+• Load Calculation: काम सुरु करण्यापूर्वी`
   },
   painting: {
-    scope: 'Interior and exterior painting - putty, primer, 2 coats emulsion/enamel. Paint by owner.',
-    terms: 'Quality: Smooth finish, uniform color. Touch-up after handover included.'
+    scope: `• Interior आणि Exterior Painting
+• Putty आणि Primer लावणे
+• 2 coats Emulsion/Enamel
+• Surface Preparation: पूर्ण
+• Paint: मालकाने देणे`,
+    terms: `• गुणवत्ता: गुळगुळीत फिनिश
+• रंग: समान आणि स्पष्ट
+• Drying: Proper (कमीत कमी 48 घंटे)
+• पेमेंट: अंतिम स्वीकृतीनंतर
+• Touch-up: हस्तांतरणानंतर 1 वर्ष free
+• Warranty: 2 वर्ष (Peeling नाही)`
   },
   interior: {
-    scope: 'Complete interior package - modular kitchen, wardrobes, false ceiling, TV units, crockery units. Material and design as per BOQ.',
-    terms: 'Design approval before execution. Payment: 40% advance, 30% on 50% work, 30% on completion. Warranty: 1 year.'
+    scope: `• Complete Interior Package
+• Modular Kitchen (यदि समाविष्ट)
+• Wardrobes/Closets
+• False Ceiling
+• TV Units आणि अन्य
+• सर्व BOQ नुसार`,
+    terms: `• Design: अंतिम मंजूरी आवश्यक
+• Material: Approved only
+• पेमेंट: 40% अग्रिम, 30% अर्धवट, 30% अंतिम
+• Warranty: 1 वर्ष (workmanship)
+• Hardware: Premium Quality
+• Installation: Professional
+• Inspection: Stage-wise
+• Final handover: सर्व काम पूर्ण`
   },
   kitchen: {
-    scope: 'Modular kitchen with cabinets, countertop, chimney hood provision, sink installation. Hardware (hinges, channels) premium quality.',
-    terms: 'Material: As per approved design. Installation: Professional fitting. Warranty: 5 years on cabinet, 1 year on hardware.'
+    scope: `• Modular Kitchen संपूर्ण
+• Cabinets (Upper & Lower)
+• Countertop (काय तरी)
+• Sink Installation
+• Chimney Hood provision
+• Hardware: Premium Quality`,
+    terms: `• Material: Approved Design नुसार
+• Installation: Professional फिटिंग
+• गुणवत्ता: उच्च मानदंड
+• Warranty: 5 वर्ष (Cabinet)
+• Hardware Warranty: 1 वर्ष
+• पेमेंट: 40% अग्रिम, 30% अर्धवट, 30% अंतिम
+• Finishing: गुळगुळीत आणि साफ`
   }
 };
+
 
 function agreementTab(tab){
   const createTab = document.getElementById('agr-create');
@@ -2569,7 +2672,7 @@ function loadAgreementTemplate(){
   
   if(!type || !agreementTemplates[type]) return;
   const tmpl = agreementTemplates[type];
-  document.getElementById('agr_scope').value = tmpl.scope;
+  document.getElementById('agr_work_details').value = tmpl.scope;
   document.getElementById('agr_terms').value = tmpl.terms;
 }
 
@@ -2668,10 +2771,10 @@ function saveAgreement(){
   const party = document.getElementById('agr_party')?.value.trim();
   const mobile = document.getElementById('agr_mobile')?.value;
   const total = parseFloat(document.getElementById('agr_total')?.value) || 0;
-  const scope = document.getElementById('agr_scope')?.value.trim();
+  const work_details = document.getElementById('agr_work_details')?.value.trim();
   
-  if(!type || !party || !mobile || !total || !scope){
-    showToast('Type, Party, Mobile, Total Value, and Scope required!','warn');
+  if(!type || !party || !mobile || !total || !work_details){
+    showToast('Type, Party, Mobile, Total Value, and Work Details required!','warn');
     return;
   }
   
@@ -2736,16 +2839,17 @@ function saveAgreement(){
     pay_terms: document.getElementById('agr_pay_terms')?.value,
     start_date: document.getElementById('agr_start')?.value,
     end_date: document.getElementById('agr_end')?.value,
-    scope,
+    work_details,
     material: document.getElementById('agr_material')?.value,
     terms: document.getElementById('agr_terms')?.value,
+    special_terms: document.getElementById('agr_special')?.value,
     stages: stageDetails,
     status: 'Active'
   });
   
   saveAll();
   renderAgreements();
-  ['agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_scope','agr_terms'].forEach(id=>{
+  ['agr_party','agr_contact','agr_mobile','agr_email','agr_address','agr_gst','agr_rate','agr_qty','agr_total','agr_work_details','agr_terms','agr_special'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   document.getElementById('agr_adv').value='0';
@@ -2793,7 +2897,7 @@ function delAgreement(id){
 }
 
 function editAgreement(id){
-  showToast('Edit feature coming soon! Please delete and recreate for now.','info');
+  openEdit('agreement', id);
 }
 
 function viewAgreementPDF(id){
@@ -2801,100 +2905,136 @@ function viewAgreementPDF(id){
   if(!agr) return;
   
   const typeNames = {
-    rcc:'RCC Contractor', brickwork:'Brickwork Contractor', plastering:'Plastering Contractor',
-    flooring:'Flooring/Tiles Contractor', plumbing:'Plumbing Contractor', electrical:'Electrical Contractor',
-    painting:'Painting Contractor', interior:'Full Interior Package', kitchen:'Modular Kitchen',
-    wardrobe:'Wardrobe/Carpentry', architect:'Architect', engineer:'Structural Engineer'
+    rcc:'आरसीसी संविदा', brickwork:'वीटकाम संविदा', plastering:'प्लास्टरिंग संविदा',
+    flooring:'फरशी संविदा', plumbing:'प्लंबिंग संविदा', electrical:'विद्युत संविदा',
+    painting:'पेंटिंग संविदा', interior:'इंटीरियर संविदा', kitchen:'किचन संविदा',
+    wardrobe:'अलमारी संविदा', architect:'आर्किटेक्ट', engineer:'अभियंता'
   };
   
   const pdfContent = `
-    <div style="font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;line-height:1.6">
-      <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:20px;margin-bottom:30px">
-        <h1 style="margin:0;color:#333">CONSTRUCTION AGREEMENT</h1>
-        <p style="margin:10px 0 0;color:#666">${typeNames[agr.type] || agr.type}</p>
+    <div style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:30px;line-height:1.8;color:#333">
+      <div style="text-align:center;border-bottom:3px solid #333;padding-bottom:15px;margin-bottom:30px">
+        <h1 style="margin:0;color:#333;font-size:24px">🏗️ बांधकाम संविदा पत्र</h1>
+        <h2 style="margin:5px 0;color:#666;font-size:16px;font-weight:normal">(${typeNames[agr.type] || agr.type})</h2>
       </div>
       
-      <p style="margin-bottom:20px">This Agreement made on <strong>${agr.date}</strong></p>
+      <p style="margin-bottom:25px;font-size:14px"><strong>📅 संविदा तारीख:</strong> ${agr.date}</p>
       
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px">BETWEEN</h3>
-      <p><strong>OWNER:</strong> ${user.name || 'Owner Name'}<br>
-      Address: ${user.address || 'Owner Address'}<br>
-      Mobile: ${user.mobile || 'Owner Mobile'}</p>
+      <div style="background:#f0f9ff;padding:15px;border-left:5px solid #3b82f6;margin-bottom:25px">
+        <h3 style="margin-top:0;color:#1e40af">🏠 मालक (OWNER)</h3>
+        <p style="margin:8px 0"><strong>${user.name || 'मालक नाव'}</strong><br>
+        पता: ${user.address || 'पता'}<br>
+        फोन: ${user.mobile || 'मोबाईल'}</p>
+      </div>
       
-      <p style="text-align:center;margin:20px 0">AND</p>
+      <div style="background:#f0fdf4;padding:15px;border-left:5px solid #059669;margin-bottom:25px">
+        <h3 style="margin-top:0;color:#065f46">🔨 ठेकेदार (CONTRACTOR)</h3>
+        <p style="margin:8px 0"><strong>${agr.party}</strong><br>
+        ${agr.contact ? `संपर्क व्यक्ती: ${agr.contact}<br>` : ''}
+        फोन: ${agr.mobile}<br>
+        ${agr.email ? `ईमेल: ${agr.email}<br>` : ''}
+        ${agr.address ? `पता: ${agr.address}<br>` : ''}
+        ${agr.gst ? `GST: ${agr.gst}` : ''}</p>
+      </div>
       
-      <p><strong>CONTRACTOR:</strong> ${agr.party}<br>
-      ${agr.contact ? `Contact Person: ${agr.contact}<br>` : ''}
-      Mobile: ${agr.mobile}<br>
-      ${agr.email ? `Email: ${agr.email}<br>` : ''}
-      ${agr.address ? `Address: ${agr.address}<br>` : ''}
-      ${agr.gst ? `GST No: ${agr.gst}` : ''}</p>
+      <hr style="border:none;border-top:2px solid #e5e7eb;margin:30px 0">
       
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">SCOPE OF WORK</h3>
-      <p>${agr.scope}</p>
+      <h2 style="color:#1e40af;border-bottom:3px solid #3b82f6;padding-bottom:10px;margin-bottom:15px">🎯 काम विवरण (SCOPE OF WORK)</h2>
+      <div style="background:#fef3c7;padding:15px;border-radius:6px;white-space:pre-wrap;line-height:2;font-size:13px;margin-bottom:25px">
+${agr.work_details || '• काम विवरण निर्दिष्ट नाही'}
+      </div>
       
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">FINANCIAL TERMS</h3>
-      <table style="width:100%;border-collapse:collapse;margin-top:10px">
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate Type:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.rate_type.toUpperCase()}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Rate:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.rate} per ${agr.rate_type}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Quantity:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.qty} ${agr.rate_type}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Total Contract Value:</strong></td><td style="padding:8px;border:1px solid #ddd;font-weight:bold">₹${agr.total.toLocaleString('en-IN')}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Advance:</strong></td><td style="padding:8px;border:1px solid #ddd">₹${agr.advance.toLocaleString('en-IN')}</td></tr>
-        <tr><td style="padding:8px;border:1px solid #ddd"><strong>Payment Terms:</strong></td><td style="padding:8px;border:1px solid #ddd">${agr.pay_terms}</td></tr>
+      <h2 style="color:#dc2626;border-bottom:3px solid #dc2626;padding-bottom:10px;margin-bottom:15px">💰 आर्थिक अटी (FINANCIAL TERMS)</h2>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:25px;font-size:13px">
+        <tr style="background:#fee2e2">
+          <td style="padding:12px;border:1px solid #fca5a5;font-weight:700;color:#7f1d1d">एकूण संविदा रक्कम</td>
+          <td style="padding:12px;border:1px solid #fca5a5;font-weight:700;color:#dc2626;font-size:16px">₹${agr.total.toLocaleString('en-IN')}</td>
+        </tr>
+        <tr style="background:#f0fdf4">
+          <td style="padding:12px;border:1px solid #ddd">अग्रिम रक्कम</td>
+          <td style="padding:12px;border:1px solid #ddd">₹${agr.advance.toLocaleString('en-IN')}</td>
+        </tr>
+        ${agr.pay_terms ? `<tr>
+          <td style="padding:12px;border:1px solid #ddd">पेमेंट अटी</td>
+          <td style="padding:12px;border:1px solid #ddd">${agr.pay_terms}</td>
+        </tr>` : ''}
       </table>
       
       ${agr.stages && agr.stages.length > 0 ? `
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">STAGE-WISE BREAKDOWN</h3>
-      <table style="width:100%;border-collapse:collapse;margin-top:10px">
-        <tr style="background:#f3f4f6">
-          <th style="padding:8px;border:1px solid #ddd;text-align:left">Stage</th>
-          <th style="padding:8px;border:1px solid #ddd;text-align:right">Area (sq.ft)</th>
-          <th style="padding:8px;border:1px solid #ddd;text-align:right">Rate (₹/sq.ft)</th>
-          <th style="padding:8px;border:1px solid #ddd;text-align:right">Amount (₹)</th>
+      <h2 style="color:#7c3aed;border-bottom:3px solid #7c3aed;padding-bottom:10px;margin-bottom:15px">📐 टप्प्यानुसार तपशील (STAGE-WISE DETAILS)</h2>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:25px;font-size:12px">
+        <tr style="background:#f3e8ff">
+          <th style="padding:10px;border:1px solid #d8b4fe;text-align:left;font-weight:700">मजला</th>
+          <th style="padding:10px;border:1px solid #d8b4fe;text-align:left;font-weight:700">काम प्रकार</th>
+          <th style="padding:10px;border:1px solid #d8b4fe;text-align:right;font-weight:700">प्रमाण</th>
+          <th style="padding:10px;border:1px solid #d8b4fe;text-align:right;font-weight:700">दर</th>
+          <th style="padding:10px;border:1px solid #d8b4fe;text-align:right;font-weight:700">रक्कम</th>
         </tr>
-        ${agr.stages.map(s=>`
-          <tr>
-            <td style="padding:8px;border:1px solid #ddd">${s.stage}</td>
-            <td style="padding:8px;border:1px solid #ddd;text-align:right">${s.area}</td>
-            <td style="padding:8px;border:1px solid #ddd;text-align:right">₹${s.rate}</td>
-            <td style="padding:8px;border:1px solid #ddd;text-align:right;font-weight:600">₹${s.amount.toLocaleString('en-IN')}</td>
-          </tr>
-        `).join('')}
-        <tr style="background:#fef3c7;font-weight:bold">
-          <td style="padding:8px;border:1px solid #ddd">TOTAL</td>
-          <td style="padding:8px;border:1px solid #ddd;text-align:right">${agr.stages.reduce((sum,s)=>sum+s.area,0)} sq.ft</td>
-          <td style="padding:8px;border:1px solid #ddd"></td>
-          <td style="padding:8px;border:1px solid #ddd;text-align:right;color:#059669">₹${agr.stages.reduce((sum,s)=>sum+s.amount,0).toLocaleString('en-IN')}</td>
-        </tr>
+        ${agr.stages.map(stage => {
+          const stageHtml = stage.items && stage.items.length > 0 ? stage.items.map((item, idx) => {
+            const rowBg = idx % 2 === 0 ? 'white' : '#faf5ff';
+            const firstCol = idx === 0 ? `<td style="padding:10px;border:1px solid #d8b4fe;font-weight:600;color:#7c3aed" rowspan="${stage.items.length}">${stage.stage}</td>` : '';
+            return `<tr style="background:${rowBg}">
+              ${firstCol}
+              <td style="padding:10px;border:1px solid #d8b4fe">${item.workType}</td>
+              <td style="padding:10px;border:1px solid #d8b4fe;text-align:right">${item.qty} ${item.unit}</td>
+              <td style="padding:10px;border:1px solid #d8b4fe;text-align:right">₹${item.rate}</td>
+              <td style="padding:10px;border:1px solid #d8b4fe;text-align:right;font-weight:600">₹${(item.qty * item.rate).toLocaleString('en-IN')}</td>
+            </tr>`;
+          }).join('') : '';
+          return stageHtml;
+        }).join('')}
       </table>
       ` : ''}
       
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">WORK SCHEDULE</h3>
-      <p><strong>Start Date:</strong> ${agr.start_date || 'TBD'}<br>
-      <strong>Completion Date:</strong> ${agr.end_date || 'TBD'}</p>
+      <h2 style="color:#059669;border-bottom:3px solid #059669;padding-bottom:10px;margin-bottom:15px">🏗️ साहित्य पूरवठा (MATERIAL SUPPLY)</h2>
+      <div style="background:#f0fdf4;padding:12px;border-radius:6px;font-size:13px;margin-bottom:25px;line-height:1.8">
+${agr.material || '• साहित्य पूरवठा निर्दिष्ट नाही'}
+      </div>
       
-      <h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">MATERIAL SUPPLY</h3>
-      <p>${agr.material}</p>
+      <h2 style="color:#f59e0b;border-bottom:3px solid #f59e0b;padding-bottom:10px;margin-bottom:15px">📋 अटी व शर्ती (TERMS & CONDITIONS)</h2>
+      <div style="background:#fffbeb;padding:15px;border-radius:6px;white-space:pre-wrap;line-height:2;font-size:13px;margin-bottom:25px;border-left:5px solid #f59e0b">
+${agr.terms ? agr.terms : '• अटी निर्दिष्ट नाही'}
+      </div>
       
-      ${agr.terms ? `<h3 style="color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:30px">TERMS & CONDITIONS</h3><p>${agr.terms}</p>` : ''}
+      ${agr.special_terms ? `
+      <h2 style="color:#a855f7;border-bottom:3px solid #a855f7;padding-bottom:10px;margin-bottom:15px">⭐ विशेष अटी (SPECIAL TERMS)</h2>
+      <div style="background:#faf5ff;padding:15px;border-radius:6px;white-space:pre-wrap;line-height:2;font-size:13px;margin-bottom:25px;border-left:5px solid #a855f7">
+${agr.special_terms}
+      </div>
+      ` : ''}
       
-      <div style="margin-top:60px;display:flex;justify-content:space-between">
-        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
-          <strong>Owner Signature</strong><br>
-          <small>${user.name || 'Owner Name'}</small>
+      <h2 style="color:#0284c7;border-bottom:3px solid #0284c7;padding-bottom:10px;margin-bottom:15px">📅 कामाचे वेळापत्रक (WORK SCHEDULE)</h2>
+      <div style="background:#e0f2fe;padding:12px;border-radius:6px;font-size:13px;margin-bottom:30px">
+        <p style="margin:5px 0">📌 <strong>सुरुवात तारीख:</strong> ${agr.start_date || '—'}</p>
+        <p style="margin:5px 0">📌 <strong>पूर्णता तारीख:</strong> ${agr.end_date || '—'}</p>
+      </div>
+      
+      <hr style="border:none;border-top:2px solid #e5e7eb;margin:30px 0">
+      
+      <h3 style="color:#0c4a6e;margin-bottom:20px">✔️ संविदा स्थिति (AGREEMENT STATUS)</h3>
+      <div style="background:#dbeafe;padding:12px;border-radius:6px;margin-bottom:40px">
+        <p style="margin:5px 0">स्थिति: <span style="background:${agr.status==='Active'?'#10b981':agr.status==='Completed'?'#3b82f6':'#6b7280'};color:white;padding:4px 12px;border-radius:4px;font-weight:600;font-size:12px">${agr.status==='Active'?'सक्रिय':agr.status==='Completed'?'पूर्ण':'प्रलंबित'}</span></p>
+      </div>
+      
+      <div style="display:flex;justify-content:space-between;margin-top:60px">
+        <div style="text-align:center;width:45%;font-size:12px">
+          <p style="border-top:2px solid #333;padding-top:12px;margin-top:40px"><strong>मालक हस्ताक्षर</strong></p>
+          <p style="margin:8px 0">${user.name || 'नाव'}</p>
         </div>
-        <div style="text-align:center;border-top:1px solid #333;padding-top:10px;width:40%">
-          <strong>Contractor Signature</strong><br>
-          <small>${agr.party}</small>
+        <div style="text-align:center;width:45%;font-size:12px">
+          <p style="border-top:2px solid #333;padding-top:12px;margin-top:40px"><strong>ठेकेदार हस्ताक्षर</strong></p>
+          <p style="margin:8px 0">${agr.party}</p>
         </div>
       </div>
       
-      <p style="text-align:center;color:#666;font-size:12px;margin-top:40px">
-        Generated on ${new Date().toLocaleDateString('en-IN')} | Construction Management System
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:40px 0 20px">
+      <p style="text-align:center;color:#6b7280;font-size:10px;margin:0">
+        <strong>ProSite Manager</strong> • बांधकाम व्यवस्थापन प्रणाली<br>
+        Generated: ${new Date().toLocaleDateString('mr-IN')}
       </p>
     </div>
   `;
-  
   const win = window.open('', '_blank');
   win.document.write(`
     <!DOCTYPE html>
@@ -5016,6 +5156,27 @@ function openEdit(type, id){
       <div class="fg"><label>Vendor</label><input type="text" id="ed_vendor" value="${item.vendor||''}"></div>
       <div class="fg full"><label>Note</label><textarea id="ed_note" rows="2">${item.note||''}</textarea></div>
     </div>`;
+  } else if(type==='agreement'){
+    item = agreements.find(x=>String(x.id)===String(id)); if(!item) return;
+    title.textContent='✏️ Edit Agreement';
+    html=`<div class="form-grid">
+      <div class="fg"><label>Date</label><input type="date" id="ed_date" value="${item.date||''}"></div>
+      <div class="fg"><label>Agreement Type</label><input type="text" id="ed_type" value="${item.type||''}"></div>
+      <div class="fg"><label>Party Name *</label><input type="text" id="ed_party" value="${item.party||''}"></div>
+      <div class="fg"><label>Mobile</label><input type="tel" id="ed_mobile" value="${item.mobile||''}"></div>
+      <div class="fg"><label>Total Amount (₹) *</label><input type="number" id="ed_total" value="${item.total||''}"></div>
+      <div class="fg"><label>Advance (₹)</label><input type="number" id="ed_advance" value="${item.advance||0}"></div>
+      <div class="fg"><label>Status</label>
+        <select id="ed_status">
+          <option ${item.status==='Active'?'selected':''}>Active</option>
+          <option ${item.status==='Completed'?'selected':''}>Completed</option>
+          <option ${item.status==='Pending'?'selected':''}>Pending</option>
+        </select>
+      </div>
+      <div class="fg full"><label>Work Details / Scope of Work</label><textarea id="ed_work_details" rows="3" placeholder="List all work items, materials, dimensions...">${item.work_details||''}</textarea></div>
+      <div class="fg full"><label>Terms & Conditions</label><textarea id="ed_terms" rows="3" placeholder="Payment terms, timeline, penalties, disputes...">${item.terms||''}</textarea></div>
+      <div class="fg full"><label>Special Terms</label><textarea id="ed_special" rows="2" placeholder="Any special conditions...">${item.special_terms||''}</textarea></div>
+    </div>`;
   } else if(type==='cashbook'){
     item = cashbook.find(x=>String(x.id)===String(id)); if(!item) return;
     title.textContent='✏️ Edit Cashbook Entry';
@@ -5072,6 +5233,16 @@ function confirmEdit(){
     l.progress=parseFloat(gv('ed_progress'))||0;
     l.paymode=gv('ed_paymode'); l.stage=gv('ed_stage'); l.note=gv('ed_note');
     saveAll(); renderLabour(); showToast('✅ Labour Updated!');
+  } else if(type==='agreement'){
+    const a = agreements.find(x=>String(x.id)===sid); if(!a) return;
+    a.date=gv('ed_date'); a.type=gv('ed_type'); a.party=gv('ed_party');
+    a.mobile=gv('ed_mobile'); a.total=parseFloat(gv('ed_total'))||a.total;
+    a.advance=parseFloat(gv('ed_advance'))||0;
+    a.status=gv('ed_status');
+    a.work_details=gv('ed_work_details');
+    a.terms=gv('ed_terms');
+    a.special_terms=gv('ed_special');
+    saveAll(); renderAgreements(); showToast('✅ Agreement Updated!');
   } else if(type==='drilling'){
     const d = boreDrilling.find(x=>String(x.id)===sid); if(!d) return;
     d.date=gv('ed_date'); d.type=gv('ed_type');
