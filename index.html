@@ -3497,13 +3497,14 @@ function nav(page){
   if(page==='finance')     { loadPOptions(); renderBudget(); }
   if(page==='plot')        { renderPlotInfoDisplay(); renderPlotPayments(); renderGovFees(); renderPlotDocs(); renderPlotSummary(); }
   if(page==='electricity') { renderElecInfoDisplay(); renderElecCharges(); renderElecMaterial(); renderElecContractors(); renderElecSummary(); }
-  if(page==='borewell')   { populateBoreForm(); renderBoreInfoDisplay(); renderDrilling(); renderCasing(); renderMotors(); renderBoreExpenses(); }
-  if(page==='agreements') { renderAgreements(); }
-  if(page==='report')      renderReport();
-  if(page==='settings')    renderSettings();
+  if(page==='borewell')    { populateBoreForm(); renderBoreInfoDisplay(); renderDrilling(); renderCasing(); renderMotors(); renderBoreExpenses(); }
+  if(page==='site')        { renderDiary(); }
+  if(page==='calculator')  { /* calculator interactive */ }
+  if(page==='report')      { renderReport(); }
+  if(page==='agreements')  { renderAgreements(); }
+  if(page==='settings')    { renderSettings(); }
   if(page==='labour')      { populateRBLabour(); renderLabour(); }
   if(page==='material')    { renderMaterial(); renderSupplierDatalist(); }
-  // close mobile sidebar
   closeSidebar();
   updateNavBadges();
 }
