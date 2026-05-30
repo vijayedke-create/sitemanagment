@@ -432,7 +432,8 @@ td.mono { font-variant-numeric: tabular-nums; }
   .sidebar, .topbar, .form-actions, .tbl-toolbar .tbl-controls, .td-actions, .btn, .subtabs, .toast, .modal-bg, .menu-toggle { display: none !important; }
   .content { margin-left: 0; }
   .page { display: block !important; }
-  #pg-dashboard, #pg-material, #pg-labour, #pg-finance, #pg-site, #pg-calculator { display: none !important; }
+  .page:not(.active) { display: none !important; }
+  .page.active { display: block !important; }
   #pg-report { display: block !important; }
   body { background: #fff; }
   .card, .tbl-wrap { box-shadow: none; border: 1px solid #ddd; }
@@ -3499,7 +3500,7 @@ function nav(page){
   if(page==='electricity') { renderElecInfoDisplay(); renderElecCharges(); renderElecMaterial(); renderElecContractors(); renderElecSummary(); }
   if(page==='borewell')    { populateBoreForm(); renderBoreInfoDisplay(); renderDrilling(); renderCasing(); renderMotors(); renderBoreExpenses(); }
   if(page==='site')        { renderDiary(); }
-  if(page==='calculator')  { /* calculator interactive */ }
+  if(page==='calculator')  { calcTabFn('slab'); }
   if(page==='report')      { renderReport(); }
   if(page==='agreements')  { renderAgreements(); }
   if(page==='settings')    { renderSettings(); }
