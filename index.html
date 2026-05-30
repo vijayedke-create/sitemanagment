@@ -165,6 +165,11 @@ input, select, textarea { font-family: inherit; }
 .page-content { padding: 20px 24px; flex: 1; }
 .page { display: none; }
 .page.active { display: block; }
+/* Show first tab by default */
+.page.active > div[id$="-info"],
+.page.active > div[id$="-entry"],
+.page.active > div[id$="-diary"],
+.page.active > div[id$="-slab"] { display: block !important; }
 
 /* ═══════════════════════════════════════════════════════
    SHARED COMPONENTS
@@ -1332,7 +1337,7 @@ td.mono { font-variant-numeric: tabular-nums; }
   </div>
 
   <!-- INFO TAB -->
-  <div id="bore-info">
+  <div id="bore-info" style="display:block">
     <div class="card card-pad mb-16">
       <div class="card-header"><div class="card-title"><span class="ct-icon">📋</span> Borewell / Well Info</div></div>
       <div class="form-grid">
@@ -3494,10 +3499,10 @@ function nav(page){
   if(topbarProj) topbarProj.textContent = proj ? '📁 '+proj.name : '';
   if(page==='dashboard')   renderDashboard();
   if(page==='finance')     { loadPOptions(); renderBudget(); }
-  if(page==='plot')        { renderPlotInfoDisplay(); renderPlotPayments(); renderGovFees(); renderPlotDocs(); renderPlotSummary(); }
-  if(page==='electricity') { renderElecInfoDisplay(); renderElecCharges(); renderElecMaterial(); renderElecContractors(); renderElecSummary(); }
-  if(page==='borewell')    { populateBoreForm(); renderBoreInfoDisplay(); renderDrilling(); renderCasing(); renderMotors(); renderBoreExpenses(); }
-  if(page==='site')        { renderDiary(); }
+  if(page==='plot')        { renderPlotInfoDisplay(); renderPlotPayments(); renderGovFees(); renderPlotDocs(); renderPlotSummary(); plotTab('info'); }
+  if(page==='electricity') { renderElecInfoDisplay(); renderElecCharges(); renderElecMaterial(); renderElecContractors(); renderElecSummary(); elecTab('info'); }
+  if(page==='borewell')    { populateBoreForm(); renderBoreInfoDisplay(); renderDrilling(); renderCasing(); renderMotors(); renderBoreExpenses(); boreTab('info'); }
+  if(page==='site')        { renderDiary(); siteTab('diary'); }
   if(page==='calculator')  { calcTabFn('slab'); }
   if(page==='report')      { renderReport(); }
   if(page==='agreements')  { renderAgreements(); }
