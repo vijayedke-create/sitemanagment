@@ -711,7 +711,13 @@ td.mono { font-variant-numeric: tabular-nums; }
           <select id="m_type">
             <option value="">-- Select --</option>
             <option>Cement</option><option>Sand</option>
-            <option>Aggregate / Metal</option><option>Murum / मुरूम</option><option>Brick</option>
+            <option>Aggregate / Metal</option><option>Murum / मुरूम</option>
+            <optgroup label="Brick">
+              <option>Brick - 4" (Common)</option>
+              <option>Brick - 6" (Double)</option>
+              <option>Brick - 9" (Solid)</option>
+              <option>Brick (General)</option>
+            </optgroup>
             <optgroup label="TMT Steel Bars">
               <option>TMT Bar 8mm</option>
               <option>TMT Bar 10mm</option>
@@ -3566,6 +3572,35 @@ function saveMaterial(){
   // auto cashbook
   cashbook.push({id:Date.now(),date:item.date,type:'out',cat:'Material',desc:`${item.type} – ${item.supplier}`,amount:advance||total,mode:item.paymode}); saveAll();
 }
+
+// CLONE MATERIAL - Copy existing entry
+function cloneMaterial(id){
+  const existing = materials.find(m => String(m.id) === String(id));
+  if(!existing) return;
+  
+  // Pre-fill form with existing data
+  document.getElementById('m_date').value = today();
+  document.getElementById('m_type').value = existing.type;
+  document.getElementById('m_custom').value = '';
+  document.getElementById('m_supplier').value = existing.supplier;
+  document.getElementById('m_supplier_mobile').value = existing.supplier_mobile || '';
+  document.getElementById('m_qty').value = '';
+  document.getElementById('m_unit').value = existing.unit || 'Bag';
+  document.getElementById('m_rate').value = existing.rate || '';
+  document.getElementById('m_total').value = '';
+  document.getElementById('m_advance').value = '0';
+  document.getElementById('m_driver_tip').value = existing.driver_tip || '0';
+  document.getElementById('m_invoice').value = '';
+  document.getElementById('m_paymode').value = existing.paymode || 'Cash';
+  document.getElementById('m_stage').value = existing.stage || '';
+  document.getElementById('m_note').value = '';
+  
+  showToast(`📋 Cloned from: ${existing.supplier} (${existing.type})`, 'info');
+  
+  // Scroll to form
+  document.getElementById('matForm')?.scrollIntoView({behavior: 'smooth'});
+}
+
 function renderMaterial(){
   const search=(document.getElementById('matSearch')?.value||'').toLowerCase();
   const filter=document.getElementById('matFilter')?.value||'';
@@ -3595,6 +3630,7 @@ function renderMaterial(){
       <td>${m.photo?`<img src="${m.photo}" class="photo-thumb" onclick="openLB('${m.photo}')">`:'—'}</td>
       <td><div class="td-actions">
         <button class="btn btn-ok btn-xs" onclick="openPayModal('material','${m.id}')">💰</button>
+        <button class="btn btn-info btn-xs" onclick="cloneMaterial('${m.id}')">📋</button>
         <button class="btn btn-pri btn-xs" onclick="openEdit('material','${m.id}')">✏️</button>
         <button class="btn btn-err btn-xs" onclick="delMat('${m.id}')">🗑️</button>
       </div></td>
@@ -3798,6 +3834,34 @@ function saveLabour(){
   updateNavBadges(); showToast(t('labSaved'));
   if(advance>0){ cashbook.push({id:Date.now(),date:today(),type:'out',cat:'Labour',desc:`${type} – ${name}`,amount:advance,mode:document.getElementById('l_paymode').value}); saveAll(); }
 }
+
+// CLONE LABOUR - Copy existing entry
+function cloneLabour(id){
+  const existing = labours.find(l => String(l.id) === String(id));
+  if(!existing) return;
+  
+  // Pre-fill form with existing data
+  document.getElementById('l_date').value = today();
+  document.getElementById('l_type').value = existing.type;
+  document.getElementById('l_name').value = existing.name;
+  document.getElementById('l_mobile').value = existing.mobile || '';
+  document.getElementById('l_total').value = '';
+  document.getElementById('l_area').value = existing.area || '';
+  document.getElementById('l_driver_tip').value = existing.driver_tip || '0';
+  document.getElementById('l_wage').value = existing.wage || '';
+  document.getElementById('l_advance').value = '0';
+  document.getElementById('l_start').value = '';
+  document.getElementById('l_end').value = '';
+  document.getElementById('l_paymode').value = existing.paymode || 'Cash';
+  document.getElementById('l_stage').value = existing.stage || '';
+  document.getElementById('l_note').value = '';
+  
+  showToast(`📋 Cloned from: ${existing.name} (${existing.type})`, 'info');
+  
+  // Scroll to form
+  document.getElementById('labForm')?.scrollIntoView({behavior: 'smooth'});
+}
+
 function renderLabour(){
   const search=(document.getElementById('labSearch')?.value||'').toLowerCase();
   const filter=document.getElementById('labFilter')?.value||'';
@@ -3820,6 +3884,7 @@ function renderLabour(){
       <td>${l.photo?`<img src="${l.photo}" class="photo-thumb" onclick="openLB('${l.photo}')">`:'—'}</td>
       <td><div class="td-actions">
         <button class="btn btn-ok btn-xs" onclick="openPayModal('labour','${l.id}')">💰</button>
+        <button class="btn btn-info btn-xs" onclick="cloneLabour('${l.id}')">📋</button>
         <button class="btn btn-pri btn-xs" onclick="openEdit('labour','${l.id}')">✏️</button>
         <button class="btn btn-err btn-xs" onclick="delLab('${l.id}')">🗑️</button>
       </div></td>
