@@ -704,6 +704,28 @@ td.mono { font-variant-numeric: tabular-nums; }
   <!-- Material Entry -->
   <div id="mat-entry">
     <div class="card card-pad mb-16">
+      <div class="card-header"><div class="card-title"><span class="ct-icon">⚡</span> Quick Add - Same Supplier Material</div></div>
+      <div class="form-grid">
+        <div class="fg"><label>📋 Select Supplier (पिछली entries)</label>
+          <select id="quickSupplier" onchange="loadSupplierReference()">
+            <option value="">-- या नवीन supplier --</option>
+          </select>
+        </div>
+        <div class="fg" id="refEntryDiv" style="display:none">
+          <label>📍 Reference Entry (कोणती तरह entry?)</label>
+          <select id="refEntry" onchange="applySupplierTemplate()">
+            <option value="">-- Select एक पुरानी entry --</option>
+          </select>
+        </div>
+        <div id="quickRefInfo" style="font-size:13px;color:var(--muted);padding:8px;background:var(--bg2);border-radius:4px;display:none;margin-top:8px">
+          <strong>✅ Selected Reference:</strong><br>
+          Material: <span id="refMat">—</span><br>
+          Unit: <span id="refUnit">—</span> | Rate: <span id="refRate">—</span>/unit
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-pad mb-16">
       <div class="card-header"><div class="card-title"><span class="ct-icon">➕</span> New Material Entry</div></div>
       <div class="form-grid">
         <div class="fg"><label>Date *</label><input type="date" id="m_date"></div>
@@ -933,6 +955,28 @@ td.mono { font-variant-numeric: tabular-nums; }
 
   <!-- Labour Entry -->
   <div id="lab-entry">
+    <div class="card card-pad mb-16">
+      <div class="card-header"><div class="card-title"><span class="ct-icon">⚡</span> Quick Add - Same Contractor Work</div></div>
+      <div class="form-grid">
+        <div class="fg"><label>👷 Select Contractor (पिछली entries)</label>
+          <select id="quickContractor" onchange="loadContractorReference()">
+            <option value="">-- या नवा contractor --</option>
+          </select>
+        </div>
+        <div class="fg" id="labRefEntryDiv" style="display:none">
+          <label>📍 Reference Entry (कोणत्या प्रकारची काम?)</label>
+          <select id="labRefEntry" onchange="applyContractorTemplate()">
+            <option value="">-- Select एक पुरानी entry --</option>
+          </select>
+        </div>
+        <div id="labQuickRefInfo" style="font-size:13px;color:var(--muted);padding:8px;background:var(--bg2);border-radius:4px;display:none;margin-top:8px">
+          <strong>✅ Selected Reference:</strong><br>
+          Work Type: <span id="labRefType">—</span><br>
+          Daily Wage: ₹<span id="labRefWage">—</span>/day
+        </div>
+      </div>
+    </div>
+
     <div class="card card-pad mb-16">
       <div class="card-header"><div class="card-title"><span class="ct-icon">👷</span> New Labour / Contractor Entry</div></div>
       <div class="form-grid">
@@ -3411,6 +3455,7 @@ function matTab(tab){
     const tabs=['entry','list','stock','supplier','rates','convert','alerts'];
     b.classList.toggle('active',tabs[i]===tab);
   });
+  if(tab==='entry') initQuickSupplierDropdown();
   if(tab==='list') renderMaterial();
   if(tab==='stock') renderStock();
   if(tab==='supplier') renderSupplierLedger();
@@ -3425,6 +3470,7 @@ function labTab(tab){
     const tabs=['entry','list','attendance','runbill','progress'];
     b.classList.toggle('active',tabs[i]===tab);
   });
+  if(tab==='entry') initQuickContractorDropdown();
   if(tab==='list') renderLabour();
   if(tab==='attendance') { renderAttendance(); renderAttHistory(); }
   if(tab==='runbill') { populateRBLabour(); renderRunBills(); }
@@ -3601,6 +3647,161 @@ function cloneMaterial(id){
   document.getElementById('matForm')?.scrollIntoView({behavior: 'smooth'});
 }
 
+// QUICK ADD - Load suppliers for quick selection
+function initQuickSupplierDropdown(){
+  const supplierSet = new Set(materials.map(m => m.supplier).filter(Boolean));
+  const dropdown = document.getElementById('quickSupplier');
+  if(!dropdown) return;
+  
+  dropdown.innerHTML = '<option value="">-- या नवीन supplier --</option>';
+  Array.from(supplierSet).sort().forEach(sup => {
+    const opt = document.createElement('option');
+    opt.value = sup;
+    opt.textContent = sup;
+    dropdown.appendChild(opt);
+  });
+}
+
+// Load supplier's previous entries
+function loadSupplierReference(){
+  const supplier = document.getElementById('quickSupplier')?.value;
+  if(!supplier){
+    document.getElementById('refEntryDiv').style.display = 'none';
+    document.getElementById('quickRefInfo').style.display = 'none';
+    return;
+  }
+  
+  const entries = materials.filter(m => m.supplier === supplier);
+  if(!entries.length) return;
+  
+  const refDropdown = document.getElementById('refEntry');
+  refDropdown.innerHTML = '<option value="">-- Select एक पुरानी entry --</option>';
+  
+  entries.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = `${m.type} | ${m.unit} | ₹${m.rate}`;
+    refDropdown.appendChild(opt);
+  });
+  
+  document.getElementById('refEntryDiv').style.display = 'block';
+}
+
+// Apply selected entry as template
+function applySupplierTemplate(){
+  const refId = document.getElementById('refEntry')?.value;
+  if(!refId){
+    document.getElementById('quickRefInfo').style.display = 'none';
+    return;
+  }
+  
+  const ref = materials.find(m => String(m.id) === String(refId));
+  if(!ref) return;
+  
+  // Fill form with reference data
+  document.getElementById('m_date').value = today();
+  document.getElementById('m_type').value = ref.type;
+  document.getElementById('m_supplier').value = ref.supplier;
+  document.getElementById('m_supplier_mobile').value = ref.supplier_mobile || '';
+  document.getElementById('m_qty').value = '';
+  document.getElementById('m_unit').value = ref.unit || 'Bag';
+  document.getElementById('m_rate').value = ref.rate || '';
+  document.getElementById('m_total').value = '';
+  document.getElementById('m_advance').value = '0';
+  document.getElementById('m_driver_tip').value = ref.driver_tip || '0';
+  document.getElementById('m_invoice').value = '';
+  document.getElementById('m_paymode').value = ref.paymode || 'Cash';
+  document.getElementById('m_stage').value = ref.stage || '';
+  document.getElementById('m_note').value = '';
+  
+  // Show reference info
+  document.getElementById('refMat').textContent = ref.type;
+  document.getElementById('refUnit').textContent = ref.unit || 'Unit';
+  document.getElementById('refRate').textContent = ref.rate || '—';
+  document.getElementById('quickRefInfo').style.display = 'block';
+  
+  showToast(`✅ Template loaded from: ${ref.supplier} (${ref.type})`, 'success');
+  document.getElementById('m_qty').focus();
+}
+
+// ══════════════════════════════════════════════════════════════
+// LABOUR QUICK ADD
+// ══════════════════════════════════════════════════════════════
+function initQuickContractorDropdown(){
+  const contractorSet = new Set(labours.map(l => l.name).filter(Boolean));
+  const dropdown = document.getElementById('quickContractor');
+  if(!dropdown) return;
+  
+  dropdown.innerHTML = '<option value="">-- या नवा contractor --</option>';
+  Array.from(contractorSet).sort().forEach(contractor => {
+    const opt = document.createElement('option');
+    opt.value = contractor;
+    opt.textContent = contractor;
+    dropdown.appendChild(opt);
+  });
+}
+
+function loadContractorReference(){
+  const contractor = document.getElementById('quickContractor')?.value;
+  if(!contractor){
+    document.getElementById('labRefEntryDiv').style.display = 'none';
+    document.getElementById('labQuickRefInfo').style.display = 'none';
+    return;
+  }
+  
+  const entries = labours.filter(l => l.name === contractor);
+  if(!entries.length) return;
+  
+  const refDropdown = document.getElementById('labRefEntry');
+  refDropdown.innerHTML = '<option value="">-- Select एक पुरानी entry --</option>';
+  
+  entries.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.id;
+    opt.textContent = `${l.type} | ₹${l.total}`;
+    refDropdown.appendChild(opt);
+  });
+  
+  document.getElementById('labRefEntryDiv').style.display = 'block';
+}
+
+function applyContractorTemplate(){
+  const refId = document.getElementById('labRefEntry')?.value;
+  if(!refId){
+    document.getElementById('labQuickRefInfo').style.display = 'none';
+    return;
+  }
+  
+  const ref = labours.find(l => String(l.id) === String(refId));
+  if(!ref) return;
+  
+  // Fill form with reference data
+  document.getElementById('l_date').value = today();
+  document.getElementById('l_type').value = ref.type;
+  document.getElementById('l_name').value = ref.name;
+  document.getElementById('l_mobile').value = ref.mobile || '';
+  document.getElementById('l_total').value = '';
+  document.getElementById('l_area').value = ref.area || '';
+  document.getElementById('l_driver_tip').value = ref.driver_tip || '0';
+  document.getElementById('l_wage').value = ref.wage || '';
+  document.getElementById('l_advance').value = '0';
+  document.getElementById('l_start').value = '';
+  document.getElementById('l_end').value = '';
+  document.getElementById('l_paymode').value = ref.paymode || 'Cash';
+  document.getElementById('l_stage').value = ref.stage || '';
+  document.getElementById('l_note').value = '';
+  
+  // Show reference info
+  document.getElementById('labRefType').textContent = ref.type;
+  document.getElementById('labRefWage').textContent = ref.wage || '—';
+  document.getElementById('labQuickRefInfo').style.display = 'block';
+  
+  showToast(`✅ Template loaded from: ${ref.name} (${ref.type})`, 'success');
+  document.getElementById('l_total').focus();
+}
+
+
+
 function renderMaterial(){
   const search=(document.getElementById('matSearch')?.value||'').toLowerCase();
   const filter=document.getElementById('matFilter')?.value||'';
@@ -3630,7 +3831,6 @@ function renderMaterial(){
       <td>${m.photo?`<img src="${m.photo}" class="photo-thumb" onclick="openLB('${m.photo}')">`:'—'}</td>
       <td><div class="td-actions">
         <button class="btn btn-ok btn-xs" onclick="openPayModal('material','${m.id}')">💰</button>
-        <button class="btn btn-info btn-xs" onclick="cloneMaterial('${m.id}')">📋</button>
         <button class="btn btn-pri btn-xs" onclick="openEdit('material','${m.id}')">✏️</button>
         <button class="btn btn-err btn-xs" onclick="delMat('${m.id}')">🗑️</button>
       </div></td>
@@ -3884,7 +4084,6 @@ function renderLabour(){
       <td>${l.photo?`<img src="${l.photo}" class="photo-thumb" onclick="openLB('${l.photo}')">`:'—'}</td>
       <td><div class="td-actions">
         <button class="btn btn-ok btn-xs" onclick="openPayModal('labour','${l.id}')">💰</button>
-        <button class="btn btn-info btn-xs" onclick="cloneLabour('${l.id}')">📋</button>
         <button class="btn btn-pri btn-xs" onclick="openEdit('labour','${l.id}')">✏️</button>
         <button class="btn btn-err btn-xs" onclick="delLab('${l.id}')">🗑️</button>
       </div></td>
