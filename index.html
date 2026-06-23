@@ -2526,6 +2526,11 @@ function saveAll(){
 // ══════════════════════════════════════════════════════════════
 const fmt = n => '₹'+(Number(n)||0).toLocaleString('en-IN');
 const fmtN = n => (Number(n)||0).toLocaleString('en-IN');
+const dateStr = dateString => {
+  if(!dateString) return '—';
+  const d = new Date(dateString);
+  return d.toLocaleDateString('en-GB', {day:'2-digit', month:'2-digit', year:'numeric'}).replace(/\//g,'/');
+};
 const today = () => new Date().toISOString().split('T')[0];
 const pct = (p,t) => t>0?Math.min(100,Math.round(p/t*100)):0;
 const fillC = p => p>=100?'pf-green':p>=50?'pf-amber':'pf-red';
@@ -4941,8 +4946,46 @@ function renderReport(){
     </div>`:''}
     <div class="tbl-wrap mb-16">
       <div class="tbl-toolbar"><span class="tbl-toolbar-title">🧱 Material Details</span></div>
-      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Material</th><th>Supplier</th><th>Quantity</th><th>Total</th><th>Paid</th><th>Balance</th><th>Stage</th></tr></thead>
-      <tbody>${materials.map(m=>`<tr><td>${m.date}</td><td>${m.type}</td><td>${m.supplier}</td><td>${m.qty||'—'} ${m.unit||''}</td><td class="mono">${fmt(m.total)}</td><td class="mono text-ok">${fmt(m.paid)}</td><td class="mono" style="color:${m.total-m.paid>0?'var(--err)':'var(--ok)'};font-weight:700">${fmt(m.total-m.paid)}</td><td>${m.stage||'—'}</td></tr>`).join('')||`<tr><td colspan="8"><div class="empty"><div class="empty-icon">📦</div><p>Entry none</p></div></td></tr>`}</tbody></table></div>
+      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Material</th><th>Supplier</th><th>Quantity</th><th>Total</th><th>Paid</th><th>Balance</th><th>Stage</th><th>Payments</th></tr></thead>
+      <tbody>${materials.map(m=>{
+        const hasPayments = m.payments && m.payments.length > 0;
+        return `<tr>
+          <td>${m.date}</td>
+          <td>${m.type}</td>
+          <td>${m.supplier}</td>
+          <td>${m.qty||'—'} ${m.unit||''}</td>
+          <td class="mono">${fmt(m.total)}</td>
+          <td class="mono text-ok">${fmt(m.paid)}</td>
+          <td class="mono" style="color:${m.total-m.paid>0?'var(--err)':'var(--ok)'};font-weight:700">${fmt(m.total-m.paid)}</td>
+          <td>${m.stage||'—'}</td>
+          <td>
+            ${hasPayments ? `<button class="btn btn-xs btn-outline" onclick="showMatPaymentDetails('${m.id}')" style="font-size:11px">💳 ${m.payments.length}</button>` : '<span class="text-muted" style="font-size:11px">—</span>'}
+          </td>
+        </tr>
+        ${hasPayments ? `<tr id="mat_payment_details_${m.id}" style="display:none">
+          <td colspan="9" style="background:#f9fafb;padding:12px">
+            <div style="font-weight:600;margin-bottom:8px;color:#1f2937">💳 Payment History - ${m.supplier}</div>
+            <table style="width:100%;font-size:12px;border-collapse:collapse">
+              <thead style="background:#e5e7eb">
+                <tr>
+                  <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Payment Date</th>
+                  <th style="padding:6px;text-align:right;border:1px solid #d1d5db">Amount</th>
+                  <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Mode</th>
+                  <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${m.payments.map(p=>`<tr style="border:1px solid #d1d5db">
+                  <td style="padding:6px">${dateStr(p.date||today())}</td>
+                  <td style="padding:6px;text-align:right;font-weight:600;color:#10b981">₹${fmt(p.amount)}</td>
+                  <td style="padding:6px;color:#6b7280">${p.mode||'—'}</td>
+                  <td style="padding:6px;color:#4b5563;font-size:11px;white-space:pre-wrap">${p.note?'📝 '+p.note:'—'}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </td>
+        </tr>` : ''}`;
+      }).join('')||`<tr><td colspan="9"><div class="empty"><div class="empty-icon">📦</div><p>Entry none</p></div></td></tr>`}</tbody></table></div>
     </div>
     <div class="tbl-wrap">
       <div class="tbl-toolbar">
@@ -4979,15 +5022,15 @@ function renderReport(){
               </thead>
               <tbody>
                 ${l.payments.map((p,idx)=>`<tr style="background:${idx%2===0?'white':'#f9fafb'}">
-                  <td style="padding:6px;border:1px solid #d1d5db">${p.date}</td>
-                  <td style="padding:6px;text-align:right;border:1px solid #d1d5db;font-weight:600;color:#059669">₹${p.amount.toLocaleString('en-IN')}</td>
+                  <td style="padding:6px;border:1px solid #d1d5db">${dateStr(p.date||today())}</td>
+                  <td style="padding:6px;text-align:right;border:1px solid #d1d5db;font-weight:600;color:#059669">₹${fmt(p.amount)}</td>
                   <td style="padding:6px;border:1px solid #d1d5db">${p.mode||'Cash'}</td>
-                  <td style="padding:6px;border:1px solid #d1d5db;color:#6b7280">${p.note||'—'}</td>
+                  <td style="padding:6px;border:1px solid #d1d5db;color:#4b5563;font-size:11px;white-space:pre-wrap">${p.note?'📝 '+p.note:'—'}</td>
                 </tr>`).join('')}
                 <tr style="background:#fef3c7;font-weight:700">
                   <td style="padding:6px;border:1px solid #d1d5db">TOTAL PAID</td>
-                  <td style="padding:6px;text-align:right;border:1px solid #d1d5db;color:#059669">₹${l.paid.toLocaleString('en-IN')}</td>
-                  <td colspan="2" style="padding:6px;border:1px solid #d1d5db;color:#dc2626">Balance: ₹${(l.total-l.paid).toLocaleString('en-IN')}</td>
+                  <td style="padding:6px;text-align:right;border:1px solid #d1d5db;color:#059669">₹${fmt(l.paid)}</td>
+                  <td colspan="2" style="padding:6px;border:1px solid #d1d5db;color:#dc2626">Balance: ₹${fmt(l.total-l.paid)}</td>
                 </tr>
               </tbody>
             </table>
@@ -4999,6 +5042,13 @@ function renderReport(){
 
 function showPaymentDetails(labourId){
   const row = document.getElementById(`payment_details_${labourId}`);
+  if(row){
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+  }
+}
+
+function showMatPaymentDetails(materialId){
+  const row = document.getElementById(`mat_payment_details_${materialId}`);
   if(row){
     row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
   }
