@@ -921,10 +921,64 @@ td.mono { font-variant-numeric: tabular-nums; }
         <div class="fg"><label>Quantity</label><input type="number" id="m_qty" placeholder="50" oninput="calcMat()"></div>
         <div class="fg"><label>Unit</label>
           <select id="m_unit">
-            <option>Bag</option><option>Ton</option><option>Quintal</option>
-            <option>CFT</option><option>brass</option><option>Piece</option>
-            <option>Kg</option><option>Litre</option><option>Meter</option>
-            <option>Feet</option><option>Trip</option><option>Tanker</option><option>sqft</option>
+            <optgroup label="Weight">
+              <option>Kg</option>
+              <option>Gram</option>
+              <option>Ton (1000 Kg)</option>
+              <option>Quintal (100 Kg)</option>
+            </optgroup>
+            
+            <optgroup label="Volume">
+              <option>Litre</option>
+              <option>Millilitre</option>
+              <option>Cubic Meter (cum)</option>
+              <option>CFT (Cubic Feet)</option>
+            </optgroup>
+            
+            <optgroup label="Length">
+              <option>Meter</option>
+              <option>Centimeter</option>
+              <option>Feet</option>
+              <option>Inch</option>
+            </optgroup>
+            
+            <optgroup label="Area">
+              <option>Square Meter (sqm)</option>
+              <option>Square Feet (sqft)</option>
+              <option>Square Inch</option>
+            </optgroup>
+            
+            <optgroup label="Quantity">
+              <option>Piece</option>
+              <option>Pair</option>
+              <option>Dozen</option>
+              <option>Set</option>
+              <option>Bundle</option>
+            </optgroup>
+            
+            <optgroup label="Container">
+              <option>Bag</option>
+              <option>Box</option>
+              <option>Carton</option>
+              <option>Bucket</option>
+              <option>Can</option>
+              <option>Drum</option>
+              <option>Tanker</option>
+            </optgroup>
+            
+            <optgroup label="Distance">
+              <option>Trip</option>
+              <option>Journey</option>
+              <option>Kilometer</option>
+            </optgroup>
+            
+            <optgroup label="Other">
+              <option>brass</option>
+              <option>sqft</option>
+              <option>Unit</option>
+              <option>Pack</option>
+              <option>Roll</option>
+            </optgroup>
           </select>
         </div>
         <div class="fg"><label>Unit Rate (₹)</label><input type="number" id="m_rate" placeholder="380" oninput="calcMat()"></div>
@@ -3951,21 +4005,65 @@ function openMultiItemModal(categoryKey){
   document.getElementById('multiPayMode').value = 'Cash';
   
   const itemsList = document.getElementById('multiItemsList');
-  itemsList.innerHTML = cat.items.map((item,idx) => `
-    <div style="padding:10px;background:white;border-radius:4px;margin-bottom:8px;border:1px solid #e5e7eb">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center">
-        <div>
-          <strong style="font-size:13px">${item.name}</strong>
-          <div style="font-size:11px;color:#6b7280">(${item.unit})</div>
-        </div>
-        <input type="number" id="qty_${idx}" placeholder="Quantity" style="padding:6px;border:1px solid #d1d5db;border-radius:4px;font-size:13px">
-        <input type="number" id="rate_${idx}" placeholder="Rate/Unit" style="padding:6px;border:1px solid #d1d5db;border-radius:4px;font-size:13px">
-      </div>
-    </div>
-  `).join('');
+  itemsList.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead style="background:#e5e7eb;border-bottom:2px solid #d1d5db">
+        <tr>
+          <th style="padding:8px;text-align:left;border:1px solid #d1d5db">Item Name</th>
+          <th style="padding:8px;text-align:center;border:1px solid #d1d5db">Qty</th>
+          <th style="padding:8px;text-align:center;border:1px solid #d1d5db">Unit</th>
+          <th style="padding:8px;text-align:right;border:1px solid #d1d5db">Rate</th>
+          <th style="padding:8px;text-align:right;border:1px solid #d1d5db">Amount</th>
+          <th style="padding:8px;text-align:right;border:1px solid #d1d5db">Paid</th>
+          <th style="padding:8px;text-align:right;border:1px solid #d1d5db;color:#dc2626">Pending</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${cat.items.map((item,idx) => `
+          <tr style="border-bottom:1px solid #e5e7eb;background:${idx%2===0?'white':'#f9fafb'}">
+            <td style="padding:8px;border:1px solid #d1d5db"><strong style="font-size:12px">${item.name}</strong></td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center">
+              <input type="number" id="qty_${idx}" placeholder="0" style="width:50px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:center" oninput="calculateAmount(${idx})">
+            </td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center">
+              <input type="text" id="unit_${idx}" value="${item.unit}" style="width:60px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:center;font-size:11px">
+            </td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:right">
+              <input type="number" id="rate_${idx}" placeholder="0" style="width:80px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:right" oninput="calculateAmount(${idx})">
+            </td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:right;font-weight:600;color:#059669">
+              <span id="amount_${idx}">₹0</span>
+            </td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:right">
+              <input type="number" id="paid_${idx}" placeholder="0" style="width:70px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:right" oninput="calculatePending(${idx})">
+            </td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:right;font-weight:600;color:#dc2626">
+              <span id="pending_${idx}">₹0</span>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
   
   document.getElementById('multiItemModal').classList.add('show');
   window.multiItemData = {categoryKey, items: cat.items};
+}
+
+function calculateAmount(idx){
+  const qty = parseFloat(document.getElementById(`qty_${idx}`)?.value) || 0;
+  const rate = parseFloat(document.getElementById(`rate_${idx}`)?.value) || 0;
+  const amount = qty * rate;
+  document.getElementById(`amount_${idx}`).textContent = '₹' + amount.toLocaleString('en-IN');
+  calculatePending(idx);
+}
+
+function calculatePending(idx){
+  const amountText = document.getElementById(`amount_${idx}`)?.textContent || '₹0';
+  const amount = parseFloat(amountText.replace('₹','').replace(/,/g,'')) || 0;
+  const paid = parseFloat(document.getElementById(`paid_${idx}`)?.value) || 0;
+  const pending = amount - paid;
+  document.getElementById(`pending_${idx}`).textContent = '₹' + Math.max(0, pending).toLocaleString('en-IN');
 }
 
 function saveMultipleItems(){
@@ -3980,15 +4078,18 @@ function saveMultipleItems(){
   let count = 0;
   
   items.forEach((item, idx) => {
-    const qty = parseFloat(document.getElementById(`qty_${idx}`).value);
-    const rate = parseFloat(document.getElementById(`rate_${idx}`).value);
+    const qty = parseFloat(document.getElementById(`qty_${idx}`)?.value);
+    const rate = parseFloat(document.getElementById(`rate_${idx}`)?.value);
+    const unit = document.getElementById(`unit_${idx}`)?.value || item.unit;
+    const paid = parseFloat(document.getElementById(`paid_${idx}`)?.value) || 0;
     
     if(qty && qty > 0 && rate && rate > 0){
+      const total = qty * rate;
       const entry = {
         id: Date.now() + idx,
         date, type: item.name, supplier, supplier_mobile: mobile,
-        qty, unit: item.unit, rate,
-        total: qty * rate, paid: 0, driver_tip: 0,
+        qty, unit, rate,
+        total, paid, driver_tip: 0,
         invoice: '', paymode, stage: '', note: '', payments: []
       };
       materials.push(entry);
