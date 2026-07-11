@@ -729,190 +729,43 @@ td.mono { font-variant-numeric: tabular-nums; }
       <div class="card-header"><div class="card-title"><span class="ct-icon">➕</span> New Material Entry</div></div>
       <div class="form-grid">
         <div class="fg"><label>Date *</label><input type="date" id="m_date"></div>
-        <div class="fg"><label>Material *</label>
           <select id="m_type" onchange="handleMaterialTypeChange()">
             <option value="">-- Select --</option>
-            <option>Cement</option><option>Sand</option>
-            <option>Aggregate / Metal</option><option>Murum / मुरूम</option>
+            
+            <!-- Multi-Item Categories -->
             <option value="BRICK_MODAL">🧱 BRICK (सब एकत्र)</option>
             <option value="STEEL_MODAL">🔨 STEEL (सब एकत्र)</option>
             <option value="PLUMBING_MODAL">💧 PLUMBING (सब एकत्र)</option>
             <option value="ELECTRICAL_MODAL">🔌 ELECTRICAL (सब एकत्र)</option>
-            <option value="">-- Select --</option>
-            <option>Cement</option><option>Sand</option>
-            <option>Aggregate / Metal</option><option>Murum / मुरूम</option>
+            <option value="GRANITE_MODAL">🪨 GRANITE (सब एकत्र)</option>
             
-            <optgroup label="🧱 Brick - Clay">
-              <option>Brick 4" (Common)</option>
-              <option>Brick 6" (Double)</option>
-              <option>Brick 9" (Solid)</option>
-              <option>Brick (General)</option>
-            </optgroup>
-            
-            <optgroup label="🧱 Brick - Concrete Block">
-              <option>Block 4" (200x200x100)</option>
-              <option>Block 6" (200x200x150)</option>
-              <option>Block 8" (200x200x200)</option>
-              <option>AAC Block (4"/6"/8")</option>
+            <!-- Basic Materials -->
+            <optgroup label="Basic Materials">
+              <option>Cement</option>
+              <option>Sand</option>
+              <option>Aggregate / Metal</option>
+              <option>Murum / मुरूम</option>
+              <option>Fly Ash</option>
             </optgroup>
             
-            <optgroup label="🔨 Steel - TMT Bars">
-              <option>TMT Bar 8mm</option>
-              <option>TMT Bar 10mm</option>
-              <option>TMT Bar 12mm</option>
-              <option>TMT Bar 16mm</option>
-              <option>TMT Bar 20mm</option>
-              <option>TMT Bar 25mm</option>
-              <option>TMT Bar 32mm</option>
+            <!-- Finishing Materials -->
+            <optgroup label="Finishing">
+              <option>Tiles</option>
+              <option>Paint</option>
+              <option>Door</option>
+              <option>Window</option>
+              <option>Centering Material</option>
             </optgroup>
             
-            <optgroup label="🔨 Steel - Sections & Angles">
-              <option>Steel Angle 25x25 mm</option>
-              <option>Steel Angle 30x30 mm</option>
-              <option>Steel Angle 40x40 mm</option>
-              <option>Steel Angle 50x50 mm</option>
-              <option>Steel Channel 75x40 mm</option>
-              <option>Steel Channel 100x50 mm</option>
-              <option>Mild Steel Flat Bar</option>
-              <option>Binding Wire (Soft)</option>
+            <!-- Services -->
+            <optgroup label="Services">
+              <option>Water Tanker</option>
+              <option>Timber</option>
+              <option>Transportation Charges</option>
+              <option>Hamali (Loading/Unloading)</option>
+              <option>Other</option>
             </optgroup>
-            
-            <optgroup label="🔨 Steel - Sheets & Plates">
-              <option>MS Sheet (Mild Steel)</option>
-              <option>GI Sheet (Galvanized Iron)</option>
-              <option>GI Coil</option>
-              <option>Steel Plate 6mm</option>
-              <option>Steel Plate 8mm</option>
-              <option>Steel Plate 10mm</option>
-            </optgroup>
-            
-            <optgroup label="💧 Plumbing - Pipes">
-              <option>PVC Pipe ½" (15mm)</option>
-              <option>PVC Pipe ¾" (20mm)</option>
-              <option>PVC Pipe 1" (25mm)</option>
-              <option>PVC Pipe 1¼" (32mm)</option>
-              <option>PVC Pipe 1½" (40mm)</option>
-              <option>GI Pipe ½" (15mm)</option>
-              <option>GI Pipe ¾" (20mm)</option>
-              <option>GI Pipe 1" (25mm)</option>
-              <option>GI Pipe 1¼" (32mm)</option>
-              <option>GI Pipe 1½" (40mm)</option>
-              <option>Copper Pipe ½"</option>
-              <option>Copper Pipe ¾"</option>
-            </optgroup>
-            
-            <optgroup label="💧 Plumbing - Fittings & Joints">
-              <option>Elbow 90° (½")</option>
-              <option>Elbow 90° (¾")</option>
-              <option>Elbow 90° (1")</option>
-              <option>Elbow 45° (½")</option>
-              <option>Tee Joint (½")</option>
-              <option>Tee Joint (¾")</option>
-              <option>Tee Joint (1")</option>
-              <option>Cross Joint (½")</option>
-              <option>Union Joint (½")</option>
-              <option>Union Joint (¾")</option>
-              <option>Reducer (¾" to ½")</option>
-              <option>Reducer (1" to ¾")</option>
-            </optgroup>
-            
-            <optgroup label="💧 Plumbing - Valves">
-              <option>Ball Valve ½"</option>
-              <option>Ball Valve ¾"</option>
-              <option>Ball Valve 1"</option>
-              <option>Gate Valve ½"</option>
-              <option>Gate Valve ¾"</option>
-              <option>Check Valve ½"</option>
-              <option>Check Valve ¾"</option>
-              <option>Pressure Reducing Valve</option>
-            </optgroup>
-            
-            <optgroup label="💧 Plumbing - Sanitary">
-              <option>WC Pan (Indian)</option>
-              <option>WC Pan (Western)</option>
-              <option>Wash Basin</option>
-              <option>Kitchen Sink</option>
-              <option>Shower Head</option>
-              <option>Tap (Bib)</option>
-              <option>Tap (Basin)</option>
-            </optgroup>
-            
-            <option>Water Tanker</option><option>Timber</option>
-            <option>Tiles</option><option>Paint</option>
-            <optgroup label="🔌 Electrical - Wire & Cable">
-              <option>Wire 1.5 sq mm (Black)</option>
-              <option>Wire 1.5 sq mm (Red)</option>
-              <option>Wire 1.5 sq mm (Yellow)</option>
-              <option>Wire 2.5 sq mm (Black)</option>
-              <option>Wire 2.5 sq mm (Red)</option>
-              <option>Wire 2.5 sq mm (Yellow)</option>
-              <option>Wire 4 sq mm</option>
-              <option>Wire 6 sq mm</option>
-              <option>Cable 2-core (2.5 sq mm)</option>
-              <option>Cable 3-core (2.5 sq mm)</option>
-              <option>Cable 4-core (2.5 sq mm)</option>
-              <option>Earthing Cable (GI)</option>
-            </optgroup>
-            <optgroup label="🔌 Electrical - Boxes & Conduit">
-              <option>Junction Box - Shallow</option>
-              <option>Junction Box - Deep</option>
-              <option>Junction Box - MS (Mild Steel)</option>
-              <option>Fan Box - Ceiling</option>
-              <option>Fan Box - Wall</option>
-              <option>Conduit Pipe (32mm)</option>
-              <option>Conduit Pipe (20mm)</option>
-              <option>Conduit Pipe (16mm)</option>
-              <option>PVC Bend 90° (20mm)</option>
-              <option>PVC Bend 90° (32mm)</option>
-              <option>PVC Coupling (20mm)</option>
-              <option>PVC Coupling (32mm)</option>
-            </optgroup>
-            <optgroup label="🔌 Electrical - Switches & Sockets">
-              <option>1-way Switch</option>
-              <option>2-way Switch</option>
-              <option>3-way Switch</option>
-              <option>4-way Switch / Changeover</option>
-              <option>Socket - Single</option>
-              <option>Socket - Double</option>
-              <option>Socket - Triple</option>
-              <option>15A 3-pin Socket</option>
-              <option>20A 3-pin Socket</option>
-            </optgroup>
-            <optgroup label="🔌 Electrical - Panels & Protection">
-              <option>MCB - Single Pole (6A)</option>
-              <option>MCB - Single Pole (10A)</option>
-              <option>MCB - Single Pole (16A)</option>
-              <option>MCB - Single Pole (20A)</option>
-              <option>MCB - Single Pole (32A)</option>
-              <option>MCB - Double Pole</option>
-              <option>RCD / RCCB (30mA)</option>
-              <option>Distribution Board (DB) - 4 Way</option>
-              <option>Distribution Board (DB) - 6 Way</option>
-              <option>Distribution Board (DB) - 8 Way</option>
-              <option>Earthing Strip / Busbar</option>
-            </optgroup>
-            <optgroup label="🔌 Electrical - Fittings">
-              <option>Ceiling Rose (Bulb Holder)</option>
-              <option>Pendant Holder</option>
-              <option>Lamp Holder (Batten)</option>
-              <option>LED Panel Light Fitting</option>
-              <option>Tube Light Fitting</option>
-              <option>Downlighter Fitting</option>
-              <option>Concealed Fitting</option>
-              <option>Surface Fitting</option>
-            </optgroup>
-            <optgroup label="🔌 Electrical - Appliances">
-              <option>Ceiling Fan</option>
-              <option>Exhaust Fan</option>
-              <option>Panel Heater</option>
-              <option>Water Heater (Geyser)</option>
-              <option>Air Conditioner Unit</option>
-            </optgroup>
-            <option>Door</option><option>Window</option>
-            <option>Centering Material</option>
-            <option>Transportation Charges</option>
-            <option>Hamali (Loading/Unloading)</option>
-            <option>Fly Ash</option><option>Other</option>
+          </select>
           </select>
         </div>
         <div class="fg"><label>Custom Name</label><input type="text" id="m_custom" placeholder="e.g. AAC Block"></div>
@@ -3983,14 +3836,102 @@ const multiItemCategories = {
       {name: 'Panel Heater', unit: 'Piece'},
       {name: 'Water Heater/Geyser', unit: 'Piece'}
     ]
+  },
+  'GRANITE_MODAL': {
+    title: '🪨 Granite Items',
+    items: [
+      {name: 'Granite - Black (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - Black (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - Black (Honed)', unit: 'Square Feet'},
+      {name: 'Granite - Red (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - Red (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - Red (Honed)', unit: 'Square Feet'},
+      {name: 'Granite - Green (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - Green (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - Green (Honed)', unit: 'Square Feet'},
+      {name: 'Granite - White (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - White (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - White (Honed)', unit: 'Square Feet'},
+      {name: 'Granite - Pink (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - Pink (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - Pink (Honed)', unit: 'Square Feet'},
+      {name: 'Granite - Brown (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - Brown (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - Brown (Honed)', unit: 'Square Feet'},
+      {name: 'Granite - Grey (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - Grey (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - Grey (Honed)', unit: 'Square Feet'},
+      {name: 'Granite - Multicolor (Polished)', unit: 'Square Feet'},
+      {name: 'Granite - Multicolor (Flamed)', unit: 'Square Feet'},
+      {name: 'Granite - Multicolor (Honed)', unit: 'Square Feet'},
+      {name: 'Granite Slab (Plain)', unit: 'Square Feet'},
+      {name: 'Granite Countertop', unit: 'Square Feet'},
+      {name: 'Granite Tiles 12x12', unit: 'Square Feet'},
+      {name: 'Granite Tiles 18x18', unit: 'Square Feet'},
+      {name: 'Granite Tiles 24x24', unit: 'Square Feet'},
+      {name: 'Granite Steps', unit: 'Piece'},
+      {name: 'Granite Coping', unit: 'Meter'},
+      {name: 'Granite Border/Strip', unit: 'Meter'}
+    ]
   }
 };
 
 function handleMaterialTypeChange(){
   const type = document.getElementById('m_type').value;
+  
+  // Check if it's a known multi-item category
   if(multiItemCategories[type]){
     openMultiItemModal(type);
     document.getElementById('m_type').value = '';
+    return;
+  }
+  
+  // Auto-detect material type and open correct modal
+  const lowerType = type.toLowerCase();
+  
+  // PLUMBING detection
+  if(lowerType.includes('pipe') || lowerType.includes('pvc') || lowerType.includes('gi pipe') || 
+     lowerType.includes('copper') || lowerType.includes('elbow') || lowerType.includes('tee') || 
+     lowerType.includes('valve') || lowerType.includes('fitting') || lowerType.includes('joint') || 
+     lowerType.includes('wc pan') || lowerType.includes('basin') || lowerType.includes('sink') || 
+     lowerType.includes('shower') || lowerType.includes('tap') || lowerType.includes('reducer')){
+    openMultiItemModal('PLUMBING_MODAL');
+    document.getElementById('m_type').value = '';
+    return;
+  }
+  
+  // BRICK detection
+  if(lowerType.includes('brick') || lowerType.includes('block') || lowerType.includes('aac')){
+    openMultiItemModal('BRICK_MODAL');
+    document.getElementById('m_type').value = '';
+    return;
+  }
+  
+  // STEEL detection
+  if(lowerType.includes('tmt') || lowerType.includes('steel') || lowerType.includes('angle') || 
+     lowerType.includes('channel') || lowerType.includes('bar') || lowerType.includes('rod') || 
+     lowerType.includes('sheet') || lowerType.includes('flat')){
+    openMultiItemModal('STEEL_MODAL');
+    document.getElementById('m_type').value = '';
+    return;
+  }
+  
+  // ELECTRICAL detection
+  if(lowerType.includes('wire') || lowerType.includes('cable') || lowerType.includes('conduit') || 
+     lowerType.includes('switch') || lowerType.includes('socket') || lowerType.includes('mcb') || 
+     lowerType.includes('rcd') || lowerType.includes('db') || lowerType.includes('ceiling') || 
+     lowerType.includes('light') || lowerType.includes('fan') || lowerType.includes('panel') || 
+     lowerType.includes('box') || lowerType.includes('earthing')){
+    openMultiItemModal('ELECTRICAL_MODAL');
+    document.getElementById('m_type').value = '';
+    return;
+  }
+  
+  // GRANITE detection
+  if(lowerType.includes('granite') || lowerType.includes('tile') && lowerType.includes('granite')){
+    openMultiItemModal('GRANITE_MODAL');
+    document.getElementById('m_type').value = '';
+    return;
   }
 }
 
@@ -4026,7 +3967,38 @@ function openMultiItemModal(categoryKey){
               <input type="number" id="qty_${idx}" placeholder="0" style="width:50px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:center" oninput="calculateAmount(${idx})">
             </td>
             <td style="padding:8px;border:1px solid #d1d5db;text-align:center">
-              <input type="text" id="unit_${idx}" value="${item.unit}" style="width:60px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:center;font-size:11px">
+              <select id="unit_${idx}" style="width:60px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:center;font-size:11px">
+                <optgroup label="Weight">
+                  <option ${item.unit==='Kg'?'selected':''}>Kg</option>
+                  <option ${item.unit==='Ton'?'selected':''}>Ton</option>
+                  <option ${item.unit==='Quintal'?'selected':''}>Quintal</option>
+                  <option ${item.unit==='Gram'?'selected':''}>Gram</option>
+                </optgroup>
+                <optgroup label="Volume">
+                  <option ${item.unit==='Litre'?'selected':''}>Litre</option>
+                  <option ${item.unit==='CFT'?'selected':''}>CFT</option>
+                  <option ${item.unit==='Cubic Meter'?'selected':''}>Cubic Meter</option>
+                </optgroup>
+                <optgroup label="Length">
+                  <option ${item.unit==='Meter'?'selected':''}>Meter</option>
+                  <option ${item.unit==='Feet'?'selected':''}>Feet</option>
+                  <option ${item.unit==='Inch'?'selected':''}>Inch</option>
+                </optgroup>
+                <optgroup label="Area">
+                  <option ${item.unit==='Square Feet'?'selected':''}>Square Feet</option>
+                  <option ${item.unit==='Square Meter'?'selected':''}>Square Meter</option>
+                </optgroup>
+                <optgroup label="Quantity">
+                  <option ${item.unit==='Piece'?'selected':''}>Piece</option>
+                  <option ${item.unit==='Dozen'?'selected':''}>Dozen</option>
+                  <option ${item.unit==='Set'?'selected':''}>Set</option>
+                </optgroup>
+                <optgroup label="Container">
+                  <option ${item.unit==='Bag'?'selected':''}>Bag</option>
+                  <option ${item.unit==='Box'?'selected':''}>Box</option>
+                  <option ${item.unit==='Tanker'?'selected':''}>Tanker</option>
+                </optgroup>
+              </select>
             </td>
             <td style="padding:8px;border:1px solid #d1d5db;text-align:right">
               <input type="number" id="rate_${idx}" placeholder="0" style="width:80px;padding:4px;border:1px solid #d1d5db;border-radius:3px;text-align:right" oninput="calculateAmount(${idx})">
