@@ -735,7 +735,6 @@ td.mono { font-variant-numeric: tabular-nums; }
             <!-- Multi-Item Categories -->
             <option value="BRICK_MODAL">🧱 BRICK (सब एकत्र)</option>
             <option value="STEEL_MODAL">🔨 STEEL (सब एकत्र)</option>
-            <option value="PLUMBING_MODAL">💧 PLUMBING (सब एकत्र)</option>
             <option value="ELECTRICAL_MODAL">🔌 ELECTRICAL (सब एकत्र)</option>
             <option value="GRANITE_MODAL">🪨 GRANITE (सब एकत्र)</option>
             
@@ -3758,30 +3757,6 @@ const multiItemCategories = {
       {name: 'GI Sheet', unit: 'Sheet'}
     ]
   },
-  'PLUMBING_MODAL': {
-    title: '💧 Plumbing Items',
-    items: [
-      {name: 'PVC Pipe ½"', unit: 'Meter'},
-      {name: 'PVC Pipe ¾"', unit: 'Meter'},
-      {name: 'PVC Pipe 1"', unit: 'Meter'},
-      {name: 'CPVC Pipe ½"', unit: 'Meter'},
-      {name: 'CPVC Pipe ¾"', unit: 'Meter'},
-      {name: 'CPVC Pipe 1"', unit: 'Meter'},
-      {name: 'GI Pipe ½"', unit: 'Meter'},
-      {name: 'GI Pipe ¾"', unit: 'Meter'},
-      {name: 'GI Pipe 1"', unit: 'Meter'},
-      {name: 'Elbow 90°', unit: 'Piece'},
-      {name: 'Tee Joint', unit: 'Piece'},
-      {name: 'Ball Valve', unit: 'Piece'},
-      {name: 'Gate Valve', unit: 'Piece'},
-      {name: 'WC Pan', unit: 'Piece'},
-      {name: 'Wash Basin', unit: 'Piece'},
-      {name: 'Kitchen Sink', unit: 'Piece'},
-      {name: 'Tap', unit: 'Piece'},
-      {name: 'Pipe Bracket', unit: 'Piece'},
-      {name: 'Flush Valve', unit: 'Piece'}
-    ]
-  },
   'ELECTRICAL_MODAL': {
     title: '🔌 Electrical Items',
     items: [
@@ -3863,17 +3838,6 @@ function handleMaterialTypeChange(){
   
   // Auto-detect material type and open correct modal
   const lowerType = type.toLowerCase();
-  
-  // PLUMBING detection
-  if(lowerType.includes('pipe') || lowerType.includes('pvc') || lowerType.includes('gi pipe') || 
-     lowerType.includes('copper') || lowerType.includes('elbow') || lowerType.includes('tee') || 
-     lowerType.includes('valve') || lowerType.includes('fitting') || lowerType.includes('joint') || 
-     lowerType.includes('wc pan') || lowerType.includes('basin') || lowerType.includes('sink') || 
-     lowerType.includes('shower') || lowerType.includes('tap') || lowerType.includes('reducer')){
-    openMultiItemModal('PLUMBING_MODAL');
-    document.getElementById('m_type').value = '';
-    return;
-  }
   
   // BRICK detection
   if(lowerType.includes('brick') || lowerType.includes('block') || lowerType.includes('aac')){
