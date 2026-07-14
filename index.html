@@ -5612,6 +5612,7 @@ function openEdit(type, id){
       <div class="fg"><label>Unit</label><input type="text" id="ed_unit" value="${item.unit||''}"></div>
       <div class="fg"><label>Unit Rate (₹)</label><input type="number" id="ed_rate" value="${item.rate||''}"></div>
       <div class="fg"><label>Total Amount (₹)</label><input type="number" id="ed_total" value="${item.total||''}"></div>
+      <div class="fg"><label>Advance (₹)</label><input type="number" id="ed_advance" value="${item.advance||0}"></div>
       <div class="fg"><label>Driver Tip (₹)</label><input type="number" id="ed_driver_tip" value="${item.driver_tip||0}"></div>
       <div class="fg"><label>Invoice No.</label><input type="text" id="ed_invoice" value="${item.invoice||''}"></div>
       <div class="fg"><label>Payment Mode</label>
@@ -5634,6 +5635,7 @@ function openEdit(type, id){
       <div class="fg"><label>Name</label><input type="text" id="ed_name" value="${item.name||''}"></div>
       <div class="fg"><label>Mobile</label><input type="tel" id="ed_mobile" value="${item.mobile||''}"></div>
       <div class="fg"><label>Agreed Amount (₹)</label><input type="number" id="ed_total" value="${item.total||''}"></div>
+      <div class="fg"><label>Advance (₹)</label><input type="number" id="ed_advance" value="${item.advance||0}"></div>
       <div class="fg"><label>Area / Details</label><input type="text" id="ed_area" value="${item.area||''}"></div>
       <div class="fg"><label>Driver Tip (₹)</label><input type="number" id="ed_driver_tip" value="${item.driver_tip||0}"></div>
       <div class="fg"><label>Daily Wage (₹)</label><input type="number" id="ed_wage" value="${item.wage||0}"></div>
@@ -5743,6 +5745,7 @@ function confirmEdit(){
     m.supplier_mobile=gv('ed_supplier_mobile');
     m.qty=gv('ed_qty'); m.unit=gv('ed_unit'); m.rate=gv('ed_rate');
     m.total=parseFloat(gv('ed_total'))||m.total;
+    m.advance=parseFloat(gv('ed_advance'))||0;
     m.driver_tip=parseFloat(gv('ed_driver_tip'))||0;
     m.invoice=gv('ed_invoice'); m.paymode=gv('ed_paymode');
     m.stage=gv('ed_stage'); m.note=gv('ed_note');
@@ -5751,6 +5754,7 @@ function confirmEdit(){
     const l = labours.find(x=>String(x.id)===sid); if(!l) return;
     l.date=gv('ed_date'); l.type=gv('ed_type'); l.name=gv('ed_name');
     l.mobile=gv('ed_mobile'); l.total=parseFloat(gv('ed_total'))||l.total;
+    l.advance=parseFloat(gv('ed_advance'))||0;
     l.area=gv('ed_area'); l.driver_tip=parseFloat(gv('ed_driver_tip'))||0;
     l.wage=parseFloat(gv('ed_wage'))||0;
     l.start=gv('ed_start'); l.end=gv('ed_end');
