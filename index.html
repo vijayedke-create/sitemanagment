@@ -5343,14 +5343,19 @@ function renderReport(){
                   <th style="padding:6px;text-align:right;border:1px solid #d1d5db">Amount</th>
                   <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Mode</th>
                   <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Notes</th>
+                  <th style="padding:6px;text-align:center;border:1px solid #d1d5db">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                ${m.payments.map(p=>`<tr style="border:1px solid #d1d5db">
+                ${m.payments.map((p,idx)=>`<tr style="border:1px solid #d1d5db">
                   <td style="padding:6px">${dateStr(p.date||today())}</td>
                   <td style="padding:6px;text-align:right;font-weight:600;color:#10b981">₹${fmt(p.amount)}</td>
                   <td style="padding:6px;color:#6b7280">${p.mode||'—'}</td>
                   <td style="padding:6px;color:#4b5563;font-size:11px;white-space:pre-wrap">${p.note?'📝 '+p.note:'—'}</td>
+                  <td style="padding:6px;text-align:center">
+                    <button class="btn btn-xs" onclick="editMatPayment('${m.id}',${idx})" style="background:#3b82f6;color:white;border:none;padding:3px 6px;border-radius:3px;cursor:pointer;font-size:11px;margin-right:2px">✏️</button>
+                    <button class="btn btn-xs" onclick="deleteMatPayment('${m.id}',${idx})" style="background:#ef4444;color:white;border:none;padding:3px 6px;border-radius:3px;cursor:pointer;font-size:11px">🗑️</button>
+                  </td>
                 </tr>`).join('')}
               </tbody>
             </table>
@@ -5389,6 +5394,7 @@ function renderReport(){
                   <th style="padding:6px;text-align:right;border:1px solid #d1d5db">Amount</th>
                   <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Mode</th>
                   <th style="padding:6px;text-align:left;border:1px solid #d1d5db">Note</th>
+                  <th style="padding:6px;text-align:center;border:1px solid #d1d5db">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -5397,11 +5403,15 @@ function renderReport(){
                   <td style="padding:6px;text-align:right;border:1px solid #d1d5db;font-weight:600;color:#059669">₹${fmt(p.amount)}</td>
                   <td style="padding:6px;border:1px solid #d1d5db">${p.mode||'Cash'}</td>
                   <td style="padding:6px;border:1px solid #d1d5db;color:#4b5563;font-size:11px;white-space:pre-wrap">${p.note?'📝 '+p.note:'—'}</td>
+                  <td style="padding:6px;border:1px solid #d1d5db;text-align:center">
+                    <button class="btn btn-xs" onclick="editLabPayment('${l.id}',${idx})" style="background:#3b82f6;color:white;border:none;padding:3px 6px;border-radius:3px;cursor:pointer;font-size:11px;margin-right:2px">✏️</button>
+                    <button class="btn btn-xs" onclick="deleteLabPayment('${l.id}',${idx})" style="background:#ef4444;color:white;border:none;padding:3px 6px;border-radius:3px;cursor:pointer;font-size:11px">🗑️</button>
+                  </td>
                 </tr>`).join('')}
                 <tr style="background:#fef3c7;font-weight:700">
                   <td style="padding:6px;border:1px solid #d1d5db">TOTAL PAID</td>
                   <td style="padding:6px;text-align:right;border:1px solid #d1d5db;color:#059669">₹${fmt(l.paid)}</td>
-                  <td colspan="2" style="padding:6px;border:1px solid #d1d5db;color:#dc2626">Balance: ₹${fmt(l.total-l.paid)}</td>
+                  <td colspan="3" style="padding:6px;border:1px solid #d1d5db;color:#dc2626">Balance: ₹${fmt(l.total-l.paid)}</td>
                 </tr>
               </tbody>
             </table>
@@ -5423,6 +5433,78 @@ function showMatPaymentDetails(materialId){
   if(row){
     row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
   }
+}
+
+function editMatPayment(materialId, paymentIndex){
+  const mat = materials.find(m => String(m.id) === String(materialId));
+  if(!mat || !mat.payments[paymentIndex]) return;
+  
+  const payment = mat.payments[paymentIndex];
+  
+  document.getElementById('pay_id').value = materialId;
+  document.getElementById('pay_type').value = 'material';
+  document.getElementById('pay_edit_idx').value = paymentIndex;
+  document.getElementById('pay_date').value = payment.date || today();
+  document.getElementById('pay_amount').value = payment.amount || 0;
+  document.getElementById('pay_mode').value = payment.mode || 'Cash';
+  document.getElementById('pay_note').value = payment.note || '';
+  
+  document.getElementById('payModal').querySelector('h3').textContent = '✏️ Edit Payment - Material';
+  const btn = document.querySelector('#payModal .modal-actions button:nth-child(1)');
+  if(btn) btn.textContent = '✏️ Update Payment';
+  
+  document.getElementById('payModal').classList.add('show');
+}
+
+function deleteMatPayment(materialId, paymentIndex){
+  if(!confirm('Payment delete करायचीय? फिरून येईल का?')) return;
+  
+  const mat = materials.find(m => String(m.id) === String(materialId));
+  if(!mat) return;
+  
+  mat.payments.splice(paymentIndex, 1);
+  mat.paid = mat.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  
+  saveAll();
+  renderMaterial();
+  updateNavBadges();
+  showToast('✅ Payment delete झालं!');
+}
+
+function editLabPayment(labourId, paymentIndex){
+  const lab = labours.find(l => String(l.id) === String(labourId));
+  if(!lab || !lab.payments[paymentIndex]) return;
+  
+  const payment = lab.payments[paymentIndex];
+  
+  document.getElementById('pay_id').value = labourId;
+  document.getElementById('pay_type').value = 'labour';
+  document.getElementById('pay_edit_idx').value = paymentIndex;
+  document.getElementById('pay_date').value = payment.date || today();
+  document.getElementById('pay_amount').value = payment.amount || 0;
+  document.getElementById('pay_mode').value = payment.mode || 'Cash';
+  document.getElementById('pay_note').value = payment.note || '';
+  
+  document.getElementById('payModal').querySelector('h3').textContent = '✏️ Edit Payment - Labour';
+  const btn = document.querySelector('#payModal .modal-actions button:nth-child(1)');
+  if(btn) btn.textContent = '✏️ Update Payment';
+  
+  document.getElementById('payModal').classList.add('show');
+}
+
+function deleteLabPayment(labourId, paymentIndex){
+  if(!confirm('Payment delete करायचीय? फिरून येईल का?')) return;
+  
+  const lab = labours.find(l => String(l.id) === String(labourId));
+  if(!lab) return;
+  
+  lab.payments.splice(paymentIndex, 1);
+  lab.paid = lab.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  
+  saveAll();
+  renderLabour();
+  updateNavBadges();
+  showToast('✅ Payment delete झालं!');
 }
 
 function downloadLabourPaymentPDF(){
@@ -5602,6 +5684,8 @@ function openEdit(type, id){
 
   if(type==='material'){
     item = materials.find(x=>String(x.id)===String(id)); if(!item) return;
+    // Initialize advance if missing (for old entries)
+    if(item.advance === undefined) item.advance = 0;
     title.textContent='✏️ Edit Material';
     html=`<div class="form-grid">
       <div class="fg"><label>Date</label><input type="date" id="ed_date" value="${item.date||''}"></div>
@@ -5628,6 +5712,8 @@ function openEdit(type, id){
     </div>`;
   } else if(type==='labour'){
     item = labours.find(x=>String(x.id)===String(id)); if(!item) return;
+    // Initialize advance if missing (for old entries)
+    if(item.advance === undefined) item.advance = 0;
     title.textContent='✏️ Edit Labour';
     html=`<div class="form-grid">
       <div class="fg"><label>Date</label><input type="date" id="ed_date" value="${item.date||''}"></div>
