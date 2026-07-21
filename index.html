@@ -5317,7 +5317,7 @@ function renderReport(){
     </div>`:''}
     <div class="tbl-wrap mb-16">
       <div class="tbl-toolbar"><span class="tbl-toolbar-title">🧱 Material Details</span></div>
-      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Material</th><th>Supplier</th><th>Quantity</th><th>Total</th><th>Paid</th><th>Balance</th><th>Stage</th><th>Payments</th></tr></thead>
+      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Material</th><th>Supplier</th><th>Quantity</th><th>Total</th><th>Paid</th><th>Balance</th><th>Stage</th><th>Action</th></tr></thead>
       <tbody>${materials.map(m=>{
         const hasPayments = m.payments && m.payments.length > 0;
         return `<tr>
@@ -5329,8 +5329,10 @@ function renderReport(){
           <td class="mono text-ok">${fmt(m.paid)}</td>
           <td class="mono" style="color:${m.total-m.paid>0?'var(--err)':'var(--ok)'};font-weight:700">${fmt(m.total-m.paid)}</td>
           <td>${m.stage||'—'}</td>
-          <td>
-            ${hasPayments ? `<button class="btn btn-xs btn-outline" onclick="showMatPaymentDetails('${m.id}')" style="font-size:11px">💳 ${m.payments.length}</button>` : '<span class="text-muted" style="font-size:11px">—</span>'}
+          <td style="text-align:center">
+            ${hasPayments ? `<button class="btn btn-xs" onclick="openPaymentEditListMat('${m.id}')" style="background:#10b981;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px;margin-right:2px">💳 ${m.payments.length}</button>` : '<span class="text-muted" style="font-size:11px">—</span>'}
+            <button class="btn btn-xs" onclick="openEdit('material','${m.id}')" style="background:#3b82f6;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px;margin-right:2px">✏️</button>
+            <button class="btn btn-xs" onclick="delMat('${m.id}')" style="background:#ef4444;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px">🗑️</button>
           </td>
         </tr>
         ${hasPayments ? `<tr id="mat_payment_details_${m.id}" style="display:none">
@@ -5368,7 +5370,7 @@ function renderReport(){
         <span class="tbl-toolbar-title">👷 Labour Details</span>
         <button class="btn btn-acc btn-sm" onclick="downloadLabourPaymentPDF()" style="margin-left:auto">📄 Download PDF</button>
       </div>
-      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Work</th><th>Name</th><th>Mobile</th><th>Agreed</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Payments</th></tr></thead>
+      <div class="tbl-scroll"><table><thead><tr><th>Date</th><th>Work</th><th>Name</th><th>Mobile</th><th>Agreed</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Action</th></tr></thead>
       <tbody>${labours.map(l=>{
         const hasPayments = l.payments && l.payments.length > 0;
         return `<tr>
@@ -5380,8 +5382,10 @@ function renderReport(){
           <td class="mono text-ok">${fmt(l.paid)}</td>
           <td class="mono" style="color:${l.total-l.paid>0?'var(--err)':'var(--ok)'};font-weight:700">${fmt(l.total-l.paid)}</td>
           <td>${l.progress||0}%</td>
-          <td>
-            ${hasPayments ? `<button class="btn btn-xs btn-outline" onclick="showPaymentDetails('${l.id}')" style="font-size:11px">📋 ${l.payments.length} entries</button>` : '<span class="text-muted" style="font-size:11px">—</span>'}
+          <td style="text-align:center">
+            ${hasPayments ? `<button class="btn btn-xs" onclick="openPaymentEditList('${l.id}')" style="background:#10b981;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px;margin-right:2px">💳 ${l.payments.length}</button>` : '<span class="text-muted" style="font-size:11px">—</span>'}
+            <button class="btn btn-xs" onclick="openEdit('labour','${l.id}')" style="background:#3b82f6;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px;margin-right:2px">✏️</button>
+            <button class="btn btn-xs" onclick="delLab('${l.id}')" style="background:#ef4444;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px">🗑️</button>
           </td>
         </tr>
         ${hasPayments ? `<tr id="payment_details_${l.id}" style="display:none">
@@ -5490,6 +5494,77 @@ function editLabPayment(labourId, paymentIndex){
   if(btn) btn.textContent = '✏️ Update Payment';
   
   document.getElementById('payModal').classList.add('show');
+}
+
+function openPaymentEditList(labourId){
+  const lab = labours.find(l => String(l.id) === String(labourId));
+  if(!lab || !lab.payments || lab.payments.length === 0) return;
+  
+  if(lab.payments.length === 1){
+    editLabPayment(labourId, 0);
+    return;
+  }
+  
+  // Multiple payments - show list
+  const list = lab.payments.map((p,idx) => 
+    `${dateStr(p.date||today())} - ₹${fmt(p.amount)} (${p.mode||'Cash'})`
+  ).join('\n');
+  
+  const selected = prompt('कौन सा payment edit करायचा?\n\n' + list + '\n\nनंबर type करा (1, 2, 3, etc):', '1');
+  if(selected){
+    const idx = parseInt(selected) - 1;
+    if(idx >= 0 && idx < lab.payments.length){
+      editLabPayment(labourId, idx);
+    } else {
+      showToast('Invalid selection!', 'warn');
+    }
+  }
+}
+
+function editMatPayment(materialId, paymentIndex){
+  const mat = materials.find(m => String(m.id) === String(materialId));
+  if(!mat || !mat.payments[paymentIndex]) return;
+  
+  const payment = mat.payments[paymentIndex];
+  
+  document.getElementById('pay_id').value = materialId;
+  document.getElementById('pay_type').value = 'material';
+  document.getElementById('pay_edit_idx').value = paymentIndex;
+  document.getElementById('pay_date').value = payment.date || today();
+  document.getElementById('pay_amount').value = payment.amount || 0;
+  document.getElementById('pay_mode').value = payment.mode || 'Cash';
+  document.getElementById('pay_note').value = payment.note || '';
+  
+  document.getElementById('payModal').querySelector('h3').textContent = '✏️ Edit Payment - Material';
+  const btn = document.querySelector('#payModal .modal-actions button:nth-child(1)');
+  if(btn) btn.textContent = '✏️ Update Payment';
+  
+  document.getElementById('payModal').classList.add('show');
+}
+
+function openPaymentEditListMat(materialId){
+  const mat = materials.find(m => String(m.id) === String(materialId));
+  if(!mat || !mat.payments || mat.payments.length === 0) return;
+  
+  if(mat.payments.length === 1){
+    editMatPayment(materialId, 0);
+    return;
+  }
+  
+  // Multiple payments - show list
+  const list = mat.payments.map((p,idx) => 
+    `${dateStr(p.date||today())} - ₹${fmt(p.amount)} (${p.mode||'Cash'})`
+  ).join('\n');
+  
+  const selected = prompt('कौन सा payment edit करायचा?\n\n' + list + '\n\nनंबर type करा (1, 2, 3, etc):', '1');
+  if(selected){
+    const idx = parseInt(selected) - 1;
+    if(idx >= 0 && idx < mat.payments.length){
+      editMatPayment(materialId, idx);
+    } else {
+      showToast('Invalid selection!', 'warn');
+    }
+  }
 }
 
 function deleteLabPayment(labourId, paymentIndex){
